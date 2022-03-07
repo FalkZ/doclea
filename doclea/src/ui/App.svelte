@@ -6,8 +6,28 @@
   import Folder from 'tabler-icons-svelte/icons/Folder.svelte'
   import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
   import Cloud from 'tabler-icons-svelte/icons/Cloud.svelte'
+  import { onMount } from 'svelte'
+  import { renderTLDrawToElement } from './tldraw/editor'
+  import { ColorStyle, TDShapeType } from '@tldraw/tldraw'
 
-  //import type LocalDirectoryEntry from '@storage-framework/localfs-adapter/LocalDirectoryEntry'
+  let tldraw
+  onMount(() => {
+    renderTLDrawToElement(tldraw).then((api) => {
+      api
+        .createShapes({
+          id: 'rect1',
+          type: TDShapeType.Rectangle,
+          point: [100, 100],
+          size: [200, 200]
+        })
+        .selectAll()
+        .nudge([1, 1], true)
+        .duplicate()
+        .select('rect1')
+        .style({ color: ColorStyle.Blue })
+        .selectNone()
+    })
+  })
 </script>
 
 <main>
@@ -16,6 +36,7 @@
     <Button><BrandGithub /> Open Github Project</Button>
     <Button><Cloud /> Open Solid Folder</Button>
   </div>
+  <div bind:this={tldraw} />
   <Editor defaultValue={content} />
 </main>
 
