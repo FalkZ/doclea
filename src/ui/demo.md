@@ -1,4 +1,4 @@
-# Doclea
+# doclea
 
 ![greeting bear](/polar.jpeg)
 
@@ -97,3 +97,4 @@ Have fun!
 [remark]: https://github.com/remarkjs/remark
 [mirone]: https://github.com/Saul-Mirone
 [meo]: https://www.meo.cool/
+
