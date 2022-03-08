@@ -9,23 +9,12 @@
   import { onMount } from 'svelte'
   import { renderTLDrawToElement } from './tldraw/editor'
   import { ColorStyle, TDShapeType } from '@tldraw/tldraw'
+  import { prefersDarkMode } from './prefersDarkMode'
 
   let tldraw
   onMount(() => {
     renderTLDrawToElement(tldraw).then((api) => {
-      api
-        .createShapes({
-          id: 'rect1',
-          type: TDShapeType.Rectangle,
-          point: [100, 100],
-          size: [200, 200]
-        })
-        .selectAll()
-        .nudge([1, 1], true)
-        .duplicate()
-        .select('rect1')
-        .style({ color: ColorStyle.Blue })
-        .selectNone()
+      if (prefersDarkMode) api.toggleDarkMode()
     })
   })
 </script>
@@ -36,8 +25,10 @@
     <Button><BrandGithub /> Open Github Project</Button>
     <Button><Cloud /> Open Solid Folder</Button>
   </div>
-  <div bind:this={tldraw} />
-  <Editor defaultValue={content} />
+  <div>
+    <Editor defaultValue={content} />
+    <div bind:this={tldraw} />
+  </div>
 </main>
 
 <style>

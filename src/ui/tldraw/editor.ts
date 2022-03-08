@@ -13,7 +13,11 @@ function Component({ resolveApi }) {
     resolveApi(app)
   }, [])
 
-  return React.createElement(Tldraw, { onMount: handleMount }, null)
+  return React.createElement(
+    Tldraw,
+    { onMount: handleMount, showMenu: false, showPages: false },
+    null
+  )
 }
 
 export function renderTLDrawToElement(
