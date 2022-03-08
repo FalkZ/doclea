@@ -1,5 +1,7 @@
 # doclea
 
+![fdfd](data:image/svg+xml;base64,dlkjfalkfd)
+
 ![greeting bear](/polar.jpeg)
 
 > Milkdown is a WYSIWYG markdown editor framework.

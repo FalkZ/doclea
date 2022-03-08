@@ -39,8 +39,10 @@
     "@milkdown/preset-gfm": "^5.5.0",
     "@milkdown/prose": "^5.5.0",
     "@milkdown/theme-nord": "^5.5.0",
+    "@milkdown/utils": "^5.5.0",
     "@tldraw/tldraw": "^1.8.1",
     "mobx": "^6.4.2",
+    "prism-themes": "^1.9.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   }

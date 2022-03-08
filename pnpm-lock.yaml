@@ -19,10 +19,12 @@ specifiers:
   '@milkdown/preset-gfm': ^5.5.0
   '@milkdown/prose': ^5.5.0
   '@milkdown/theme-nord': ^5.5.0
+  '@milkdown/utils': ^5.5.0
   '@sveltejs/vite-plugin-svelte': ^1.0.0-next.30
   '@tldraw/tldraw': ^1.8.1
   '@tsconfig/svelte': ^2.0.1
   mobx: ^6.4.2
+  prism-themes: ^1.9.0
   react: ^17.0.2
   react-dom: ^17.0.2
   svelte: ^3.44.0
@@ -52,8 +54,10 @@ dependencies:
   '@milkdown/preset-gfm': 5.5.0_b8e99fb6b049dba03aaadac54edfd796
   '@milkdown/prose': 5.5.0
   '@milkdown/theme-nord': 5.5.0_ee3a878e89576bb62ebc7021836857a7
+  '@milkdown/utils': 5.5.0_ee3a878e89576bb62ebc7021836857a7
   '@tldraw/tldraw': 1.8.1_4e589064ce40a783661f96d46f38f574
   mobx: 6.4.2
+  prism-themes: 1.9.0
   react: 17.0.2
   react-dom: 17.0.2_react@17.0.2
 
@@ -3125,6 +3129,10 @@ packages:
       picocolors: 1.0.0
       source-map-js: 1.0.2
     dev: true
+
+  /prism-themes/1.9.0:
+    resolution: {integrity: sha512-tX2AYsehKDw1EORwBps+WhBFKc2kxfoFpQAjxBndbZKr4fRmMkv47XN0BghC/K1qwodB1otbe4oF23vUTFDokw==}
+    dev: false
 
   /prismjs/1.27.0:
     resolution: {integrity: sha512-t13BGPUlFDR7wRB5kQDG4jjl7XeuH6jbJGt11JHPL96qwsEHNX2+68tFXqc1/k+/jALsbSWJKUOT/hcYAZ5LkA==}
