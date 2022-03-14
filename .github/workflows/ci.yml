@@ -16,3 +16,8 @@ jobs:
           version: 6.*
           run_install: true
       - run: pnpm run build --if-present
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - run: pnpm test
