@@ -3,7 +3,7 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  BuildAndTest:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -11,7 +11,7 @@ jobs:
         with:
           version: 6.*
           run_install: true
-      - name: run build
+      - name: build
         run: pnpm run build --if-present
-      - name: run test
-        run: pnpm run test
+      #- name: test
+      #  run: pnpm run test
