@@ -27,7 +27,7 @@
   </div>
   <div>
     <Editor defaultValue={content} />
-    <div bind:this={tldraw} />
+    <!-- <div bind:this={tldraw} /> -->
   </div>
 </main>
 
@@ -54,8 +54,13 @@
     top: 0.1em;
   }
   #sidepane {
-    position: sticky;
     top: 0;
     height: 100vh;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(body) {
+      background: #2e3440;
+    }
   }
 </style>

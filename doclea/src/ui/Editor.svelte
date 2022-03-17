@@ -40,7 +40,7 @@
       .use(indent)
       .use(upload)
       .use(slash)
-      .use(menu)
+      .use(menu())
       .create()
   }
 </script>
@@ -57,4 +57,13 @@
 <div use:editor />
 
 <style>
+  div {
+    position: relative;
+    height: 100%;
+  }
+  :global(.milkdown-menu) {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
 </style>
