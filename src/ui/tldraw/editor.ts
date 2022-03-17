@@ -2,8 +2,6 @@ import * as React from 'react'
 import { Tldraw, TldrawApp, TDShapeType, ColorStyle } from '@tldraw/tldraw'
 import ReactDOM from 'react-dom'
 
-declare const window: Window & { app: TldrawApp }
-
 function Component({ resolveApi }) {
   const rTldrawApp = React.useRef<TldrawApp>()
 

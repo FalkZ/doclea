@@ -86,7 +86,6 @@
     top: 0.1em;
   }
   #sidepane {
-    position: sticky;
     top: 0;
     height: 100vh;
   }
