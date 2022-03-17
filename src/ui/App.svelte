@@ -6,6 +6,17 @@
   import Folder from 'tabler-icons-svelte/icons/Folder.svelte'
   import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
   import Cloud from 'tabler-icons-svelte/icons/Cloud.svelte'
+  import { onMount } from 'svelte'
+  import { renderTLDrawToElement } from './tldraw/editor'
+  import { ColorStyle, TDShapeType } from '@tldraw/tldraw'
+  import { prefersDarkMode } from './prefersDarkMode'
+
+  let tldraw
+  onMount(() => {
+    renderTLDrawToElement(tldraw).then((api) => {
+      if (prefersDarkMode) api.toggleDarkMode()
+    })
+  })
 </script>
 
 <main>
@@ -14,7 +25,10 @@
     <Button><BrandGithub /> Open Github Project</Button>
     <Button><Cloud /> Open Solid Folder</Button>
   </div>
-  <Editor defaultValue={content} />
+  <div>
+    <Editor defaultValue={content} />
+    <!-- <div bind:this={tldraw} /> -->
+  </div>
 </main>
 
 <style>
@@ -40,8 +54,13 @@
     top: 0.1em;
   }
   #sidepane {
-    position: sticky;
     top: 0;
     height: 100vh;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(body) {
+      background: #2e3440;
+    }
   }
 </style>
