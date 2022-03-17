@@ -24,6 +24,7 @@ specifiers:
   '@tldraw/tldraw': ^1.8.1
   '@tsconfig/svelte': ^2.0.1
   mobx: ^6.4.2
+  nanoid: ^3.3.1
   prism-themes: ^1.9.0
   react: ^17.0.2
   react-dom: ^17.0.2
@@ -33,6 +34,7 @@ specifiers:
   tabler-icons-svelte: ^1.7.0
   tslib: ^2.3.1
   typescript: ^4.5.4
+  unist-util-visit: ^4.1.0
   vite: ^2.8.0
 
 dependencies:
@@ -57,9 +59,11 @@ dependencies:
   '@milkdown/utils': 5.5.0_ee3a878e89576bb62ebc7021836857a7
   '@tldraw/tldraw': 1.8.1_4e589064ce40a783661f96d46f38f574
   mobx: 6.4.2
+  nanoid: 3.3.1
   prism-themes: 1.9.0
   react: 17.0.2
   react-dom: 17.0.2_react@17.0.2
+  unist-util-visit: 4.1.0
 
 devDependencies:
   '@sveltejs/vite-plugin-svelte': 1.0.0-next.38_svelte@3.46.4+vite@2.8.4
