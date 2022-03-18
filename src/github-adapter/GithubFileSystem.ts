@@ -1,3 +1,3 @@
-import { StorageFrameworkFileSystem } from '@lib/StorageFrameworkFileSystem'
+import type { StorageFrameworkProvider } from '@lib/StorageFrameworkEntry'
 
-export class GithubFileSystem implements StorageFrameworkFileSystem {}
+export class GithubFileSystem implements StorageFrameworkProvider {}
