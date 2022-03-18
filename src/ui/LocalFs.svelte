@@ -1,5 +1,5 @@
 <script lang="ts">
-  import LocalDirectoryEntry from '../localfs-adapter/LocalDirectoryEntry'
+  import LocalDirectoryEntry from '@src/localfs-adapter/LocalDirectoryEntry'
 
   let target
 
