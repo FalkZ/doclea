@@ -11,8 +11,12 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
   isDirectory: false
   isFile: true
   path: string
-  constructor(path) {
-    this.path = path
+  name: string
+  private file: FileSystemFileEntry
+  constructor(file: FileSystemFileEntry) {
+    this.file = file
+    this.path = file.fullPath
+    this.name = file.name
   }
   read(): Result<SFFile, SFError> {
     throw new Error('Method not implemented.')

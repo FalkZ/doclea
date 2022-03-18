@@ -47,8 +47,9 @@ export default class LocalDirectoryEntry
       resolve(
         entries.map((entry) => {
           console.log('--- ', entry)
-          if (entry.isDirectory) return new LocalDirectoryEntry(entry)
-          else return new LocalFileEntry(entry, this.directory)
+          if (entry.isDirectory)
+            return new LocalDirectoryEntry(<FileSystemDirectoryEntry>entry)
+          else return new LocalFileEntry(<FileSystemFileEntry>entry)
         })
       )
     })
@@ -60,7 +61,7 @@ export default class LocalDirectoryEntry
         name,
         { create: true },
         function (file) {
-          resolve(new LocalFileEntry(file.fullPath))
+          resolve(new LocalFileEntry(<FileSystemFileEntry>file))
         },
         (err) => reject(err)
       )
@@ -75,7 +76,7 @@ export default class LocalDirectoryEntry
         name,
         { create: true },
         function (folder) {
-          resolve(new LocalDirectoryEntry(folder))
+          resolve(new LocalDirectoryEntry(<FileSystemDirectoryEntry>folder))
         },
         (err) => reject(err)
       )
@@ -86,7 +87,7 @@ export default class LocalDirectoryEntry
     return new Result((resolve, reject) => {
       this.directory.getParent(
         (parent) => {
-          resolve(new LocalDirectoryEntry(parent))
+          resolve(new LocalDirectoryEntry(<FileSystemDirectoryEntry>parent))
         },
         (err) => reject(err)
       )
