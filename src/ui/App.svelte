@@ -2,6 +2,7 @@
   import Editor from './Editor.svelte'
   import content from './demo.md?raw'
   import Button from './Button.svelte'
+  import LocalFs from './LocalFs.svelte'
 
   import Folder from 'tabler-icons-svelte/icons/Folder.svelte'
   import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
@@ -9,6 +10,7 @@
 </script>
 
 <main>
+  <LocalFs />
   <div id="sidepane">
     <Button><Folder /> Open Local File</Button>
     <Button><BrandGithub /> Open Github Project</Button>

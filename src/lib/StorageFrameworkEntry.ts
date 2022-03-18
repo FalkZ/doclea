@@ -7,7 +7,7 @@ export interface StorageFrameworkProvider {
   open(): Result<StorageFrameworkEntry, SFError>
 }
 
-interface StorageFrameworkEntry {
+export interface StorageFrameworkEntry {
   // todo: mabye path class
   // todo: last modified
   readonly fullPath: string
