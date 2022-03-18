@@ -4,8 +4,8 @@ import type {
   StorageFrameworkFileEntry,
   StorageFrameworkEntry,
 } from '@lib/StorageFrameworkEntry'
-import { Result } from '@lib/utitities'
-import type { OkOrError } from '@lib/utitities'
+import { Result } from '@lib/utilities'
+import type { OkOrError } from '@lib/utilities'
 import { LocalFileEntry } from './LocalFileEntry'
 
 export default class LocalDirectoryEntry

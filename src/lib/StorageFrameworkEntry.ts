@@ -1,4 +1,4 @@
-import type { Result, OkOrError } from './utitities'
+import type { Result, OkOrError } from './utilities'
 import type { SFError } from './SFError'
 import type { SFFile } from './SFFile'
 
@@ -7,6 +7,9 @@ export interface StorageFrameworkProvider {
   open(): Result<StorageFrameworkEntry, SFError>
 }
 
+/**
+ * Do not implement. Implement {@link StorageFrameworkFileEntry} and {@link StorageFrameworkDirectoryEntry} instead
+ */
 export interface StorageFrameworkEntry {
   // todo: mabye path class
   // todo: last modified
