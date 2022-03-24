@@ -11,7 +11,10 @@
     console.log('Root: ', root)
     console.log(
       'Children: ',
-      root.getChildren().then((res) => res)
+      root.getChildren().then((res) => {
+        console.log('Read entries from file drop: ', res)
+        return res
+      })
     )
     console.log(
       'Parent: ',

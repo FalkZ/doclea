@@ -15,10 +15,19 @@
       try {
         let root = await new LocalFileSystem().open()
         console.log(root)
-        ;(<LocalDirectoryEntry>root).createFile('Testfile').then((file) => {
-          file.save(new File(['test'], 'testfile'))
-          return file
-        })
+        ;(<LocalDirectoryEntry>root)
+          .createFile('Testfile')
+          .then((file) => {
+            file.save(new File(['test'], 'testfile'))
+            return file
+          })
+          .then((file) => {
+            ;(<LocalDirectoryEntry>root).getChildren().then((children) => {
+              console.log('Read children from root: ', children)
+              return children
+            })
+            return file
+          })
       } catch (err) {
         console.log(err.reason)
       }

@@ -20,6 +20,8 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
     this.file = file
     this.fullPath = file.fullPath
     this.name = file.name
+    this.isDirectory = false
+    this.isFile = true
     this.file.file((file) => (this.lastModified = file.lastModified))
     this.file.getParent((parent) => {
       this.parent = new LocalDirectoryEntry(<FileSystemDirectoryEntry>parent)

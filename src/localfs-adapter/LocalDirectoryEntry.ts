@@ -24,38 +24,34 @@ export default class LocalDirectoryEntry
     this.filesystem.root
     this.name = directory.name
     this.fullPath = directory.fullPath
-    this.getChildren()
+    this.isDirectory = true
+    this.isFile = false
   }
 
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
     return new Result((resolve, reject) => {
       const reader = this.directory.createReader()
-      const entries: FileSystemEntry[] = []
+      let entries: FileSystemEntry[] = []
 
-      const getEntries = () => {
-        reader.readEntries(
-          (results) => {
-            console.log('Reading results... ', results)
-            if (results.length) {
-              entries.push(...results)
-            }
-          },
-          (error) =>
-            reject(
-              new SFError(
-                `Failed to get directory entries in ${this.fullPath}`,
-                error
-              )
+      reader.readEntries(
+        (results) => {
+          console.log('Reading results... ', results)
+          entries = results
+          resolve(
+            entries.map((entry) => {
+              if (entry.isDirectory)
+                return new LocalDirectoryEntry(<FileSystemDirectoryEntry>entry)
+              else return new LocalFileEntry(<FileSystemFileEntry>entry)
+            })
+          )
+        },
+        (error) =>
+          reject(
+            new SFError(
+              `Failed to get directory entries in ${this.fullPath}`,
+              error
             )
-        )
-      }
-      getEntries()
-      resolve(
-        entries.map((entry) => {
-          if (entry.isDirectory)
-            return new LocalDirectoryEntry(<FileSystemDirectoryEntry>entry)
-          else return new LocalFileEntry(<FileSystemFileEntry>entry)
-        })
+          )
       )
     })
   }
