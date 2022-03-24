@@ -6,7 +6,8 @@
   //$: console.log(target)
 
   function dropHandler(event) {
-    let root = new LocalDirectoryEntry(event.target['webkitEntries'][0])
+    let entries = event.target['webkitEntries'][0]
+    let root = new LocalDirectoryEntry(entries)
     console.log('Root: ', root)
     console.log(
       'Children: ',
@@ -25,7 +26,6 @@
   name="fileList"
   on:input={dropHandler}
   multiple
-  webkitdirectory
 />
 
 <style>
