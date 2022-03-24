@@ -9,3 +9,7 @@ pnpm install
 ```
 pnpm run dev
 ```
+
+# Information on platform support
+
+- on Elementary OS Linux distribution Chromium has to be started with option --unlimited-storage (chromium --unlimited-storage) in order to open a local FileSystem
