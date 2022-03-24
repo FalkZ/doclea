@@ -6,12 +6,16 @@
   //$: console.log(target)
 
   function dropHandler(event) {
-    console.log(' --------------', event)
     let root = new LocalDirectoryEntry(event.target['webkitEntries'][0])
-  }
-
-  function dragHandler(event) {
-    event.target.classList.add('selected')
+    console.log('Root: ', root)
+    console.log(
+      'Children: ',
+      root.getChildren().then((res) => res)
+    )
+    console.log(
+      'Parent: ',
+      root.getParent().then((res) => res)
+    )
   }
 </script>
 
@@ -20,18 +24,14 @@
   id="filedropper"
   name="fileList"
   on:input={dropHandler}
-  on:dragover={dragHandler}
   multiple
+  webkitdirectory
 />
 
 <style>
-  #filedropper.selected {
-    background-color: red;
-  }
-
   #filedropper {
-    height: 100px;
-    width: 200px;
+    height: 10vh;
+    width: 15vw;
     background-color: aliceblue;
   }
 </style>

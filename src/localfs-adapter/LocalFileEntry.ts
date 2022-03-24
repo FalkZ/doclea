@@ -1,41 +1,87 @@
-import type { SFError } from '@lib/SFError'
-import type { SFFile } from '@lib/SFFile'
+import { SFError } from '@lib/SFError'
+import { SFFile } from '@lib/SFFile'
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkFileEntry,
 } from '@lib/StorageFrameworkEntry'
-import type { Result, OkOrError } from '@lib/utilities'
-import type LocalDirectoryEntry from './LocalDirectoryEntry'
+import { Result, OkOrError } from '@lib/utilities'
+import LocalDirectoryEntry from './LocalDirectoryEntry'
 
 export class LocalFileEntry implements StorageFrameworkFileEntry {
   isDirectory: false
   isFile: true
-  path: string
-  name: string
-  private file: FileSystemFileEntry
-  constructor(file: FileSystemFileEntry) {
-    this.file = file
-    this.path = file.fullPath
-    this.name = file.name
-  }
-  read(): Result<SFFile, SFError> {
-    throw new Error('Method not implemented.')
-  }
-  save(file: File): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
-  }
   fullPath: string
   name: string
+  lastModified: number
+  private parent: StorageFrameworkDirectoryEntry
+  file: FileSystemFileEntry
+
+  constructor(file: FileSystemFileEntry) {
+    this.file = file
+    this.fullPath = file.fullPath
+    this.name = file.name
+    this.file.file((file) => (this.lastModified = file.lastModified))
+    this.file.getParent((parent) => {
+      this.parent = new LocalDirectoryEntry(<FileSystemDirectoryEntry>parent)
+    })
+  }
+
+  read(): Result<SFFile, SFError> {
+    return new Result((resolve, reject) => {
+      this.file.file(
+        (file) => {
+          let reader = new FileReader()
+          reader.readAsArrayBuffer(file)
+          reader.onload = (ev) => {
+            let blob = reader.result
+            resolve(new SFFile(this.name, this.lastModified, blob))
+          }
+        },
+        (err) => reject(new SFError('Failed to read file', err))
+      )
+    })
+  }
+  save(file: File): OkOrError<SFError> {
+    return new Result((resolve, reject) => {
+      this.file.createWriter(
+        (fileWriter) => {
+          fileWriter.write(file)
+          console.log('Saved file: ', file)
+          resolve()
+        },
+        (err) => reject(new SFError('Failed to save file', err))
+      )
+    })
+  }
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => resolve(this.parent))
   }
+
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      resolve()
+    })
   }
+
   rename(name: string): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      this.file.moveTo(
+        this.getParent(),
+        name,
+        (dir) => resolve(),
+        (err) =>
+          reject(
+            new SFError(`Failed to rename ${this.fullPath} to ${name}`, err)
+          )
+      )
+    })
   }
   remove(): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      this.file.remove(
+        () => resolve(),
+        (err) => reject(new SFError(`Failed to remove ${this.fullPath}`, err))
+      )
+    })
   }
 }

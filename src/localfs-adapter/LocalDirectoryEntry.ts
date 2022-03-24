@@ -13,7 +13,7 @@ export default class LocalDirectoryEntry
 {
   isDirectory: true
   isFile: false
-  private directory: FileSystemDirectoryEntry
+  directory: FileSystemDirectoryEntry
   fullPath: string
   name: string
   private filesystem: FileSystem
@@ -22,6 +22,8 @@ export default class LocalDirectoryEntry
     this.directory = directory
     this.filesystem = directory.filesystem
     this.filesystem.root
+    this.name = directory.name
+    this.fullPath = directory.fullPath
     this.getChildren()
   }
 
@@ -33,20 +35,23 @@ export default class LocalDirectoryEntry
       const getEntries = () => {
         reader.readEntries(
           (results) => {
+            console.log('Reading results... ', results)
             if (results.length) {
               entries.push(...results)
-              getEntries()
             }
           },
           (error) =>
-            reject(new SFError('Failed to get directory entries', error))
+            reject(
+              new SFError(
+                `Failed to get directory entries in ${this.fullPath}`,
+                error
+              )
+            )
         )
       }
-
       getEntries()
       resolve(
         entries.map((entry) => {
-          console.log('--- ', entry)
           if (entry.isDirectory)
             return new LocalDirectoryEntry(<FileSystemDirectoryEntry>entry)
           else return new LocalFileEntry(<FileSystemFileEntry>entry)
@@ -57,13 +62,21 @@ export default class LocalDirectoryEntry
 
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
     return new Result((resolve, reject) => {
+      let thatDir = this.directory
       this.directory.getFile(
         name,
         { create: true },
         function (file) {
-          resolve(new LocalFileEntry(<FileSystemFileEntry>file))
+          let fileEntry = new LocalFileEntry(<FileSystemFileEntry>file)
+          resolve(fileEntry)
         },
-        (err) => reject(err)
+        (err) =>
+          reject(
+            new SFError(
+              `Failed to create file ${name} in ${this.fullPath}`,
+              err
+            )
+          )
       )
     })
   }
@@ -78,7 +91,13 @@ export default class LocalDirectoryEntry
         function (folder) {
           resolve(new LocalDirectoryEntry(<FileSystemDirectoryEntry>folder))
         },
-        (err) => reject(err)
+        (err) =>
+          reject(
+            new SFError(
+              `Failed to create directory ${name} in ${this.fullPath}`,
+              err
+            )
+          )
       )
     })
   }
@@ -89,18 +108,41 @@ export default class LocalDirectoryEntry
         (parent) => {
           resolve(new LocalDirectoryEntry(<FileSystemDirectoryEntry>parent))
         },
-        (err) => reject(err)
+        (err) =>
+          reject(
+            new SFError(`Parent directory of ${this.fullPath} not found`, err)
+          )
       )
     })
   }
 
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => resolve())
   }
+
   rename(name: string): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      this.directory.moveTo(
+        this.getParent(),
+        name,
+        (dir) => resolve(),
+        (err) =>
+          reject(
+            new SFError(`Failed to rename ${this.fullPath} to ${name}`, err)
+          )
+      )
+    })
   }
+
   remove(): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      this.directory.removeRecursively(
+        () => resolve(),
+        (err) =>
+          reject(
+            new SFError(`Failed to remove directory ${this.fullPath}`, err)
+          )
+      )
+    })
   }
 }
