@@ -32,12 +32,7 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
     return new Result((resolve, reject) => {
       this.file.file(
         (file) => {
-          let reader = new FileReader()
-          reader.readAsArrayBuffer(file)
-          reader.onload = (ev) => {
-            let blob = reader.result
-            resolve(new SFFile(this.name, this.lastModified, blob))
-          }
+          resolve(new SFFile(this.name, this.lastModified, [file]))
         },
         (err) => reject(new SFError('Failed to read file', err))
       )
@@ -61,7 +56,12 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
 
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result((resolve, reject) => {
-      resolve()
+      this.file.moveTo(
+        (<LocalDirectoryEntry>directory).getDirectoryEntry(),
+        this.name,
+        () => resolve(),
+        (err) => {}
+      )
     })
   }
 

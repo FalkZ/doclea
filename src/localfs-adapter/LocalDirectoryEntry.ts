@@ -13,7 +13,7 @@ export default class LocalDirectoryEntry
 {
   isDirectory: true
   isFile: false
-  directory: FileSystemDirectoryEntry
+  private directory: FileSystemDirectoryEntry
   fullPath: string
   name: string
   private filesystem: FileSystem
@@ -26,6 +26,10 @@ export default class LocalDirectoryEntry
     this.fullPath = directory.fullPath
     this.isDirectory = true
     this.isFile = false
+  }
+
+  getDirectoryEntry() {
+    return this.directory
   }
 
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
@@ -113,13 +117,26 @@ export default class LocalDirectoryEntry
   }
 
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
-    return new Result((resolve, reject) => resolve())
+    return new Result((resolve, reject) => {
+      this.directory.moveTo(
+        (<LocalDirectoryEntry>directory).getDirectoryEntry(),
+        this.name,
+        (dir) => resolve(),
+        (err) =>
+          reject(
+            new SFError(
+              `Failed to move ${this.fullPath} to ${directory.fullPath}`,
+              err
+            )
+          )
+      )
+    })
   }
 
   rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.directory.moveTo(
-        this.getParent(),
+        this.directory.getParent((parent) => parent),
         name,
         (dir) => resolve(),
         (err) =>
