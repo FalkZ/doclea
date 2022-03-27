@@ -38,6 +38,7 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
       )
     })
   }
+
   save(file: File): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.file.createWriter(
@@ -50,17 +51,22 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
       )
     })
   }
+
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => resolve(this.parent))
   }
 
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result((resolve, reject) => {
+      let thisParent = this.parent
       this.file.moveTo(
         (<LocalDirectoryEntry>directory).getDirectoryEntry(),
         this.name,
-        () => resolve(),
-        (err) => {}
+        () => {
+          thisParent = directory
+          resolve()
+        },
+        (err) => reject(new SFError('Failed to move file', err))
       )
     })
   }

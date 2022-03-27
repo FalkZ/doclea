@@ -17,6 +17,7 @@ export default class LocalDirectoryEntry
   fullPath: string
   name: string
   private filesystem: FileSystem
+  private parent: LocalDirectoryEntry
 
   constructor(directory: FileSystemDirectoryEntry) {
     this.directory = directory
@@ -26,6 +27,9 @@ export default class LocalDirectoryEntry
     this.fullPath = directory.fullPath
     this.isDirectory = true
     this.isFile = false
+    this.directory.getParent((parent) => {
+      this.parent = new LocalDirectoryEntry(<FileSystemDirectoryEntry>parent)
+    })
   }
 
   getDirectoryEntry() {
@@ -39,7 +43,6 @@ export default class LocalDirectoryEntry
 
       reader.readEntries(
         (results) => {
-          console.log('Reading results... ', results)
           entries = results
           resolve(
             entries.map((entry) => {
@@ -62,7 +65,6 @@ export default class LocalDirectoryEntry
 
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
     return new Result((resolve, reject) => {
-      let thatDir = this.directory
       this.directory.getFile(
         name,
         { create: true },
@@ -103,17 +105,7 @@ export default class LocalDirectoryEntry
   }
 
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
-    return new Result((resolve, reject) => {
-      this.directory.getParent(
-        (parent) => {
-          resolve(new LocalDirectoryEntry(<FileSystemDirectoryEntry>parent))
-        },
-        (err) =>
-          reject(
-            new SFError(`Parent directory of ${this.fullPath} not found`, err)
-          )
-      )
-    })
+    return new Result((resolve, reject) => resolve(this.parent))
   }
 
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
@@ -121,7 +113,10 @@ export default class LocalDirectoryEntry
       this.directory.moveTo(
         (<LocalDirectoryEntry>directory).getDirectoryEntry(),
         this.name,
-        (dir) => resolve(),
+        (dir) => {
+          this.parent = <LocalDirectoryEntry>directory
+          resolve()
+        },
         (err) =>
           reject(
             new SFError(
@@ -136,7 +131,7 @@ export default class LocalDirectoryEntry
   rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.directory.moveTo(
-        this.directory.getParent((parent) => parent),
+        this.parent,
         name,
         (dir) => resolve(),
         (err) =>

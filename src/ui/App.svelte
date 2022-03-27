@@ -7,38 +7,18 @@
   import Folder from 'tabler-icons-svelte/icons/Folder.svelte'
   import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
   import Cloud from 'tabler-icons-svelte/icons/Cloud.svelte'
-  import { LocalFileSystem } from '@src/localfs-adapter/LocalFilesystem'
-  import type LocalDirectoryEntry from '@src/localfs-adapter/LocalDirectoryEntry'
 
-  function openLocalFs() {
-    ;(async (): Promise<void> => {
-      try {
-        let root = await new LocalFileSystem().open()
-        console.log(root)
-        ;(<LocalDirectoryEntry>root)
-          .createFile('Testfile')
-          .then((file) => {
-            file.save(new File(['test'], 'testfile'))
-            return file
-          })
-          .then((file) => {
-            ;(<LocalDirectoryEntry>root).getChildren().then((children) => {
-              console.log('Read children from root: ', children)
-              return children
-            })
-            return file
-          })
-      } catch (err) {
-        console.log(err.reason)
-      }
-    })()
+  function showDropper() {
+    document
+      .querySelector('#fileDropper')
+      .setAttribute('style', 'display:block')
   }
 </script>
 
 <main>
-  <LocalFs />
   <div id="sidepane">
-    <Button on:click={openLocalFs}><Folder /> Open Local File</Button>
+    <Button on:click={showDropper}><Folder /> Open Local File</Button>
+    <div id="fileDropper" style="display:none"><LocalFs /></div>
     <Button><BrandGithub /> Open Github Project</Button>
     <Button><Cloud /> Open Solid Folder</Button>
   </div>
