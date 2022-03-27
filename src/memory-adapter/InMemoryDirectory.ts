@@ -1,5 +1,5 @@
 import { SFError } from '@lib/SFError'
-import {
+import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry,
   StorageFrameworkFileEntry,
@@ -12,20 +12,29 @@ export class InMemoryDirectory
   extends InMemoryFSEntry
   implements StorageFrameworkDirectoryEntry
 {
-  isDirectory: true
-  isFile: false
-
-  private children: InMemoryFSEntry[]
+  private children: InMemoryFSEntry[] = []
 
   constructor(parent: InMemoryDirectory | null, name: string) {
     super(parent, name)
   }
 
-  getChildren(): Result<StorageFrameworkEntry[], SFError> {
-    return new Result(async (resolve) => {
-      await this.verifyNodeIsAttachedToRoot()
+  get isDirectory(): true {
+    return true
+  }
+  get isFile(): false {
+    return false
+  }
 
-      return [...this.children]
+  getChildren(): Result<StorageFrameworkEntry[], SFError> {
+    return new Result((resolve, reject) => {
+      // verify node is attached to the root node
+      const error = this.verifyNodeIsAttachedToRoot()
+      if (error) {
+        reject(error)
+        return
+      }
+
+      resolve([...this.children])
     })
   }
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {

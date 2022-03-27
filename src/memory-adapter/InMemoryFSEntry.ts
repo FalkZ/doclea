@@ -1,5 +1,5 @@
 import { SFError } from '@lib/SFError'
-import {
+import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry,
 } from '@lib/StorageFrameworkEntry'

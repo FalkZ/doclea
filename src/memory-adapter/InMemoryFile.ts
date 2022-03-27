@@ -1,21 +1,26 @@
-import { SFError } from '@lib/SFError'
 import { SFFile } from '@lib/SFFile'
-import { StorageFrameworkFileEntry } from '@lib/StorageFrameworkEntry'
 import { OkOrError, Result } from '@lib/utilities'
-import { InMemoryDirectory } from './InMemoryDirectory'
 import { InMemoryFSEntry } from './InMemoryFSEntry'
+
+import type { SFError } from '@lib/SFError'
+import type { StorageFrameworkFileEntry } from '@lib/StorageFrameworkEntry'
+import type { InMemoryDirectory } from './InMemoryDirectory'
 
 export class InMemoryFile
   extends InMemoryFSEntry
   implements StorageFrameworkFileEntry
 {
-  isDirectory: false
-  isFile: true
-
   private data = new ArrayBuffer(0)
 
   constructor(parent: InMemoryDirectory, name: string) {
     super(parent, name)
+  }
+
+  get isDirectory(): false {
+    return false
+  }
+  get isFile(): true {
+    return true
   }
 
   read(): Result<SFFile, SFError> {
