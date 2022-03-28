@@ -15,6 +15,7 @@
   import { upload } from '@milkdown/plugin-upload'
   import { gfm } from '@milkdown/preset-gfm'
   import { nord } from '@milkdown/theme-nord'
+  import PrismTheme from './PrismTheme.svelte'
 
   export let defaultValue = '# Hello'
 
@@ -32,17 +33,19 @@
       .use(history)
       .use(cursor)
       .use(prism)
-      //.use(diagram()[0])
+      .use(diagram)
       .use(tooltip)
       .use(math)
       .use(emoji)
       .use(indent)
       .use(upload)
       .use(slash)
-      .use(menu)
+      .use(menu())
       .create()
   }
 </script>
+
+<PrismTheme />
 
 <svelte:head>
   <link
@@ -54,4 +57,13 @@
 <div use:editor />
 
 <style>
+  div {
+    position: relative;
+    height: 100%;
+  }
+  :global(.milkdown-menu) {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
 </style>
