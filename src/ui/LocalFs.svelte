@@ -1,11 +1,16 @@
 <script lang="ts">
   import type { SFError } from '@lib/SFError'
+  import type { StorageFrameworkEntry } from '@lib/StorageFrameworkEntry'
 
   import LocalDirectoryEntry from '@src/localfs-adapter/LocalDirectoryEntry'
   import type { LocalFileEntry } from '@src/localfs-adapter/LocalFileEntry'
   import { LocalFileSystem } from '@src/localfs-adapter/LocalFilesystem'
 
-  let target
+  var base: StorageFrameworkEntry
+
+  if (window.requestFileSystem || window.webkitRequestFileSystem) {
+    new LocalFileSystem().open().then((entry) => (base = entry))
+  }
 
   function dropHandler(event) {
     event.preventDefault()
@@ -13,54 +18,33 @@
     let contentRoot = new LocalDirectoryEntry(entry)
     console.log('Content root: ', contentRoot)
 
-    async function test() {
-      let base = await new LocalFileSystem().open()
-      let children = await contentRoot.getChildren()
-      console.log('Children: ', children)
-      console.log(
-        'Base childs: ',
-        await (<LocalDirectoryEntry>base).getChildren()
-      )
-      for (let child of children) {
-        try {
-          let file = await (<LocalFileEntry>child).read()
-          console.log('File content: ', await file.text())
-          let newFile = await (<LocalDirectoryEntry>base).createFile(
-            `${child.name}`
-          )
-          await newFile.save(file)
-        } catch (err) {
-          console.log(err)
+    if (base) {
+      // on supported browser
+      ;(async () => {
+        let children = await contentRoot.getChildren()
+        for (let child of children) {
+          try {
+            let file = await (<LocalFileEntry>child).read()
+            let newFile = await (<LocalDirectoryEntry>base).createFile(
+              `${child.name}`
+            )
+            await newFile.save(file)
+          } catch (err) {
+            console.log(err)
+          }
         }
-      }
-      children = await (<LocalDirectoryEntry>base).getChildren()
-      console.log('Children in virtual fs base: ', children)
-      try {
-        let testDir = await (<LocalDirectoryEntry>base).createDirectory(
-          'Testdir'
+        console.log(
+          'Copied user selected files to local file system: ',
+          await (<LocalDirectoryEntry>base).getChildren()
         )
-        await children[0].moveTo(testDir)
-        let testDirChildren = await testDir.getChildren()
-        console.log('File moved to Testdir ', testDirChildren)
-        await testDirChildren[0].remove()
-        console.log('File removed from Testdir ', await testDir.getChildren())
-      } catch (err) {
-        console.log(err)
-      }
-
-      // not working, also when trying with root.createDirectory()
-      let dir = await contentRoot.getDirectoryEntry()
-      let fs = dir.filesystem
-      let virtDir = fs.root
-      let localvirtdir = new LocalDirectoryEntry(virtDir)
-      try {
-        await localvirtdir.createDirectory('Testdir2')
-        console.log('Created Testdirectory')
-      } catch (err) {
-        console.log(err)
-      }
+      })()
+    } else {
+      // unsupported browser, most local file operations will fail
+      console.log(
+        'No local fs available, using input folder as base. Most local file operations except from reading will fail'
+      )
+      base = contentRoot
     }
-    test()
   }
 </script>
 
@@ -69,7 +53,7 @@
     type="file"
     id="filedropper"
     name="fileList"
-    on:change={() => dropHandler(event)}
+    on:change={(ev) => dropHandler(ev)}
     multiple
   />
 </div>
