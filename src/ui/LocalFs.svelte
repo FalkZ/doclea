@@ -24,11 +24,17 @@
         let children = await contentRoot.getChildren()
         for (let child of children) {
           try {
-            let file = await (<LocalFileEntry>child).read()
-            let newFile = await (<LocalDirectoryEntry>base).createFile(
-              `${child.name}`
-            )
-            await newFile.save(file)
+            if (child.isFile) {
+              let file = await (<LocalFileEntry>child).read()
+              let newFile = await (<LocalDirectoryEntry>base).createFile(
+                `${child.name}`
+              )
+              await newFile.save(file)
+            } else {
+              let dir = await (<LocalDirectoryEntry>base).createDirectory(
+                child.name
+              )
+            }
           } catch (err) {
             console.log(err)
           }

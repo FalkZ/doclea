@@ -15,9 +15,7 @@ export class LocalFileSystem implements StorageFrameworkFileSystem {
         fs.root.getDirectory(
           'base',
           { create: true },
-          function (directoryEntry) {
-            resolve(new LocalDirectoryEntry(directoryEntry))
-          },
+          (directoryEntry) => resolve(new LocalDirectoryEntry(directoryEntry)),
           (err) => reject(new SFError(`Failed to create root directory`, err))
         )
       })
