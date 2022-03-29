@@ -16,6 +16,7 @@ const startVite = async () => {
 }
 
 // Shim for allowing async function creation via new Function
+// eslint-disable-next-line
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
 
 /**
