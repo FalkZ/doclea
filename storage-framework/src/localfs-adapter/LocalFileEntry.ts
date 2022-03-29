@@ -8,13 +8,13 @@ import { Result, OkOrError } from '@lib/utilities'
 import LocalDirectoryEntry from './LocalDirectoryEntry'
 
 export class LocalFileEntry implements StorageFrameworkFileEntry {
-  isDirectory: false
-  isFile: true
-  fullPath: string
-  name: string
-  lastModified: number
+  readonly isDirectory: false
+  readonly isFile: true
+  readonly fullPath: string
+  readonly name: string
+  private lastModified: number
   private parent: StorageFrameworkDirectoryEntry
-  file: FileSystemFileEntry
+  private file: FileSystemFileEntry
 
   constructor(file: FileSystemFileEntry) {
     this.file = file
@@ -38,6 +38,7 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
       )
     })
   }
+
   save(file: File): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.file.createWriter(
@@ -50,6 +51,7 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
       )
     })
   }
+
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => resolve(this.parent))
   }
@@ -59,8 +61,11 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
       this.file.moveTo(
         (<LocalDirectoryEntry>directory).getDirectoryEntry(),
         this.name,
-        () => resolve(),
-        (err) => {}
+        () => {
+          this.parent = directory
+          resolve()
+        },
+        (err) => reject(new SFError('Failed to move file', err))
       )
     })
   }
@@ -70,7 +75,7 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
       this.file.moveTo(
         this.getParent(),
         name,
-        (dir) => resolve(),
+        () => resolve(),
         (err) =>
           reject(
             new SFError(`Failed to rename ${this.fullPath} to ${name}`, err)

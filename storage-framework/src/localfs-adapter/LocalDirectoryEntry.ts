@@ -11,21 +11,22 @@ import { LocalFileEntry } from './LocalFileEntry'
 export default class LocalDirectoryEntry
   implements StorageFrameworkDirectoryEntry
 {
-  isDirectory: true
-  isFile: false
+  readonly isDirectory: true
+  readonly isFile: false
+  readonly fullPath: string
+  readonly name: string
   private directory: FileSystemDirectoryEntry
-  fullPath: string
-  name: string
-  private filesystem: FileSystem
+  private parent: LocalDirectoryEntry
 
   constructor(directory: FileSystemDirectoryEntry) {
     this.directory = directory
-    this.filesystem = directory.filesystem
-    this.filesystem.root
     this.name = directory.name
     this.fullPath = directory.fullPath
     this.isDirectory = true
     this.isFile = false
+    this.directory.getParent((parent) => {
+      this.parent = new LocalDirectoryEntry(<FileSystemDirectoryEntry>parent)
+    })
   }
 
   getDirectoryEntry() {
@@ -35,14 +36,10 @@ export default class LocalDirectoryEntry
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
     return new Result((resolve, reject) => {
       const reader = this.directory.createReader()
-      let entries: FileSystemEntry[] = []
-
       reader.readEntries(
         (results) => {
-          console.log('Reading results... ', results)
-          entries = results
           resolve(
-            entries.map((entry) => {
+            results.map((entry) => {
               if (entry.isDirectory)
                 return new LocalDirectoryEntry(<FileSystemDirectoryEntry>entry)
               else return new LocalFileEntry(<FileSystemFileEntry>entry)
@@ -62,11 +59,10 @@ export default class LocalDirectoryEntry
 
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
     return new Result((resolve, reject) => {
-      let thatDir = this.directory
       this.directory.getFile(
         name,
         { create: true },
-        function (file) {
+        (file) => {
           let fileEntry = new LocalFileEntry(<FileSystemFileEntry>file)
           resolve(fileEntry)
         },
@@ -88,9 +84,8 @@ export default class LocalDirectoryEntry
       this.directory.getDirectory(
         name,
         { create: true },
-        function (folder) {
-          resolve(new LocalDirectoryEntry(<FileSystemDirectoryEntry>folder))
-        },
+        (folder) =>
+          resolve(new LocalDirectoryEntry(<FileSystemDirectoryEntry>folder)),
         (err) =>
           reject(
             new SFError(
@@ -103,17 +98,7 @@ export default class LocalDirectoryEntry
   }
 
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
-    return new Result((resolve, reject) => {
-      this.directory.getParent(
-        (parent) => {
-          resolve(new LocalDirectoryEntry(<FileSystemDirectoryEntry>parent))
-        },
-        (err) =>
-          reject(
-            new SFError(`Parent directory of ${this.fullPath} not found`, err)
-          )
-      )
-    })
+    return new Result((resolve, reject) => resolve(this.parent))
   }
 
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
@@ -121,7 +106,10 @@ export default class LocalDirectoryEntry
       this.directory.moveTo(
         (<LocalDirectoryEntry>directory).getDirectoryEntry(),
         this.name,
-        (dir) => resolve(),
+        () => {
+          this.parent = <LocalDirectoryEntry>directory
+          resolve()
+        },
         (err) =>
           reject(
             new SFError(
@@ -136,9 +124,9 @@ export default class LocalDirectoryEntry
   rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.directory.moveTo(
-        this.directory.getParent((parent) => parent),
+        this.parent,
         name,
-        (dir) => resolve(),
+        () => resolve(),
         (err) =>
           reject(
             new SFError(`Failed to rename ${this.fullPath} to ${name}`, err)
