@@ -53,7 +53,14 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
   }
 
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
-    return new Result((resolve, reject) => resolve(this.parent))
+    return new Result((resolve, reject) => {
+      if (this.parent) {
+        resolve(this.parent)
+      }
+      else {
+        reject(new SFError(`Failed to get parent of ${this.fullPath}`, new Error()))
+      }
+    })
   }
 
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
