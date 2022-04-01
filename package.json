@@ -21,6 +21,10 @@
     "vite": "^2.8.0"
   },
   "dependencies": {
+    "@inrupt/solid-client": "^1.21.0",
+    "@inrupt/solid-client-authn-browser": "^1.11.7",
+    "@inrupt/solid-client-authn-node": "^1.11.7",
+    "@inrupt/vocab-common-rdf": "^1.0.3",
     "@milkdown/core": "^5.5.0",
     "@milkdown/plugin-clipboard": "^5.5.0",
     "@milkdown/plugin-cursor": "^5.5.0",
