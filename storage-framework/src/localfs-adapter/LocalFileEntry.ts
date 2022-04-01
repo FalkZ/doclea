@@ -1,10 +1,10 @@
-import { SFError } from '@lib/SFError'
-import { SFFile } from '@lib/SFFile'
+import { SFError } from '../lib/SFError'
+import { SFFile } from '../lib/SFFile'
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkFileEntry,
-} from '@lib/StorageFrameworkEntry'
-import { Result, OkOrError } from '@lib/utilities'
+} from '../lib/StorageFrameworkEntry'
+import { Result, OkOrError } from '../lib/utilities'
 import LocalDirectoryEntry from './LocalDirectoryEntry'
 
 export class LocalFileEntry implements StorageFrameworkFileEntry {
@@ -56,9 +56,10 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
     return new Result((resolve, reject) => {
       if (this.parent) {
         resolve(this.parent)
-      }
-      else {
-        reject(new SFError(`Failed to get parent of ${this.fullPath}`, new Error()))
+      } else {
+        reject(
+          new SFError(`Failed to get parent of ${this.fullPath}`, new Error())
+        )
       }
     })
   }

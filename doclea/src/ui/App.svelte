@@ -1,44 +1,18 @@
 <script lang="ts">
   import Editor from './Editor.svelte'
-  import content from './demo.md?raw'
+  import content from 'bundle-text:./demo.md'
   import Button from './Button.svelte'
-  import LocalFs from './LocalFs.svelte'
 
   import Folder from 'tabler-icons-svelte/icons/Folder.svelte'
   import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
   import Cloud from 'tabler-icons-svelte/icons/Cloud.svelte'
-  import { LocalFileSystem } from '@storage-framework/localfs-adapter/LocalFilesystem'
-  import type LocalDirectoryEntry from '@storage-framework/localfs-adapter/LocalDirectoryEntry'
 
-  function openLocalFs() {
-    ;(async (): Promise<void> => {
-      try {
-        let root = await new LocalFileSystem().open()
-        console.log(root)
-        ;(<LocalDirectoryEntry>root)
-          .createFile('Testfile')
-          .then((file) => {
-            file.save(new File(['test'], 'testfile'))
-            return file
-          })
-          .then((file) => {
-            ;(<LocalDirectoryEntry>root).getChildren().then((children) => {
-              console.log('Read children from root: ', children)
-              return children
-            })
-            return file
-          })
-      } catch (err) {
-        console.log(err.reason)
-      }
-    })()
-  }
+  //import type LocalDirectoryEntry from '@storage-framework/localfs-adapter/LocalDirectoryEntry'
 </script>
 
 <main>
-  <LocalFs />
   <div id="sidepane">
-    <Button on:click={openLocalFs}><Folder /> Open Local File</Button>
+    <Button><Folder /> Open Local File</Button>
     <Button><BrandGithub /> Open Github Project</Button>
     <Button><Cloud /> Open Solid Folder</Button>
   </div>

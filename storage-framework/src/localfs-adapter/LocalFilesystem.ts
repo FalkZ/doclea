@@ -1,12 +1,14 @@
-import { SFError } from '@lib/SFError'
+import { SFError } from '../lib/SFError'
 import type { StorageFrameworkEntry } from '@lib/StorageFrameworkEntry'
 import type { StorageFrameworkFileSystem } from '@lib/StorageFrameworkFileSystem'
-import { Result } from '@lib/utilities'
+import { Result } from '../lib/utilities'
 import LocalDirectoryEntry from './LocalDirectoryEntry'
 
 window.requestFileSystem =
   window.requestFileSystem || window.webkitRequestFileSystem
 window.directoryEntry = window.directoryEntry || window.webkitDirectoryEntry
+
+console.log('hello')
 
 export class LocalFileSystem implements StorageFrameworkFileSystem {
   open(): Result<StorageFrameworkEntry, SFError> {

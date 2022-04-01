@@ -2,22 +2,10 @@
   "name": "doclea",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "source": "src/index.html",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
-  },
-  "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
-    "@tsconfig/svelte": "^2.0.1",
-    "svelte": "^3.44.0",
-    "svelte-check": "^2.2.7",
-    "svelte-preprocess": "^4.9.8",
-    "tslib": "^2.3.1",
-    "typescript": "^4.5.4",
-    "vite": "^2.8.0"
+    "dev": "parcel",
+    "build": "parcel build"
   },
   "dependencies": {
     "@milkdown/core": "^5.5.0",
@@ -38,6 +26,15 @@
     "@milkdown/preset-gfm": "^5.5.0",
     "@milkdown/prose": "^5.5.0",
     "@milkdown/theme-nord": "^5.5.0",
+    "@parcel/config-default": "^2.4.1",
+    "parcel": "^2.4.1",
+    "parcel-transformer-svelte": "^1.2.3",
+    "storage-framework": "file:../storage-framework",
     "tabler-icons-svelte": "^1.7.0"
+  },
+  "devDependencies": {
+    "@tsconfig/svelte": "^3.0.0",
+    "svelte": "^3.46.6",
+    "svelte-preprocess": "^4.10.4"
   }
 }
