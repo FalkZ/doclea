@@ -1,13 +1,15 @@
 export type none = undefined | null
 
 interface ResultLike<T, E> {
-  then(
-    onfulfilled?: ((value: T) => T | this) | none,
-    onrejected?: ((reason: E) => E | this) | none
+  then<T2 = T, E2 = E>(
+    onfulfilled?: ((value: T) => T2 | ResultLike<T2, E> | this) | none,
+    onrejected?: ((reason: E) => E2 | ResultLike<T, E2> | this) | none
   ): this
 }
 export interface Result<T, E> extends ResultLike<T, E> {
-  catch(onrejected?: ((reason: E) => E | this) | none): this
+  catch<E2 = E>(
+    onrejected?: ((reason: E) => E2 | Result<T, E2> | this) | none
+  ): this
 }
 
 interface ResultConstructor extends PromiseConstructor {
