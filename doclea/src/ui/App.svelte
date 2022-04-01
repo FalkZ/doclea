@@ -10,6 +10,7 @@
   import { renderTLDrawToElement } from './tldraw/editor'
   import { ColorStyle, TDShapeType } from '@tldraw/tldraw'
   import { prefersDarkMode } from './prefersDarkMode'
+  import { SolidFileSystem } from '../solid-adapter/SolidFileSystem'
 
   let tldraw
   onMount(() => {
@@ -23,7 +24,11 @@
   <div id="sidepane">
     <Button><Folder /> Open Local File</Button>
     <Button><BrandGithub /> Open Github Project</Button>
-    <Button><Cloud /> Open Solid Folder</Button>
+    <Button
+      on:click={() => {
+        new SolidFileSystem().open()
+      }}><Cloud /> Open Solid Folder</Button
+    >
   </div>
   <div>
     <Editor defaultValue={content} />
