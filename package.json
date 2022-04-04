@@ -7,7 +7,7 @@
     "build": "pnpm run build -r",
     "test": "pnpm run test -r",
     "dev": "pnpm run dev -r",
-    "install": "pnpm install -r"
+    "setup": "pnpm install -r"
   },
   "devDependencies": {
     "@parcel/transformer-inline-string": "2.4.1",
