@@ -26,6 +26,7 @@ On every `push` the whole project is build and tested. Additionally on specific 
 | Marc Meyer            | Developer                                |
 
 ## Sprint
+User stories are defined as `issues` into the milestone `Backlog`. In the sprint-planning the issues are moved to the sprint-milestones.
 
 ### [Board](https://github.com/users/FalkZ/projects/2/views/2)
 
@@ -33,7 +34,7 @@ On every `push` the whole project is build and tested. Additionally on specific 
 Every sprint has a duration of `2 weeks`. Every sprint is defined by a `milestone` with a due date.
 
 ### Status
- - `Backlog` _Product Backlog_
+- `Backlog` _Product Backlog_
 - `Sprint: Todo` _To be done in the defined sprint (milestone). Has not yet been worked on_
 - `Sprint: In Progress` _Is being worked on._
 - `Sprint: Review` _Ready for review-meeting._
