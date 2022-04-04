@@ -10,7 +10,7 @@ pnpm install
 pnpm run dev
 ```
 
-#CI / CD
+# CI / CD
 On every `push` the whole project is build and tested. Additionally on specific branches the project is released with `netlify`.
 
 # Project
