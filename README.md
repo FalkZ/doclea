@@ -41,3 +41,6 @@ Every sprint has a duration of `2 weeks`. Every sprint is defined by a `mileston
 - `PR: In Progress` _Pull request is being worked on or reviewed or is ready to merge_
 - `PR: Done` _Pull request is merged_
 - `Done` _Work is done and nobody will work on it anymore_
+
+### Story Points
+The story-points `SP` are aligned to +/- hours.
