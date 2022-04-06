@@ -24,17 +24,17 @@ const initSamples = async (root: InMemoryDirectory) => {
 
     there's a lot of work left: have a look at the github issue board:
     [Github](https://github.com/FalkZ/doclea/issues)
-    `
+    `.replaceAll(/\s+/, '')
     todo.save(new File([content], '', {}))
   }
   let sem6 = await studiumDir.createDirectory('Semester 6')
   {
     let readme = await sem6.createFile('README.MD')
     let content = `
-  # Sample README
+    # Sample README
 
-  this is an example from the in memory file system
-  `
+    this is an example from the in memory file system
+    `.replaceAll(/\s+/, '')
     readme.save(new File([content], '', {}))
   }
 }
