@@ -23,6 +23,7 @@ specifiers:
   '@parcel/config-default': ^2.4.1
   '@parcel/transformer-raw': ^2.4.1
   '@tsconfig/svelte': ^3.0.0
+  milkdown-plugin-tldraw: file:../milkdown-plugin-tldraw
   parcel: ^2.4.1
   parcel-plugin-typescript: ^1.0.0
   parcel-transformer-svelte3-plus: 0.2.7
@@ -53,6 +54,8 @@ dependencies:
   '@milkdown/preset-gfm': 5.5.0_b8e99fb6b049dba03aaadac54edfd796
   '@milkdown/prose': 5.5.0
   '@milkdown/theme-nord': 5.5.0_ee3a878e89576bb62ebc7021836857a7
+  '@parcel/config-default': 2.4.1
+  milkdown-plugin-tldraw: link:../milkdown-plugin-tldraw
   parcel: 2.4.1
   parcel-plugin-typescript: 1.0.0_typescript@4.6.3
   prism-themes: 1.9.0

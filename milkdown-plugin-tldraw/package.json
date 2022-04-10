@@ -1,0 +1,27 @@
+{
+  "name": "milkdown-plugin-tldraw",
+  "version": "0.0.1",
+  "description": "",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "devDependencies": {
+    "@milkdown/core": "5.5.0",
+    "@milkdown/prose": "5.5.0"
+   
+  },
+  "peerDependencies": {
+    "@milkdown/core": "^5.4.0",
+    "@milkdown/prose": "^5.4.0"
+  },
+  "dependencies": {
+    "@milkdown/utils": "5.5.0",
+    "@tldraw/tldraw": "^1.9.3",
+    "mobx": "^6.5.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "unist-util-visit": "^4.1.0"
+  }
+}

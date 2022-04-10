@@ -33,6 +33,7 @@
     "prism-themes": "^1.9.0",
     "storage-framework": "file:../storage-framework",
     "svelte": "^3.46.6",
+    "milkdown-plugin-tldraw": "file:../milkdown-plugin-tldraw",
     "tabler-icons-svelte": "^1.7.0"
   },
   "devDependencies": {

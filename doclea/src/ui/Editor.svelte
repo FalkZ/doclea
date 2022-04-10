@@ -3,10 +3,11 @@
   import { clipboard } from '@milkdown/plugin-clipboard'
   import { cursor } from '@milkdown/plugin-cursor'
   import { diagram } from '@milkdown/plugin-diagram'
+
   import { emoji } from '@milkdown/plugin-emoji'
   import { history } from '@milkdown/plugin-history'
   import { indent } from '@milkdown/plugin-indent'
-  import { listener, listenerCtx } from '@milkdown/plugin-listener'
+  import { listener } from '@milkdown/plugin-listener'
   import { math } from '@milkdown/plugin-math'
   import { menu } from '@milkdown/plugin-menu'
   import { prism } from '@milkdown/plugin-prism'
@@ -16,6 +17,8 @@
   import { gfm } from '@milkdown/preset-gfm'
   import { nord } from '@milkdown/theme-nord'
   import PrismTheme from './PrismTheme.svelte'
+
+  import { tldraw } from 'milkdown-plugin-tldraw'
 
   export let defaultValue = '# Hello'
 
@@ -27,7 +30,7 @@
       })
       .use(nord)
       .use(gfm)
-      //.use(codeSandBox)
+      .use(tldraw)
       .use(listener)
       .use(clipboard)
       .use(history)
