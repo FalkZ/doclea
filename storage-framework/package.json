@@ -4,9 +4,17 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "test": "vitest run",
     "build": "vite build"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "puppeteer": "^13.5.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.4",
+    "vite": "^2.8.0",
+    "vitest": "^0.7.11"
+  },
   "dependencies": {
     "@inrupt/solid-client": "^1.21.0",
     "octokit": "^1.7.1"
