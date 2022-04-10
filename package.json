@@ -10,8 +10,12 @@
     "setup": "pnpm install -r"
   },
   "devDependencies": {
+    "@parcel/transformer-inline-string": "2.4.1",
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
     "@tsconfig/svelte": "^2.0.1",
+    "buffer": "^6.0.3",
+    "events": "^3.3.0",
+    "process": "^0.11.10",
     "svelte": "^3.44.0",
     "svelte-check": "^2.2.7",
     "svelte-preprocess": "^4.9.8",
