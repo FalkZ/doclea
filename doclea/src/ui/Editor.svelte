@@ -21,6 +21,8 @@
 
   import { tldraw } from 'milkdown-plugin-tldraw'
 
+  import { tldraw } from 'milkdown-plugin-tldraw'
+
   export let defaultValue = '# Hello'
 
   function editor(dom) {
