@@ -6,9 +6,9 @@ import type {
 } from '../lib/StorageFrameworkEntry'
 import { Result } from '../lib/utilities'
 import type { OkOrError } from '../lib/utilities'
-import { LocalFileEntry } from './LocalFileEntry'
+import { BrowserFileEntry } from './BrowserFileEntry'
 
-export default class LocalDirectoryEntry
+export default class BrowserDirectoryEntry
   implements StorageFrameworkDirectoryEntry
 {
   readonly isDirectory: true
@@ -16,7 +16,7 @@ export default class LocalDirectoryEntry
   readonly fullPath: string
   readonly name: string
   private directory: FileSystemDirectoryEntry
-  private parent: LocalDirectoryEntry
+  private parent: BrowserDirectoryEntry
 
   constructor(directory: FileSystemDirectoryEntry) {
     this.directory = directory
@@ -25,7 +25,7 @@ export default class LocalDirectoryEntry
     this.isDirectory = true
     this.isFile = false
     this.directory.getParent((parent) => {
-      this.parent = new LocalDirectoryEntry(<FileSystemDirectoryEntry>parent)
+      this.parent = new BrowserDirectoryEntry(<FileSystemDirectoryEntry>parent)
     })
   }
 
@@ -41,8 +41,8 @@ export default class LocalDirectoryEntry
           resolve(
             results.map((entry) => {
               if (entry.isDirectory)
-                return new LocalDirectoryEntry(<FileSystemDirectoryEntry>entry)
-              else return new LocalFileEntry(<FileSystemFileEntry>entry)
+                return new BrowserDirectoryEntry(<FileSystemDirectoryEntry>entry)
+              else return new BrowserFileEntry(<FileSystemFileEntry>entry)
             })
           )
         },
@@ -63,7 +63,7 @@ export default class LocalDirectoryEntry
         name,
         { create: true },
         (file) => {
-          let fileEntry = new LocalFileEntry(<FileSystemFileEntry>file)
+          let fileEntry = new BrowserFileEntry(<FileSystemFileEntry>file)
           resolve(fileEntry)
         },
         (err) =>
@@ -85,7 +85,7 @@ export default class LocalDirectoryEntry
         name,
         { create: true },
         (folder) =>
-          resolve(new LocalDirectoryEntry(<FileSystemDirectoryEntry>folder)),
+          resolve(new BrowserDirectoryEntry(<FileSystemDirectoryEntry>folder)),
         (err) =>
           reject(
             new SFError(
@@ -112,10 +112,10 @@ export default class LocalDirectoryEntry
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.directory.moveTo(
-        (<LocalDirectoryEntry>directory).getDirectoryEntry(),
+        (<BrowserDirectoryEntry>directory).getDirectoryEntry(),
         this.name,
         () => {
-          this.parent = <LocalDirectoryEntry>directory
+          this.parent = <BrowserDirectoryEntry>directory
           resolve()
         },
         (err) =>
@@ -145,11 +145,11 @@ export default class LocalDirectoryEntry
 
   remove(): OkOrError<SFError> {
     return new Result((resolve, reject) => {
-      this.directory.removeRecursively(
+      this.directory.remove(
         () => resolve(),
         (err) =>
           reject(
-            new SFError(`Failed to remove directory ${this.fullPath}`, err)
+            new SFError(`Failed to remove directory ${this.fullPath}. Note that only empty directories can be removed.`, err)
           )
       )
     })

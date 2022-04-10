@@ -5,9 +5,9 @@ import type {
   StorageFrameworkFileEntry,
 } from '../lib/StorageFrameworkEntry'
 import { Result, OkOrError } from '../lib/utilities'
-import LocalDirectoryEntry from './LocalDirectoryEntry'
+import BrowserDirectoryEntry from './BrowserDirectoryEntry'
 
-export class LocalFileEntry implements StorageFrameworkFileEntry {
+export class BrowserFileEntry implements StorageFrameworkFileEntry {
   readonly isDirectory: false
   readonly isFile: true
   readonly fullPath: string
@@ -24,7 +24,7 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
     this.isFile = true
     this.file.file((file) => (this.lastModified = file.lastModified))
     this.file.getParent((parent) => {
-      this.parent = new LocalDirectoryEntry(<FileSystemDirectoryEntry>parent)
+      this.parent = new BrowserDirectoryEntry(<FileSystemDirectoryEntry>parent)
     })
   }
 
@@ -67,7 +67,7 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.file.moveTo(
-        (<LocalDirectoryEntry>directory).getDirectoryEntry(),
+        (<BrowserDirectoryEntry>directory).getDirectoryEntry(),
         this.name,
         () => {
           this.parent = directory

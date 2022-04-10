@@ -6,13 +6,22 @@
   import Folder from 'tabler-icons-svelte/icons/Folder.svelte'
   import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
   import Cloud from 'tabler-icons-svelte/icons/Cloud.svelte'
+  import { LocalFileSystem } from 'storage-framework/src/local-fs-adapter/LocalFileSystem'
 
-  //import type LocalDirectoryEntry from '@storage-framework/localfs-adapter/LocalDirectoryEntry'
+  function localFSHandler(event) {
+    ;(async () => {
+      let fsHandle = await new LocalFileSystem().open()
+      let childs = await fsHandle.getChildren()
+      console.log('childs-------------', childs)
+    })()
+  }
 </script>
 
 <main>
   <div id="sidepane">
-    <Button><Folder /> Open Local File</Button>
+    <Button on:click={(ev) => localFSHandler(ev)}
+      ><Folder /> Open Local File</Button
+    >
     <Button><BrandGithub /> Open Github Project</Button>
     <Button><Cloud /> Open Solid Folder</Button>
   </div>
