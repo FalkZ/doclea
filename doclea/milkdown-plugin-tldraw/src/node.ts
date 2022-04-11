@@ -97,6 +97,10 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
 
       const rendered = document.createElement('div')
 
+      rendered.style.position = 'relative'
+      rendered.style.width = '100%'
+      rendered.style.height = '500px'
+
       const image = new TldrawImage(node.attrs['value'])
       rendered.appendChild(image)
 

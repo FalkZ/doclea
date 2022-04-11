@@ -25,7 +25,7 @@ function Component({ resolveApi, tdDocument }) {
       onMount: handleMount,
       onSaveProjectAs: console.log,
       showMenu: false,
-      showPages: false,
+      showPages: false
     },
     null
   )
@@ -94,6 +94,8 @@ class TldrawView {
     const document = getDocumentFromImageUri(src)
 
     this.api = await this.renderTLDrawToElement(document, mountPoint)
+
+    mountPoint.querySelector('#TD-Zoom').style.marginRight = '20px'
 
     if (prefersDarkMode) this.api.toggleDarkMode()
 
