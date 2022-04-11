@@ -17,36 +17,15 @@ export class LocalFileSystem implements StorageFrameworkFileSystem {
         const el = document.createElement('input')
         el.setAttribute('type', 'file')
         el.setAttribute('webkitdirectory', 'true')
-
+        el.setAttribute('multiple', 'true')
         el.click()
 
         el.onchange = (ev) => {
-          console.log(ev.target)
-          //resolve(new LocalLegacyDirectoryEntry(ev.target.files))
+          console.log(ev.target.files)
+
+          //resolve(new LocalFallbackDirectoryEntry(ev.target.files))
         }
       }
     })
   }
 }
-
-/*
-{
-  "name": "doclea",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "test": "vitest run",
-    "dev": "vite",
-    "build": "vite build"
-  },
-  "devDependencies": {
-    "chai": "^4.3.6",
-    "puppeteer": "^13.5.1",
-    "tslib": "^2.3.1",
-    "typescript": "^4.5.4",
-    "vite": "^2.8.0",
-    "vitest": "^0.7.11"
-  }
-}
-*/

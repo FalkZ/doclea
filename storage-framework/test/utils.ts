@@ -5,7 +5,6 @@ import { createServer } from 'vite'
 const startVite = async () => {
   const server = await createServer({
     configFile: 'vite.config.ts',
-    root: '.',
     server: {
       port: 1337
     }
