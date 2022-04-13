@@ -1,0 +1,40 @@
+{
+  "name": "doclea",
+  "private": true,
+  "version": "0.0.0",
+  "source": "src/index.html",
+  "scripts": {
+    "dev": "parcel",
+    "build": "parcel build"
+  },
+  "dependencies": {
+    "@milkdown/core": "^5.5.0",
+    "@milkdown/plugin-clipboard": "^5.5.0",
+    "@milkdown/plugin-cursor": "^5.5.0",
+    "@milkdown/plugin-diagram": "^5.5.0",
+    "@milkdown/plugin-emoji": "^5.5.0",
+    "@milkdown/plugin-history": "^5.5.0",
+    "@milkdown/plugin-indent": "^5.5.0",
+    "@milkdown/plugin-listener": "^5.5.0",
+    "@milkdown/plugin-math": "^5.5.0",
+    "@milkdown/plugin-menu": "^5.5.0",
+    "@milkdown/plugin-prism": "^5.5.0",
+    "@milkdown/plugin-slash": "^5.5.0",
+    "@milkdown/plugin-tooltip": "^5.5.0",
+    "@milkdown/plugin-upload": "^5.5.0",
+    "@milkdown/preset-commonmark": "^5.5.0",
+    "@milkdown/preset-gfm": "^5.5.0",
+    "@milkdown/prose": "^5.5.0",
+    "@milkdown/theme-nord": "^5.5.0",
+    "@parcel/config-default": "^2.4.1",
+    "parcel": "^2.4.1",
+    "parcel-transformer-svelte": "^1.2.3",
+    "storage-framework": "file:../storage-framework",
+    "tabler-icons-svelte": "^1.7.0"
+  },
+  "devDependencies": {
+    "@tsconfig/svelte": "^3.0.0",
+    "svelte": "^3.46.6",
+    "svelte-preprocess": "^4.10.4"
+  }
+}
