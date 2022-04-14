@@ -44,3 +44,6 @@ Every sprint has a duration of `2 weeks`. Every sprint is defined by a `mileston
 
 ### Story Points
 The story-points `SP` are aligned to +/- hours.
+
+### Burndown Chart
+The burndown chart is stored in MS Teams under files [Doclea_Burndown_Chart.xlsx](https://zhaw.sharepoint.com/:x:/s/PM4Doclea/EYVPOceyMERGoH3cm_8GU18BaUObmT175e3nHpUQGCEB6Q?e=gtbt9B)
