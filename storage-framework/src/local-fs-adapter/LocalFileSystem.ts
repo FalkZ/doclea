@@ -12,7 +12,7 @@ export class LocalFileSystem implements StorageFrameworkFileSystem {
         const dirHandle = await window.showDirectoryPicker({
           multiple: true
         })
-        resolve(new LocalDirectoryEntry(dirHandle))
+        resolve(new LocalDirectoryEntry(dirHandle, null, true))
       } else {
         const el = document.createElement('input')
         el.setAttribute('type', 'file')
@@ -23,7 +23,7 @@ export class LocalFileSystem implements StorageFrameworkFileSystem {
         el.onchange = (ev) => {
           console.log(ev.target.files)
 
-          //resolve(new LocalFallbackDirectoryEntry(ev.target.files))
+          resolve(new LocalFallbackDirectoryEntry(ev.target.files))
         }
       }
     })

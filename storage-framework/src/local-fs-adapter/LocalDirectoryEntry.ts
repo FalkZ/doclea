@@ -12,13 +12,22 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
   isFile: false
   fullPath: string
   name: string
+  isRoot: boolean
+  private parent: LocalDirectoryEntry
   private directoryHandle: FileSystemDirectoryHandle
 
-  constructor(directoryHandle: FileSystemDirectoryHandle) {
+  constructor(
+    directoryHandle: FileSystemDirectoryHandle,
+    parent: LocalDirectoryEntry,
+    isRoot: boolean
+  ) {
     this.directoryHandle = directoryHandle
+    this.parent = parent
+    this.isRoot = isRoot
     this.name = directoryHandle.name
     this.isFile = false
     this.isDirectory = true
+    this.fullPath = this.resolvePathRecursive()
   }
 
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
@@ -29,7 +38,11 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
           let child: FileSystemHandle = value
           if (child.kind === 'directory') {
             children.push(
-              new LocalDirectoryEntry(<FileSystemDirectoryHandle>child)
+              new LocalDirectoryEntry(
+                <FileSystemDirectoryHandle>child,
+                this,
+                false
+              )
             )
           } else if (child.kind === 'file') {
             children.push(new LocalFileEntry(<FileSystemFileHandle>child))
@@ -58,7 +71,13 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      if (this.parent) resolve(this.parent)
+      else
+        reject(
+          new SFError(`Directory ${this.fullPath} has no parent.`, new Error())
+        )
+    })
   }
 
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
@@ -71,5 +90,12 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
 
   remove(): OkOrError<SFError> {
     throw new Error('Method not implemented.')
+  }
+
+  private resolvePathRecursive(): string {
+    let path = this.isRoot
+      ? '/' + this.name
+      : this.parent.fullPath + '/' + this.name
+    return path
   }
 }

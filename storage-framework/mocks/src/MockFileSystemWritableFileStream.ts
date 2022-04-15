@@ -32,6 +32,7 @@ export class MockFileSystemFileHandle implements FileSystemFileHandle {
   constructor(name: string, file: File) {
     this.name = name
     this.file = file
+    this.kind = 'file'
   }
 
   getFile(): Promise<File> {

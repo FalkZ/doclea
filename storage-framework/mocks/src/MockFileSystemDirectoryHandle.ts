@@ -1,3 +1,4 @@
+import { fromRdfJsDataset } from '@inrupt/solid-client'
 import { MockChildren } from './showOpenFilePicker'
 
 export class MockFileSystemDirectoryHandle
@@ -12,6 +13,7 @@ export class MockFileSystemDirectoryHandle
   constructor(name: string, children: MockChildren[]) {
     this.name = name
     this.children = children
+    this.kind = 'directory'
   }
   getFile = (name: string, options?: FileSystemGetFileOptions) =>
     this.getFileHandle(name, options)
@@ -64,10 +66,32 @@ export class MockFileSystemDirectoryHandle
   > {
     throw new Error('Method not implemented.')
   }
+
   entries(): AsyncIterableIterator<
     [string, FileSystemDirectoryHandle | FileSystemFileHandle]
   > {
-    throw new Error('Method not implemented.')
+    let it = {
+      ob: this.children,
+      from: 0,
+      to: this.children.length,
+      next() {
+        let curr = this.from
+        this.from++
+        if (curr < this.to) {
+          return Promise.resolve({
+            done: false,
+            value: [this.from, this.ob[curr]]
+          })
+        } else {
+          return Promise.resolve({
+            done: true,
+            value: undefined
+          })
+        }
+      },
+      [Symbol.asyncIterator]: () => it
+    }
+    return it
   }
 
   [Symbol.asyncIterator]: () => AsyncIterableIterator<

@@ -19,6 +19,7 @@
     "src/**/*.d.ts",
     "src/**/*.d.ts",
     "src/**/*.ts",
+    "mocks/**/*.ts",
     "test/**/*.ts",
     "src/**/*.js",
     "src/**/*.svelte"

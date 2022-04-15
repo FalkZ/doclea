@@ -13,6 +13,6 @@ export default defineConfig({
   test: {
     testTimeout: false,
     include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    environment: 'jsdom'
+    environment: 'happy-dom'
   }
 })

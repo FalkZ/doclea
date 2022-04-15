@@ -1,8 +1,8 @@
 import { MockFileSystemDirectoryHandle } from './MockFileSystemDirectoryHandle'
-import { File } from 'File'
+// import { File } from 'File'
 import { MockFileSystemFileHandle } from './MockFileSystemWritableFileStream'
 
-window.showOpenFilePicker()
+//window.showOpenFilePicker()
 
 interface ShowDirectoryPicker {
   (options?: DirectoryPickerOptions): Promise<FileSystemDirectoryHandle>
