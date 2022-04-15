@@ -4,13 +4,11 @@
 
   import { onMount } from 'svelte'
   //import { renderTLDrawToElement } from './tldraw/editor'
-  import { ColorStyle, TDShapeType } from '@tldraw/tldraw'
-  import { prefersDarkMode } from './prefersDarkMode'
 
   import type {
     StorageFrameworkDirectoryEntry,
     StorageFrameworkFileEntry,
-  } from '@lib/StorageFrameworkEntry'
+  } from '@storage-framework/lib/StorageFrameworkEntry'
 
   import FileTree from './components/filetree/FileTree.svelte'
   import FileSystemPicker from './components/fs-picker/FileSystemPicker.svelte'

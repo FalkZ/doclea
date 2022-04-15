@@ -1,7 +1,13 @@
 {
-  
-  "extends": ["@parcel/config-default"],
+  "extends": [
+    "@parcel/config-default"
+  ],
   "transformers": {
-    "*.svelte": ["parcel-transformer-svelte"]
+    "*.svelte": [
+      "parcel-transformer-svelte3-plus"
+    ],
+    "*.md": [
+      "@parcel/transformer-raw"
+    ]
   }
 }
