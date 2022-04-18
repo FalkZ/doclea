@@ -27,7 +27,9 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
     this.name = directoryHandle.name
     this.isFile = false
     this.isDirectory = true
-    this.fullPath = this.resolvePathRecursive()
+    this.fullPath = this.isRoot
+      ? '/' + this.name
+      : this.parent.fullPath + '/' + this.name
   }
 
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
@@ -45,7 +47,7 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
               )
             )
           } else if (child.kind === 'file') {
-            children.push(new LocalFileEntry(<FileSystemFileHandle>child))
+            children.push(new LocalFileEntry(<FileSystemFileHandle>child, this))
           }
         }
         resolve(children)
@@ -57,7 +59,7 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
     return new Result(async (resolve, reject) => {
       try {
         const fileHandle = await window.showSaveFilePicker()
-        resolve(new LocalFileEntry(fileHandle))
+        resolve(new LocalFileEntry(fileHandle, this))
       } catch (err) {
         reject(new SFError(`Failed to create file ${name}`, err))
       }
@@ -92,10 +94,14 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
     throw new Error('Method not implemented.')
   }
 
-  private resolvePathRecursive(): string {
-    let path = this.isRoot
-      ? '/' + this.name
-      : this.parent.fullPath + '/' + this.name
-    return path
+  removeEntry(name: string): OkOrError<SFError> {
+    return new Result(async (resolve, reject) => {
+      try {
+        await this.directoryHandle.removeEntry(name)
+        resolve()
+      } catch (err) {
+        reject(new SFError(`Failed to remove entry ${this.fullPath}.`, err))
+      }
+    })
   }
 }

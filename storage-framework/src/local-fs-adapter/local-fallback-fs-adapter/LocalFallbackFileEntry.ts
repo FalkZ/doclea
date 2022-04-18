@@ -1,3 +1,4 @@
+import { resolveObjectURL } from 'buffer'
 import { SFError } from '../../lib/SFError'
 import { SFFile } from '../../lib/SFFile'
 import {
@@ -27,7 +28,10 @@ export default class LocalFallbackFileEntry
   }
 
   read(): Result<SFFile, SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      if (this.file)
+        resolve(new SFFile(this.name, this.lastModified, [this.file]))
+    })
   }
 
   save(file: File): OkOrError<SFError> {

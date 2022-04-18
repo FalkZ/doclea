@@ -1,3 +1,4 @@
+import { resolveObjectURL } from 'buffer'
 import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
 import {
@@ -5,18 +6,21 @@ import {
   StorageFrameworkFileEntry
 } from '../lib/StorageFrameworkEntry'
 import { Result, OkOrError } from '../lib/utilities'
+import { LocalDirectoryEntry } from './LocalDirectoryEntry'
 
 export class LocalFileEntry implements StorageFrameworkFileEntry {
-  isDirectory: false
-  isFile: true
-  fullPath: string
-  name: string
-  lastModified: number
+  readonly isDirectory: false
+  readonly isFile: true
+  readonly fullPath: string
+  readonly name: string
+  readonly lastModified: number
+  private parent: LocalDirectoryEntry
   private fileHandle: FileSystemFileHandle
 
-  constructor(fileHandle: FileSystemFileHandle) {
+  constructor(fileHandle: FileSystemFileHandle, parent: LocalDirectoryEntry) {
     this.fileHandle = fileHandle
     this.name = fileHandle.name
+    this.parent = parent
     this.isDirectory = false
     this.isFile = true
   }
@@ -46,15 +50,24 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
   }
 
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      if (this.parent) resolve(this.parent)
+      else {
+        const errMsg = `File ${this.fullPath} has no parent.`
+        reject(new SFError(errMsg, new Error(errMsg)))
+      }
+    })
   }
+
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
+
   rename(name: string): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
+
   remove(): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return this.parent.removeEntry(this.name)
   }
 }

@@ -2,6 +2,7 @@ import { SFError } from '../lib/SFError'
 import type { StorageFrameworkEntry } from '../lib/StorageFrameworkEntry'
 import type { StorageFrameworkFileSystem } from '../lib/StorageFrameworkFileSystem'
 import { Result } from '../lib/utilities'
+import LocalFallbackDirectoryEntry from './local-fallback-fs-adapter/LocalFallbackDirectoryEntry'
 import { LocalDirectoryEntry } from './LocalDirectoryEntry'
 //import LocalLegacyDirectoryEntry from './legacy/LocalLegacyDirectoryEntry'
 
@@ -23,7 +24,7 @@ export class LocalFileSystem implements StorageFrameworkFileSystem {
         el.onchange = (ev) => {
           console.log(ev.target.files)
 
-          resolve(new LocalFallbackDirectoryEntry(ev.target.files))
+          resolve(new LocalFallbackDirectoryEntry('', ev.target.files, true))
         }
       }
     })
