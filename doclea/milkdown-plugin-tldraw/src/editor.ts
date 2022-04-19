@@ -25,7 +25,7 @@ function Component({ resolveApi, tdDocument }) {
       onMount: handleMount,
       onSaveProjectAs: console.log,
       showMenu: false,
-      showPages: false
+      showPages: false,
     },
     null
   )
@@ -35,10 +35,7 @@ class TldrawView {
   private reactDiv: HTMLElement
   private api: TldrawApp
 
-  private renderTLDrawToElement(
-    tdDocument: TDDocument,
-    mountPoint: HTMLElement
-  ): Promise<TldrawApp> {
+  private renderTLDrawToElement(mountPoint: HTMLElement): Promise<TldrawApp> {
     this.reactDiv = document.createElement('div')
 
     mountPoint.appendChild(this.reactDiv)
@@ -51,7 +48,7 @@ class TldrawView {
     ReactDOM.render(
       React.createElement(
         Component,
-        { resolveApi, tdDocument, currentPageId: 'page1' },
+        { resolveApi, currentPageId: 'page1' },
         null
       ),
       this.reactDiv
@@ -93,14 +90,16 @@ class TldrawView {
 
     const document = getDocumentFromImageUri(src)
 
-    this.api = await this.renderTLDrawToElement(document, mountPoint)
+    this.api = await this.renderTLDrawToElement(mountPoint)
 
     mountPoint.querySelector('#TD-Zoom').style.marginRight = '20px'
 
     if (prefersDarkMode) this.api.toggleDarkMode()
 
     //@ts-ignore
+
     if (!document) this.api.addMediaFromFile(dataURLtoFile(src, 'input.svg'))
+    else this.api.loadDocument(document)
   }
 
   async destroy() {
