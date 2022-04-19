@@ -20,7 +20,7 @@ specifiers:
   '@milkdown/preset-gfm': ^5.5.0
   '@milkdown/prose': 5.5.0
   '@milkdown/theme-nord': ^5.5.0
-  '@milkdown/utils': 5.5.0
+  '@milkdown/utils': ^5.5.0
   '@parcel/config-default': ^2.4.1
   '@parcel/transformer-raw': ^2.4.1
   '@tsconfig/svelte': ^3.0.0
@@ -56,7 +56,6 @@ dependencies:
   '@milkdown/prose': 5.5.0
   '@milkdown/theme-nord': 5.5.0_ee3a878e89576bb62ebc7021836857a7
   '@milkdown/utils': 5.5.0_ee3a878e89576bb62ebc7021836857a7
-  '@parcel/config-default': 2.4.1
   milkdown-plugin-tldraw: link:milkdown-plugin-tldraw
   parcel: 2.4.1
   parcel-plugin-typescript: 1.0.0_typescript@4.6.3

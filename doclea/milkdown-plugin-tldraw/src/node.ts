@@ -2,11 +2,13 @@ import { createCmd, createCmdKey } from '@milkdown/core'
 import { setBlockType, textblockTypeInputRule } from '@milkdown/prose'
 import { createNode } from '@milkdown/utils'
 import { tldrawEditor } from './editor'
+import { tldrawDefaultNode, text } from './tldraw-default-node'
+import { Selection, TextSelection } from '@milkdown/prose'
 
 import { createInnerEditor } from './inner-editor'
 
 import { TldrawImage } from './tldraw-image'
-import { remarkTldraw } from './remark-tldraw'
+import { remarkTldraw, createTLDrawDiv } from './remark-tldraw'
 
 export type Options = {
   placeholder: {
@@ -15,8 +17,7 @@ export type Options = {
   }
 }
 
-// TODO: create CMDKey
-// export const TurnIntoDiagram = createCmdKey('TurnIntoDiagram')
+export const InsertTLDraw = createCmdKey('InsertTLDraw')
 
 export const tldrawNode = createNode<string, Options>((utils, options) => {
   const id = 'tldraw'
@@ -33,11 +34,14 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
       isolating: true,
       attrs: {
         value: {
-          default: ''
+          default: '',
         },
         identity: {
-          default: ''
-        }
+          default: '',
+        },
+        create: {
+          default: false,
+        },
       },
       parseDOM: [
         {
@@ -49,10 +53,10 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
             }
             return {
               value: dom.dataset['url'],
-              identity: dom.id
+              identity: dom.id,
             }
-          }
-        }
+          },
+        },
       ],
       toDOM: (node) => {
         const identity = getId(node)
@@ -62,9 +66,9 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
             id: identity,
             class: utils.getClassName(node.attrs, 'tldraw'),
             'data-type': id,
-            url: node.attrs['value']
+            url: node.attrs['value'],
           },
-          0
+          0,
         ]
       },
       parseMarkdown: {
@@ -76,18 +80,38 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
             state.addText(value)
           }
           state.closeNode()
-        }
+        },
       },
       toMarkdown: {
         match: (node) => node.type.name === id,
         runner: (state, node) => {
           state.addNode('image', undefined, '', { url: node.value })
-        }
-      }
+        },
+      },
     }),
     // TODO: TurnIntoDiagram
     commands: (nodeType) => [
-      //  createCmd(TurnIntoDiagram, () => setBlockType(nodeType, { id: getId() })),
+      createCmd(InsertTLDraw, () => (state, dispatch) => {
+        const { selection, tr } = state
+        const { from } = selection
+
+        // let _tr = tr.insertText(text)
+
+        console.log(state.schema, tr)
+        // _tr = tr.insert(
+        //   from,
+
+        const node = state.schema.nodeFromJSON(tldrawDefaultNode)
+
+        //const _tr = tr.insert(from, node)
+
+        const _tr = tr.replaceSelectionWith(node)
+
+        //const sel = Selection.findFrom(_tr.doc.resolve(from), 1, true)
+
+        dispatch(_tr)
+        return true
+      }),
     ],
     view: () => (node, view, getPos) => {
       // TODO: remove innerEditor but keep state
@@ -106,7 +130,7 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
 
       rendered.classList.add('tldraw')
 
-      return {
+      const r = {
         dom: rendered,
         // TODO: check functionality
         update: (updatedNode) => {
@@ -140,16 +164,20 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
         ignoreMutation: () => true,
         destroy() {
           rendered.remove()
-        }
+        },
       }
+
+      //if (node.attrs.create) r.selectNode()
+
+      return r
     },
     // TODO: maybe create a shortcut
     inputRules: (nodeType) => {
-      const inputRegex = /^```mermaid$/
+      const inputRegex = /^!!$/
       return [
-        //  textblockTypeInputRule(inputRegex, nodeType, () => ({ id: getId() })),
+        textblockTypeInputRule(inputRegex, 'tldraw', () => tldrawDefaultNode),
       ]
     },
-    remarkPlugins: () => [remarkTldraw]
+    remarkPlugins: () => [remarkTldraw],
   }
 })

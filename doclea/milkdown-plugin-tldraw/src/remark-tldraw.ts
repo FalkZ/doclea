@@ -1,7 +1,7 @@
 import type { Node } from 'unist'
 import { visit } from 'unist-util-visit'
 
-const createMermaidDiv = (contents: string) => ({
+export const createTLDrawDiv = (contents: string) => ({
   type: 'tldraw',
   value: contents,
 })
@@ -14,7 +14,7 @@ const visitCodeBlock = (ast: Node) =>
       return node
     }
 
-    const newNode = createMermaidDiv(url)
+    const newNode = createTLDrawDiv(url)
 
     if (parent && index != null) {
       parent.children.splice(index, 1, newNode)

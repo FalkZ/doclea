@@ -15,7 +15,7 @@
   import { slash } from '@milkdown/plugin-slash'
   import { tooltip } from '@milkdown/plugin-tooltip'
   import { upload } from '@milkdown/plugin-upload'
-  import { gfm } from '@milkdown/preset-gfm'
+  import { gfm } from '@milkdown/preset-gfm/src'
   import { nord } from '@milkdown/theme-nord'
   import PrismTheme from './PrismTheme.svelte'
 
@@ -51,8 +51,8 @@
             [
               {
                 type: 'button',
-                icon: 'Draw',
-                key: 'InsertImage',
+                icon: 'draw',
+                key: 'InsertTLDraw',
               },
             ],
           ],
