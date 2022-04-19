@@ -97,11 +97,11 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
 
         // let _tr = tr.insertText(text)
 
-        console.log(state.schema, tr)
+        // console.log(state.schema, tr)
         // _tr = tr.insert(
         //   from,
 
-        const node = state.schema.nodeFromJSON(tldrawDefaultNode)
+        const node = state.schema.nodeFromJSON(tldrawDefaultNode())
 
         //const _tr = tr.insert(from, node)
 
@@ -110,6 +110,21 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
         //const sel = Selection.findFrom(_tr.doc.resolve(from), 1, true)
 
         dispatch(_tr)
+
+        const n = document.querySelector(
+          `[data-identity='${node.attrs.identity}']`
+        )
+
+        function selectElementContents(el) {
+          var range = document.createRange()
+          range.selectNodeContents(el)
+          var sel = window.getSelection()
+          sel.removeAllRanges()
+          sel.addRange(range)
+        }
+
+        // selectElementContents(n)
+
         return true
       }),
     ],
@@ -120,6 +135,9 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
       let currentNode = node
 
       const rendered = document.createElement('div')
+
+      console.log(node.attrs)
+      rendered.setAttribute('data-identity', node.attrs['identity'])
 
       rendered.style.position = 'relative'
       rendered.style.width = '100%'
