@@ -7,17 +7,17 @@
   import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
   import Cloud from 'tabler-icons-svelte/icons/Cloud.svelte'
   import { onMount } from 'svelte'
-  import { renderTLDrawToElement } from './tldraw/editor'
-  import { ColorStyle, TDShapeType } from '@tldraw/tldraw'
-  import { prefersDarkMode } from './prefersDarkMode'
-  import { SolidFileSystem } from '../solid-adapter/SolidFileSystem'
+  // import { renderTLDrawToElement } from './tldraw/editor'
+  // import { ColorStyle, TDShapeType } from '@tldraw/tldraw'
+  // import { prefersDarkMode } from './prefersDarkMode'
+  import { SolidFileSystem } from '../../../storage-framework/src/solid-adapter/SolidFileSystem'
 
-  let tldraw
-  onMount(() => {
-    renderTLDrawToElement(tldraw).then((api) => {
-      if (prefersDarkMode) api.toggleDarkMode()
-    })
-  })
+  // let tldraw
+  // onMount(() => {
+  //   renderTLDrawToElement(tldraw).then((api) => {
+  //     if (prefersDarkMode) api.toggleDarkMode()
+  //   })
+  // })
 </script>
 
 <main>
