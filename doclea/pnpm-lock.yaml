@@ -25,8 +25,7 @@ specifiers:
   '@tsconfig/svelte': ^3.0.0
   parcel: ^2.4.1
   parcel-plugin-typescript: ^1.0.0
-  parcel-transformer-svelte3: 1.0.0-alpha.1.7
-  parcel-transformer-svelte3-plus: ^0.2.7
+  parcel-transformer-svelte3-plus: 0.2.7
   prism-themes: ^1.9.0
   storage-framework: file:../storage-framework
   svelte: ^3.46.6
@@ -56,7 +55,6 @@ dependencies:
   '@milkdown/theme-nord': 5.5.0_ee3a878e89576bb62ebc7021836857a7
   parcel: 2.4.1
   parcel-plugin-typescript: 1.0.0_typescript@4.6.3
-  parcel-transformer-svelte3: 1.0.0-alpha.1.7_svelte@3.46.6
   prism-themes: 1.9.0
   storage-framework: link:../storage-framework
   svelte: 3.46.6
@@ -3704,16 +3702,6 @@ packages:
     transitivePeerDependencies:
       - '@parcel/core'
     dev: true
-
-  /parcel-transformer-svelte3/1.0.0-alpha.1.7_svelte@3.46.6:
-    resolution: {integrity: sha512-uZjLs5GHTv9BNqUN93ZOcfHuEF7+yEpKoJerU/yuxo+etAMSe76i4TALf2zN/3fGUdDeIocbdqQ3s30NBHf0Eg==}
-    engines: {node: '>= 10.0.0', parcel: ^2.0.0-alpha.1.1}
-    peerDependencies:
-      svelte: ^3.19.1
-    dependencies:
-      '@parcel/plugin': 2.4.1
-      svelte: 3.46.6
-    dev: false
 
   /parcel/2.4.1:
     resolution: {integrity: sha512-H8n7cJ0rOt0AZZLuPuG6hvujUWiWz8kxx4pkqEDm31dijrbKb0pNgccXOllQ34em6r7elv6yH7lxox8jDCp0hw==}

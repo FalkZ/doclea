@@ -30,7 +30,6 @@
     "@milkdown/theme-nord": "^5.5.0",
     "parcel": "^2.4.1",
     "parcel-plugin-typescript": "^1.0.0",
-    "parcel-transformer-svelte3": "1.0.0-alpha.1.7",
     "prism-themes": "^1.9.0",
     "storage-framework": "file:../storage-framework",
     "svelte": "^3.46.6",
