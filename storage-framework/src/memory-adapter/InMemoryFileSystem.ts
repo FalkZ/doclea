@@ -1,9 +1,9 @@
-import { SFError } from '@lib/SFError'
+import { SFError } from '../lib/SFError'
 import {
   StorageFrameworkEntry,
   StorageFrameworkProvider,
-} from '@lib/StorageFrameworkEntry'
-import { Result } from '@lib/utilities'
+} from '../lib/StorageFrameworkEntry'
+import { Result } from '../lib/utilities'
 import { InMemoryDirectory } from './InMemoryDirectory'
 
 export class InMemoryFileSystem implements StorageFrameworkProvider {
@@ -24,7 +24,7 @@ const initSamples = async (root: InMemoryDirectory) => {
 
     there's a lot of work left: have a look at the github issue board:
     [Github](https://github.com/FalkZ/doclea/issues)
-    `.replaceAll(/\s+/, '')
+    `.replace(/^[ \t]+/gm, '')
     todo.save(new File([content], '', {}))
   }
   let sem6 = await studiumDir.createDirectory('Semester 6')
@@ -34,7 +34,7 @@ const initSamples = async (root: InMemoryDirectory) => {
     # Sample README
 
     this is an example from the in memory file system
-    `.replaceAll(/\s+/, '')
+    `.replace(/^[ \t]+/gm, '')
     readme.save(new File([content], '', {}))
   }
 }

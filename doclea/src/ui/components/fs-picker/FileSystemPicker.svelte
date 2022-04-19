@@ -4,8 +4,8 @@
   import Folder from 'tabler-icons-svelte/icons/Folder.svelte'
   import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
   import Cloud from 'tabler-icons-svelte/icons/Cloud.svelte'
-  import type { StorageFrameworkEntry } from '@storage-framework/lib/StorageFrameworkEntry'
-  import { InMemoryFileSystem } from '@storage-framework/memory-adapter/InMemoryFileSystem'
+  import type { StorageFrameworkEntry } from '../../../../../storage-framework/src/lib/StorageFrameworkEntry'
+  import { InMemoryFileSystem } from '../../../../../storage-framework/src/memory-adapter/InMemoryFileSystem'
 
   export let pickedFSEntry: StorageFrameworkEntry | null = null
 
