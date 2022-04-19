@@ -7,7 +7,7 @@
       "parcel-transformer-svelte3-plus"
     ],
     "*.md": [
-      "@parcel/transformer-raw"
+      "@parcel/transformer-inline-string"
     ]
   }
 }
