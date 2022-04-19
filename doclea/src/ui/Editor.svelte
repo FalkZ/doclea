@@ -45,7 +45,7 @@
   }
 </script>
 
-<!-- <PrismTheme /> -->
+<PrismTheme />
 
 <svelte:head>
   <link

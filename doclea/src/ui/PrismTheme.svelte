@@ -1,11 +1,9 @@
 <script lang="ts">
   import { prefersDarkMode } from './prefersDarkMode'
-  import dark from 'prism-themes/themes/prism-nord.css?url'
-  import light from 'prism-themes/themes/prism-material-light.css?url'
+  import dark from 'url:prism-themes/themes/prism-nord.css'
+  import light from 'url:prism-themes/themes/prism-material-light.css'
 
   let theme = prefersDarkMode ? dark : light
-
-  theme = theme.replace('export default "', '').replace('"', '')
 </script>
 
 <svelte:head>

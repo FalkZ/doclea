@@ -8,7 +8,7 @@
   import type {
     StorageFrameworkDirectoryEntry,
     StorageFrameworkFileEntry,
-  } from 'storage-framework/lib/StorageFrameworkEntry'
+  } from 'storage-framework/src/lib/StorageFrameworkEntry'
 
   import FileTree from './components/filetree/FileTree.svelte'
   import FileSystemPicker from './components/fs-picker/FileSystemPicker.svelte'

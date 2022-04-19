@@ -1,7 +1,7 @@
 <script lang="ts">
   import TreeNode from './TreeNode.svelte'
 
-  import type { StorageFrameworkDirectoryEntry } from '@lib/StorageFrameworkEntry'
+  import type { StorageFrameworkDirectoryEntry } from 'storage-framework/src/lib/StorageFrameworkEntry'
 
   import type { FileTreeConfig } from './FileTreeConfig'
 
