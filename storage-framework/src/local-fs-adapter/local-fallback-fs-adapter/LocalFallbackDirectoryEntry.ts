@@ -20,25 +20,28 @@ export default class LocalFallbackDirectoryEntry
   constructor(name: string, children: File[], isRoot: boolean) {
     this.name = name
     this.isRoot = isRoot
+    this.isDirectory = true
     this.children = {}
-    console.log(children)
     for (let child of children) {
       const path = child.webkitRelativePath.match(/[\w_-]+[\/\\]/g)
+      const fileName = child.webkitRelativePath
+        .match(/[\/\\][\w\ .:_-]+/g)
+        .pop()
+        .replace(/[\/\\]/, '')
       if (path.length === 0) this.fullPath = this.name
       else {
         this.name = path[0].replace(/[\/\\]/, '')
         let current: LocalFallbackDirectoryEntry = this
-        for (let dirName of path.slice(1, -2)) {
+        for (let dirName of path.slice(1)) {
           dirName = dirName.replace(/[\/\\]/, '')
           if (!current.containsChildDirectory(dirName)) {
             current.addChildDirectory(dirName)
           }
           current = current.getChildDirectory(dirName)
         }
-        current.addChildFile(path[path.length - 1].replace(/[\/\\]/, ''), child)
+        current.addChildFile(fileName, child)
       }
     }
-    console.log(this.children)
   }
 
   addChildFile(name: string, child: File) {
@@ -51,7 +54,7 @@ export default class LocalFallbackDirectoryEntry
 
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
     return new Result((resolve, reject) => {
-      resolve(this.children.values)
+      resolve(Object.values(this.children))
     })
   }
 
@@ -89,7 +92,8 @@ export default class LocalFallbackDirectoryEntry
 
   containsChildDirectory(name: string): boolean {
     return (
-      this.children.keys().contains(name) && this.children[name].isDirectory
+      Object.keys(this.children).includes(name) &&
+      this.children[name].isDirectory
     )
   }
 
