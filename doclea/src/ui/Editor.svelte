@@ -10,6 +10,7 @@
   import { listener } from '@milkdown/plugin-listener'
   import { math } from '@milkdown/plugin-math'
   import { menu } from '@milkdown/plugin-menu'
+  import { defaultConfig } from '@milkdown/plugin-menu/src/default-config'
   import { prism } from '@milkdown/plugin-prism'
   import { slash } from '@milkdown/plugin-slash'
   import { tooltip } from '@milkdown/plugin-tooltip'
@@ -43,7 +44,20 @@
       .use(indent)
       .use(upload)
       .use(slash)
-      .use(menu())
+      .use(
+        menu({
+          config: [
+            ...defaultConfig,
+            [
+              {
+                type: 'button',
+                icon: 'Draw',
+                key: 'InsertImage'
+              }
+            ]
+          ]
+        })
+      )
       .create()
   }
 </script>
