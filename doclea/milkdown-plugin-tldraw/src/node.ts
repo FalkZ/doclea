@@ -1,8 +1,8 @@
 import { createCmd, createCmdKey } from '@milkdown/core'
 import { setBlockType, textblockTypeInputRule } from '@milkdown/prose'
 import { createNode } from '@milkdown/utils'
-import { tldrawEditor } from './editor'
-import { tldrawDefaultNode, text } from './tldraw-default-node'
+import { TldrawView } from './editor'
+import { tldrawDefaultNode } from './tldraw-default-node'
 import { Selection, TextSelection } from '@milkdown/prose'
 
 import { createInnerEditor } from './inner-editor'
@@ -91,39 +91,12 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
     }),
     // TODO: TurnIntoDiagram
     commands: (nodeType) => [
-      createCmd(InsertTLDraw, () => (state, dispatch) => {
-        const { selection, tr } = state
-        const { from } = selection
-
-        // let _tr = tr.insertText(text)
-
-        // console.log(state.schema, tr)
-        // _tr = tr.insert(
-        //   from,
-
-        const node = state.schema.nodeFromJSON(tldrawDefaultNode())
-
-        //const _tr = tr.insert(from, node)
+      createCmd(InsertTLDraw, () => ({ tr, schema }, dispatch) => {
+        const node = schema.nodeFromJSON(tldrawDefaultNode())
 
         const _tr = tr.replaceSelectionWith(node)
 
-        //const sel = Selection.findFrom(_tr.doc.resolve(from), 1, true)
-
         dispatch(_tr)
-
-        const n = document.querySelector(
-          `[data-identity='${node.attrs.identity}']`
-        )
-
-        function selectElementContents(el) {
-          var range = document.createRange()
-          range.selectNodeContents(el)
-          var sel = window.getSelection()
-          sel.removeAllRanges()
-          sel.addRange(range)
-        }
-
-        // selectElementContents(n)
 
         return true
       }),
@@ -147,6 +120,8 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
       rendered.appendChild(image)
 
       rendered.classList.add('tldraw')
+
+      const tldrawEditor = new TldrawView()
 
       const r = {
         dom: rendered,

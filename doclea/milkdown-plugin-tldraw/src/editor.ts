@@ -31,7 +31,7 @@ function Component({ resolveApi, tdDocument }) {
   )
 }
 
-class TldrawView {
+export class TldrawView {
   private reactDiv: HTMLElement
   private api: TldrawApp
 
@@ -126,5 +126,3 @@ class TldrawView {
     return src
   }
 }
-
-export const tldrawEditor = new TldrawView()
