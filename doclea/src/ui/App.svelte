@@ -11,6 +11,7 @@
   // import { ColorStyle, TDShapeType } from '@tldraw/tldraw'
   // import { prefersDarkMode } from './prefersDarkMode'
   import { SolidFileSystem } from '../../../storage-framework/src/solid-adapter/SolidFileSystem'
+  import { GithubFileSystem } from '../../../storage-framework/src/github-adapter/GithubFileSystem'
 
   // let tldraw
   // onMount(() => {
@@ -23,10 +24,18 @@
 <main>
   <div id="sidepane">
     <Button><Folder /> Open Local File</Button>
-    <Button><BrandGithub /> Open Github Project</Button>
     <Button
       on:click={() => {
-        new SolidFileSystem().open()
+        console.log('hello')
+        new GithubFileSystem().open()
+      }}><BrandGithub /> Open Github Project</Button
+    >
+    <Button
+      on:click={() => {
+        console.log('asdf')
+
+        new GithubFileSystem().open()
+        // new SolidFileSystem().open()
       }}><Cloud /> Open Solid Folder</Button
     >
   </div>

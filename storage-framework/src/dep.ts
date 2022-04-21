@@ -1,3 +1,3 @@
-import { Octokit } from 'octokit'
+import { Octokit } from '@octokit/core'
 
-console.log(Octokit)
+// console.log(Octokit)
