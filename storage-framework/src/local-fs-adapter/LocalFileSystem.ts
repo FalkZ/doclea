@@ -4,7 +4,6 @@ import type { StorageFrameworkFileSystem } from '../lib/StorageFrameworkFileSyst
 import { Result } from '../lib/utilities'
 import LocalFallbackDirectoryEntry from './local-fallback-fs-adapter/LocalFallbackDirectoryEntry'
 import { LocalDirectoryEntry } from './LocalDirectoryEntry'
-//import LocalLegacyDirectoryEntry from './legacy/LocalLegacyDirectoryEntry'
 
 export class LocalFileSystem implements StorageFrameworkFileSystem {
   open(): Result<StorageFrameworkEntry, SFError> {
@@ -22,9 +21,17 @@ export class LocalFileSystem implements StorageFrameworkFileSystem {
         el.click()
 
         el.onchange = (ev) => {
-          console.log(ev.target.files)
-
-          resolve(new LocalFallbackDirectoryEntry('', ev.target.files, true))
+          const dirName = ev.target.files.length
+            ? '/' + ev.target.files[0].webkitRelativePath.split('/')[0]
+            : ''
+          resolve(
+            new LocalFallbackDirectoryEntry(
+              dirName,
+              ev.target.files,
+              true,
+              null
+            )
+          )
         }
       }
     })

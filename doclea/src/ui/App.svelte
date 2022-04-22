@@ -6,38 +6,11 @@
   import Folder from 'tabler-icons-svelte/icons/Folder.svelte'
   import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
   import Cloud from 'tabler-icons-svelte/icons/Cloud.svelte'
-  import { LocalFileSystem } from 'storage-framework/src/local-fs-adapter/LocalFileSystem'
-
-  function localFSHandler(event) {
-    ;(async () => {
-      let fsHandle = await new LocalFileSystem().open()
-      let childs = await fsHandle.getChildren()
-      console.log('childs-------------', childs)
-      for (let ch of childs) {
-        if (ch.isFile) {
-          let fi = await ch.read()
-          console.log('Read file, file: ', fi)
-          let reader = new FileReader()
-          reader.readAsArrayBuffer(fi)
-
-          reader.onload = function () {
-            console.log('Read file content, content', reader.result)
-          }
-
-          reader.onerror = function () {
-            console.log(reader.error)
-          }
-        }
-      }
-    })()
-  }
 </script>
 
 <main>
   <div id="sidepane">
-    <Button on:click={(ev) => localFSHandler(ev)}
-      ><Folder /> Open Local File</Button
-    >
+    <Button><Folder /> Open Local File</Button>
     <Button><BrandGithub /> Open Github Project</Button>
     <Button><Cloud /> Open Solid Folder</Button>
   </div>

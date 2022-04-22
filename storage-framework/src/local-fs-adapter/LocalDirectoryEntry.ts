@@ -8,11 +8,11 @@ import { Result, OkOrError } from '../lib/utilities'
 import { LocalFileEntry } from './LocalFileEntry'
 
 export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
-  isDirectory: true
-  isFile: false
-  fullPath: string
-  name: string
-  isRoot: boolean
+  readonly isDirectory: true
+  readonly isFile: false
+  readonly fullPath: string
+  readonly name: string
+  readonly isRoot: boolean
   private parent: LocalDirectoryEntry
   private directoryHandle: FileSystemDirectoryHandle
 

@@ -11,11 +11,11 @@ import LocalFallbackDirectoryEntry from './LocalFallbackDirectoryEntry'
 export default class LocalFallbackFileEntry
   implements StorageFrameworkFileEntry
 {
+  name: string
   readonly isDirectory: false
   readonly isFile: true
   readonly fullPath: string
   readonly lastModified: number
-  name: string
   private file: File
   private parent: LocalFallbackDirectoryEntry
 
@@ -23,7 +23,7 @@ export default class LocalFallbackFileEntry
     this.file = file
     this.name = file.name
     this.lastModified = file.lastModified
-    this.fullPath = file.webkitRelativePath
+    this.fullPath = '/' + file.webkitRelativePath
     this.isDirectory = false
     this.isFile = true
     this.parent = parent
@@ -37,7 +37,10 @@ export default class LocalFallbackFileEntry
   }
 
   save(file: File): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      this.file = file
+      resolve()
+    })
   }
 
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
@@ -58,6 +61,13 @@ export default class LocalFallbackFileEntry
   }
 
   remove(): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      try {
+        this.parent.removeChild(this.name)
+        resolve()
+      } catch (error) {
+        reject(error)
+      }
+    })
   }
 }

@@ -10,8 +10,8 @@ import LocalFallbackFileEntry from './LocalFallbackFileEntry'
 export default class LocalFallbackDirectoryEntry
   implements StorageFrameworkDirectoryEntry
 {
-  isDirectory: true
-  isFile: false
+  readonly isDirectory: true
+  readonly isFile: false
   fullPath: string
   name: string
   parent: LocalFallbackDirectoryEntry
@@ -29,34 +29,9 @@ export default class LocalFallbackDirectoryEntry
     this.parent = parent
     this.isDirectory = true
     this.children = {}
-    for (let child of children) {
-      const path = child.webkitRelativePath.match(/[\w_-]+[\/\\]/g)
-      const fileName = child.webkitRelativePath
-        .match(/[\/\\][\w\ .,:_-]+/g)
-        .pop()
-        .replace(/[\/\\]/, '')
-      if (path.length === 0) this.fullPath = this.name
-      else {
-        this.name = path[0].replace(/[\/\\]/, '')
-        let current: LocalFallbackDirectoryEntry = this
-        for (let dirName of path.slice(1)) {
-          dirName = dirName.replace(/[\/\\]/, '')
-          if (!current.containsChildDirectory(dirName)) {
-            current.addChildDirectory(dirName)
-          }
-          current = current.getChildDirectory(dirName)
-        }
-        current.addChildFile(fileName, child)
-      }
-    }
-  }
-
-  addChildFile(name: string, child: File) {
-    this.children[name] = new LocalFallbackFileEntry(child, this)
-  }
-
-  addChildDirectory(name: string) {
-    this.children[name] = new LocalFallbackDirectoryEntry(name, [], false, this)
+    if (isRoot) this.fullPath = this.name
+    else this.fullPath = this.parent.fullPath + '/' + this.name
+    this.addChildren(children)
   }
 
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
@@ -87,7 +62,13 @@ export default class LocalFallbackDirectoryEntry
   }
 
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      if (this.parent) resolve(this.parent)
+      else {
+        const errMsg = `Directory ${this.fullPath} has no parent`
+        reject(new SFError(errMsg, new Error(errMsg)))
+      }
+    })
   }
 
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
@@ -101,8 +82,10 @@ export default class LocalFallbackDirectoryEntry
   remove(): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       try {
-        this.getParent
-      } catch (error) {}
+        await this.parent.removeChild(this.name)
+      } catch (error) {
+        reject(error)
+      }
     })
   }
 
@@ -127,5 +110,35 @@ export default class LocalFallbackDirectoryEntry
 
   getChildDirectory(name: string): LocalFallbackDirectoryEntry {
     return this.children[name]
+  }
+
+  addChildFile(name: string, child: File) {
+    this.children[name] = new LocalFallbackFileEntry(child, this)
+  }
+
+  addChildDirectory(name: string) {
+    this.children[name] = new LocalFallbackDirectoryEntry(name, [], false, this)
+  }
+
+  private addChildren(children: File[]): void {
+    for (let child of children) {
+      const path = child.webkitRelativePath.match(/[\w_-]+[\/\\]/g)
+      const fileName = child.webkitRelativePath
+        .match(/[\/\\][\w\ .,:_-]+/g)
+        .pop()
+        .replace(/[\/\\]/, '')
+      if (path.length > 0) {
+        //this.name = path[0].replace(/[\/\\]/, '')
+        let current: LocalFallbackDirectoryEntry = this
+        for (let dirName of path.slice(1)) {
+          dirName = dirName.replace(/[\/\\]/, '')
+          if (!current.containsChildDirectory(dirName)) {
+            current.addChildDirectory(dirName)
+          }
+          current = current.getChildDirectory(dirName)
+        }
+        current.addChildFile(fileName, child)
+      }
+    }
   }
 }
