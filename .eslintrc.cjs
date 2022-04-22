@@ -43,7 +43,8 @@ module.exports = {
     'no-invalid-this': 'error',
     'no-empty': 'warn',
     'no-constant-condition': 'warn',
-    eqeqeq: 'error',
+    '@typescript-eslint/ban-ts-comment': 'off',
+    eqeqeq: 'error'
   },
 
   extends: [
