@@ -21,40 +21,7 @@
     "svelte-preprocess": "^4.9.8",
     "tabler-icons-svelte": "^1.7.0",
     "tslib": "^2.3.1",
-    "typescript": "^4.5.4",
-    "vite": "^2.8.0"
+    "typescript": "^4.5.4"
   },
-  "dependencies": {
-    "@inrupt/solid-client": "^1.21.0",
-    "@inrupt/solid-client-authn-browser": "^1.11.7",
-    "@inrupt/solid-client-authn-node": "^1.11.7",
-    "@inrupt/vocab-common-rdf": "^1.0.3",
-    "@milkdown/core": "^5.5.0",
-    "@milkdown/plugin-clipboard": "^5.5.0",
-    "@milkdown/plugin-cursor": "^5.5.0",
-    "@milkdown/plugin-diagram": "^5.5.0",
-    "@milkdown/plugin-emoji": "^5.5.0",
-    "@milkdown/plugin-history": "^5.5.0",
-    "@milkdown/plugin-indent": "^5.5.0",
-    "@milkdown/plugin-listener": "^5.5.0",
-    "@milkdown/plugin-math": "^5.5.0",
-    "@milkdown/plugin-menu": "^5.5.0",
-    "@milkdown/plugin-prism": "^5.5.0",
-    "@milkdown/plugin-slash": "^5.5.0",
-    "@milkdown/plugin-tooltip": "^5.5.0",
-    "@milkdown/plugin-upload": "^5.5.0",
-    "@milkdown/preset-commonmark": "^5.5.0",
-    "@milkdown/preset-gfm": "^5.5.0",
-    "@milkdown/prose": "^5.5.0",
-    "@milkdown/theme-nord": "^5.5.0",
-    "@milkdown/utils": "^5.5.0",
-    "@octokit/core": "^3.6.0",
-    "@tldraw/tldraw": "^1.8.1",
-    "mobx": "^6.4.2",
-    "nanoid": "^3.3.1",
-    "prism-themes": "^1.9.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "unist-util-visit": "^4.1.0"
-  }
+  "dependencies": {}
 }

@@ -35,13 +35,6 @@
         .catch(console.log)
     }
   }
-
-  let tldraw
-  onMount(() => {
-    // renderTLDrawToElement(tldraw).then((api) => {
-    //   if (prefersDarkMode) api.toggleDarkMode()
-    // })
-  })
 </script>
 
 <main>
@@ -61,7 +54,6 @@
       <!-- <div bind:this={tldraw} /> -->
     </div>
   {/key}
-
 </main>
 
 <style>
