@@ -91,7 +91,15 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   remove(): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      if (this.parent) {
+        this.parent.removeEntry(this.name)
+        resolve()
+      } else {
+        const errMsg = `Failed to remove directory ${this.fullPath}`
+        reject(new SFError(errMsg, new Error(errMsg)))
+      }
+    })
   }
 
   removeEntry(name: string): OkOrError<SFError> {

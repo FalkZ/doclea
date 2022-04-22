@@ -13,6 +13,22 @@
       let fsHandle = await new LocalFileSystem().open()
       let childs = await fsHandle.getChildren()
       console.log('childs-------------', childs)
+      for (let ch of childs) {
+        if (ch.isFile) {
+          let fi = await ch.read()
+          console.log('Read file, file: ', fi)
+          let reader = new FileReader()
+          reader.readAsArrayBuffer(fi)
+
+          reader.onload = function () {
+            console.log('Read file content, content', reader.result)
+          }
+
+          reader.onerror = function () {
+            console.log(reader.error)
+          }
+        }
+      }
     })()
   }
 </script>

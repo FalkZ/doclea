@@ -14,18 +14,25 @@ export default class LocalFallbackDirectoryEntry
   isFile: false
   fullPath: string
   name: string
+  parent: LocalFallbackDirectoryEntry
   private isRoot: boolean
   private children
 
-  constructor(name: string, children: File[], isRoot: boolean) {
+  constructor(
+    name: string,
+    children: File[],
+    isRoot: boolean,
+    parent: LocalFallbackDirectoryEntry
+  ) {
     this.name = name
     this.isRoot = isRoot
+    this.parent = parent
     this.isDirectory = true
     this.children = {}
     for (let child of children) {
       const path = child.webkitRelativePath.match(/[\w_-]+[\/\\]/g)
       const fileName = child.webkitRelativePath
-        .match(/[\/\\][\w\ .:_-]+/g)
+        .match(/[\/\\][\w\ .,:_-]+/g)
         .pop()
         .replace(/[\/\\]/, '')
       if (path.length === 0) this.fullPath = this.name
@@ -49,7 +56,7 @@ export default class LocalFallbackDirectoryEntry
   }
 
   addChildDirectory(name: string) {
-    this.children[name] = new LocalFallbackDirectoryEntry(name, [], false)
+    this.children[name] = new LocalFallbackDirectoryEntry(name, [], false, this)
   }
 
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
@@ -69,7 +76,12 @@ export default class LocalFallbackDirectoryEntry
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
-      const newDirectory = new LocalFallbackDirectoryEntry(name, [], false)
+      const newDirectory = new LocalFallbackDirectoryEntry(
+        name,
+        [],
+        false,
+        this
+      )
       resolve(newDirectory)
     })
   }
@@ -87,7 +99,23 @@ export default class LocalFallbackDirectoryEntry
   }
 
   remove(): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result(async (resolve, reject) => {
+      try {
+        this.getParent
+      } catch (error) {}
+    })
+  }
+
+  removeChild(name: string): OkOrError<SFError> {
+    return new Result((resolve, reject) => {
+      if (this.children[name]) {
+        delete this.children[name]
+        resolve()
+      } else {
+        const errMsg = `Failed to remove ${name}. Entry not found.`
+        reject(new SFError(errMsg, new Error(errMsg)))
+      }
+    })
   }
 
   containsChildDirectory(name: string): boolean {
