@@ -1,0 +1,13 @@
+{
+  "name": "doclea",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "@inrupt/solid-client": "^1.21.0",
+    "octokit": "^1.7.1"
+  }
+}

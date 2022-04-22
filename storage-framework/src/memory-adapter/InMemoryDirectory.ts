@@ -1,10 +1,10 @@
-import { SFError } from '@lib/SFError'
+import { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry,
   StorageFrameworkFileEntry,
-} from '@lib/StorageFrameworkEntry'
-import { Result } from '@lib/utilities'
+} from '../lib/StorageFrameworkEntry'
+import { Result } from '../lib/utilities'
 import { InMemoryFile } from './InMemoryFile'
 import { InMemoryFSEntry } from './InMemoryFSEntry'
 

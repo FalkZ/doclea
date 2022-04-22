@@ -1,9 +1,9 @@
-import { SFFile } from '@lib/SFFile'
-import { OkOrError, Result } from '@lib/utilities'
+import { SFFile } from '../lib/SFFile'
+import { OkOrError, Result } from '../lib/utilities'
 import { InMemoryFSEntry } from './InMemoryFSEntry'
 
-import type { SFError } from '@lib/SFError'
-import type { StorageFrameworkFileEntry } from '@lib/StorageFrameworkEntry'
+import type { SFError } from '../lib/SFError'
+import type { StorageFrameworkFileEntry } from '../lib/StorageFrameworkEntry'
 import type { InMemoryDirectory } from './InMemoryDirectory'
 
 export class InMemoryFile

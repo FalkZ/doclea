@@ -1,9 +1,9 @@
-import { SFError } from '@lib/SFError'
+import { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry,
-} from '@lib/StorageFrameworkEntry'
-import { OkOrError, Result } from '@lib/utilities'
+} from '../lib/StorageFrameworkEntry'
+import { OkOrError, Result } from '../lib/utilities'
 import { InMemoryDirectory } from './InMemoryDirectory'
 
 export abstract class InMemoryFSEntry implements StorageFrameworkEntry {

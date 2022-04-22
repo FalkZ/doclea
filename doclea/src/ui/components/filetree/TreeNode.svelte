@@ -4,7 +4,7 @@
   import type {
     StorageFrameworkDirectoryEntry,
     StorageFrameworkEntry,
-  } from '@lib/StorageFrameworkEntry'
+  } from 'storage-framework/src/lib/StorageFrameworkEntry'
   import type { FileTreeConfig } from './FileTreeConfig'
   import type { SelectedEventDetail } from './SelectedEventDetail'
 

@@ -1,16 +1,14 @@
 <script lang="ts">
   import Editor from './Editor.svelte'
-  import demoContent from './demo.md?raw'
+  import demoContent from './demo.md'
 
   import { onMount } from 'svelte'
   //import { renderTLDrawToElement } from './tldraw/editor'
-  import { ColorStyle, TDShapeType } from '@tldraw/tldraw'
-  import { prefersDarkMode } from './prefersDarkMode'
 
   import type {
     StorageFrameworkDirectoryEntry,
     StorageFrameworkFileEntry,
-  } from '@lib/StorageFrameworkEntry'
+  } from 'storage-framework/src/lib/StorageFrameworkEntry'
 
   import FileTree from './components/filetree/FileTree.svelte'
   import FileSystemPicker from './components/fs-picker/FileSystemPicker.svelte'
@@ -88,6 +86,7 @@
     top: 0.1em;
   }
   #sidepane {
+    position: sticky;
     top: 0;
     height: 100vh;
   }
