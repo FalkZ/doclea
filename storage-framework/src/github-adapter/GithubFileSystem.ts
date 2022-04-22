@@ -15,13 +15,22 @@ export class GithubFileSystem implements StorageFrameworkProvider {
 
   octokit: Octokit
 
-  constructor() {
-    this.octokit = new Octokit()
-  }
-
   open(): Result<StorageFrameworkEntry, SFError> {
     return new Result((resolve, reject) => {
-      console.log('hallo mikko')
+      this.octokit = new Octokit({
+        auth: 'TODO-token', // https://github.com/settings/tokens
+        userAgent: 'doclea',
+
+        baseUrl: 'https://api.github.com',
+
+        log: {
+          debug: console.debug,
+          info: console.info,
+          warn: console.warn,
+          error: console.error
+        }
+      })
+
       this.readDirFromGithub()
         .then((githubEntry) => {
           resolve(githubEntry)

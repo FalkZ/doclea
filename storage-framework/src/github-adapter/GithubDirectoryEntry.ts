@@ -28,10 +28,10 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
     this.parent = parent
     this.name = githubEntry.name
     this.fullPath = githubEntry.path
-
+    this.octokit = octokit
     this.isRoot = isRoot
 
-    if (this.isRoot == true) return
+    if (this.isRoot == false) return
 
     githubEntry.forEach((element) => {
       if (element.type == 'dir') {
@@ -44,7 +44,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
 
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
     return new Result(() => {
-      if (this.parent != null) {
+      if (this.isRoot == false) {
         const obj = {
           name: this.name,
           path: this.fullPath
