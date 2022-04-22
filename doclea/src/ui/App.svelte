@@ -1,48 +1,67 @@
 <script lang="ts">
   import Editor from './Editor.svelte'
-  import content from 'bundle-text:./demo.md'
-  import Button from './Button.svelte'
+  import demoContent from './demo.md'
 
-  import Folder from 'tabler-icons-svelte/icons/Folder.svelte'
-  import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
-  import Cloud from 'tabler-icons-svelte/icons/Cloud.svelte'
   import { onMount } from 'svelte'
-  // import { renderTLDrawToElement } from './tldraw/editor'
-  // import { ColorStyle, TDShapeType } from '@tldraw/tldraw'
-  // import { prefersDarkMode } from './prefersDarkMode'
-  import { SolidFileSystem } from '../../../storage-framework/src/solid-adapter/SolidFileSystem'
-  import { GithubFileSystem } from '../../../storage-framework/src/github-adapter/GithubFileSystem'
+  //import { renderTLDrawToElement } from './tldraw/editor'
 
-  // let tldraw
-  // onMount(() => {
-  //   renderTLDrawToElement(tldraw).then((api) => {
-  //     if (prefersDarkMode) api.toggleDarkMode()
-  //   })
-  // })
+  import type {
+    StorageFrameworkDirectoryEntry,
+    StorageFrameworkFileEntry,
+  } from 'storage-framework/src/lib/StorageFrameworkEntry'
+
+  import FileTree from './components/filetree/FileTree.svelte'
+  import FileSystemPicker from './components/fs-picker/FileSystemPicker.svelte'
+  import type { SelectedEventDetail } from './components/filetree/SelectedEventDetail'
+
+  let content: string = demoContent
+
+  let rootEntry: StorageFrameworkDirectoryEntry | null = null
+  const onEntrySelected = (event: CustomEvent<SelectedEventDetail>) => {
+    console.log('selected entry: ' + event.detail.entry.fullPath)
+    if (event.detail.entry.isFile) {
+      let file = <StorageFrameworkFileEntry>event.detail.entry
+      file
+        .read()
+        .then((f) => {
+          console.log('opening file: ' + f.name)
+          f.text()
+            .then((c) => {
+              console.log('setting new content: ' + c)
+              content = c
+            })
+            .catch(console.log)
+        })
+        .catch(console.log)
+    }
+  }
+
+  let tldraw
+  onMount(() => {
+    // renderTLDrawToElement(tldraw).then((api) => {
+    //   if (prefersDarkMode) api.toggleDarkMode()
+    // })
+  })
 </script>
 
 <main>
-  <div id="sidepane">
-    <Button><Folder /> Open Local File</Button>
-    <Button
-      on:click={() => {
-        console.log('hello')
-        new GithubFileSystem().open()
-      }}><BrandGithub /> Open Github Project</Button
-    >
-    <Button
-      on:click={() => {
-        console.log('asdf')
+  {#if !rootEntry}
+    <div id="sidepane">
+      <FileSystemPicker bind:pickedFSEntry={rootEntry} />
+    </div>
+  {/if}
+  {#if rootEntry}
+    <div id="filetree">
+      <FileTree entry={rootEntry} on:selected={onEntrySelected} config={null} />
+    </div>
+  {/if}
+  {#key content}
+    <div>
+      <Editor defaultValue={content} />
+      <!-- <div bind:this={tldraw} /> -->
+    </div>
+  {/key}
 
-        new GithubFileSystem().open()
-        // new SolidFileSystem().open()
-      }}><Cloud /> Open Solid Folder</Button
-    >
-  </div>
-  <div>
-    <Editor defaultValue={content} />
-    <!-- <div bind:this={tldraw} /> -->
-  </div>
 </main>
 
 <style>
