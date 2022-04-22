@@ -9,7 +9,6 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@milahu/patch-package-with-pnpm-support": "^6.4.10",
     "@milkdown/core": "^5.5.0",
     "@milkdown/plugin-clipboard": "^5.5.0",
     "@milkdown/plugin-cursor": "^5.5.0",
@@ -36,10 +35,12 @@
     "tabler-icons-svelte": "^1.7.0"
   },
   "devDependencies": {
-    "parcel": "^2.4.1",
+    "@milahu/patch-package-with-pnpm-support": "^6.4.10",
     "@parcel/config-default": "^2.4.1",
+    "@parcel/transformer-inline-string": "^2.5.0",
     "@parcel/transformer-raw": "^2.4.1",
     "@tsconfig/svelte": "^3.0.0",
+    "parcel": "^2.4.1",
     "parcel-transformer-svelte3-plus": "0.2.7",
     "svelte-preprocess": "^4.10.4",
     "typescript": "^4.6.3"
