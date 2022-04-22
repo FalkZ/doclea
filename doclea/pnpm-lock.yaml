@@ -19,7 +19,7 @@ specifiers:
   '@milkdown/preset-commonmark': ^5.5.0
   '@milkdown/preset-gfm': ^5.5.0
   '@milkdown/prose': 5.5.0
-  '@milkdown/theme-nord': ^5.5.0
+  '@milkdown/theme-nord': 5.5.0
   '@milkdown/utils': ^5.5.0
   '@parcel/config-default': ^2.4.1
   '@parcel/transformer-raw': ^2.4.1

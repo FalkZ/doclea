@@ -2,9 +2,13 @@
 
 # Development
 
+Install dependencies:
+
 ```
-pnpm install
+pnpm run setup
 ```
+
+Run dev server:
 
 ```
 pnpm run dev

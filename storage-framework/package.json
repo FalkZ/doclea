@@ -2,11 +2,12 @@
   "name": "doclea",
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
-    "build": "vite build"
-  },
+  "scripts": {},
   "dependencies": {
     "@inrupt/solid-client": "^1.21.0",
+    "@inrupt/solid-client-authn-browser": "^1.11.7",
+    "@inrupt/solid-client-authn-node": "^1.11.7",
+    "@inrupt/vocab-common-rdf": "^1.0.3",
     "@octokit/core": "^3.6.0"
   }
 }

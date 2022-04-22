@@ -1,7 +1,7 @@
 module.exports = {
   env: {
     es6: true,
-    browser: true
+    browser: true,
   },
   root: true,
   parser: '@typescript-eslint/parser',
@@ -12,13 +12,13 @@ module.exports = {
     sourceType: 'module',
     tsconfigRootDir: __dirname,
     project: ['./*/tsconfig.json'],
-    extraFileExtensions: ['.svelte']
+    extraFileExtensions: ['.svelte'],
   },
   overrides: [
     {
       files: ['*.svelte'],
-      processor: 'svelte3/svelte3'
-    }
+      processor: 'svelte3/svelte3',
+    },
   ],
   rules: {
     'prefer-arrow-callback': 'warn',
@@ -28,30 +28,33 @@ module.exports = {
         classPropertiesAllowed: false,
         disallowPrototype: false,
         returnStyle: 'implicit',
-        singleReturnOnly: false
-      }
+        singleReturnOnly: false,
+      },
     ],
     'no-restricted-syntax': [
       'warn',
       {
         selector: 'ExportDefaultDeclaration',
-        message: 'Prefer named exports'
-      }
+        message: 'Prefer named exports',
+      },
     ],
     curly: ['warn', 'multi-or-nest', 'consistent'],
     quotes: ['warn', 'single'],
     'no-invalid-this': 'error',
     'no-empty': 'warn',
     'no-constant-condition': 'warn',
-    eqeqeq: 'error'
+    eqeqeq: 'error',
   },
 
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'prettier'
+    'prettier',
   ],
   settings: {
-    'svelte3/typescript': true
-  }
+    'svelte3/typescript': () => require('typescript'),
+    // ignore style tags in Svelte because of Tailwind CSS
+    // See https://github.com/sveltejs/eslint-plugin-svelte3/issues/70
+    'svelte3/ignore-styles': () => true,
+  },
 }
