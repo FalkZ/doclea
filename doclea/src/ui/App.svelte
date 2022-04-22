@@ -1,20 +1,67 @@
 <script lang="ts">
   import Editor from './Editor.svelte'
-  import content from 'bundle-text:./demo.md'
-  import Button from './Button.svelte'
+  import demoContent from './demo.md'
 
-  import Folder from 'tabler-icons-svelte/icons/Folder.svelte'
-  import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
-  import Cloud from 'tabler-icons-svelte/icons/Cloud.svelte'
+  import { onMount } from 'svelte'
+  //import { renderTLDrawToElement } from './tldraw/editor'
+
+  import type {
+    StorageFrameworkDirectoryEntry,
+    StorageFrameworkFileEntry,
+  } from 'storage-framework/src/lib/StorageFrameworkEntry'
+
+  import FileTree from './components/filetree/FileTree.svelte'
+  import FileSystemPicker from './components/fs-picker/FileSystemPicker.svelte'
+  import type { SelectedEventDetail } from './components/filetree/SelectedEventDetail'
+
+  let content: string = demoContent
+
+  let rootEntry: StorageFrameworkDirectoryEntry | null = null
+  const onEntrySelected = (event: CustomEvent<SelectedEventDetail>) => {
+    console.log('selected entry: ' + event.detail.entry.fullPath)
+    if (event.detail.entry.isFile) {
+      let file = <StorageFrameworkFileEntry>event.detail.entry
+      file
+        .read()
+        .then((f) => {
+          console.log('opening file: ' + f.name)
+          f.text()
+            .then((c) => {
+              console.log('setting new content: ' + c)
+              content = c
+            })
+            .catch(console.log)
+        })
+        .catch(console.log)
+    }
+  }
+
+  let tldraw
+  onMount(() => {
+    // renderTLDrawToElement(tldraw).then((api) => {
+    //   if (prefersDarkMode) api.toggleDarkMode()
+    // })
+  })
 </script>
 
 <main>
-  <div id="sidepane">
-    <Button><Folder /> Open Local File</Button>
-    <Button><BrandGithub /> Open Github Project</Button>
-    <Button><Cloud /> Open Solid Folder</Button>
-  </div>
-  <Editor defaultValue={content} />
+  {#if !rootEntry}
+    <div id="sidepane">
+      <FileSystemPicker bind:pickedFSEntry={rootEntry} />
+    </div>
+  {/if}
+  {#if rootEntry}
+    <div id="filetree">
+      <FileTree entry={rootEntry} on:selected={onEntrySelected} config={null} />
+    </div>
+  {/if}
+  {#key content}
+    <div>
+      <Editor defaultValue={content} />
+      <!-- <div bind:this={tldraw} /> -->
+    </div>
+  {/key}
+
 </main>
 
 <style>
@@ -40,8 +87,13 @@
     top: 0.1em;
   }
   #sidepane {
-    position: sticky;
     top: 0;
     height: 100vh;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(body) {
+      background: #2e3440;
+    }
   }
 </style>

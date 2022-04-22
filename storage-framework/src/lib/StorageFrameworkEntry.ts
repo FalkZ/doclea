@@ -33,6 +33,7 @@ export interface StorageFrameworkFileEntry extends StorageFrameworkEntry {
 export interface StorageFrameworkDirectoryEntry extends StorageFrameworkEntry {
   readonly isDirectory: true
   readonly isFile: false
+  readonly isRoot: boolean
   getChildren(): Result<StorageFrameworkEntry[], SFError>
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError>
   createDirectory(name: string): Result<StorageFrameworkDirectoryEntry, SFError>

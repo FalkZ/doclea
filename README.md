@@ -9,3 +9,9 @@ pnpm install
 ```
 pnpm run dev
 ```
+
+## install pnpm
+
+```
+npm install -g pnpm
+```
