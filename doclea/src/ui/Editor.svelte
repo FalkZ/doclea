@@ -15,7 +15,9 @@
   import { upload } from '@milkdown/plugin-upload'
   import { gfm } from '@milkdown/preset-gfm'
   import { nord } from '@milkdown/theme-nord'
+
   import PrismTheme from './PrismTheme.svelte'
+
 
   export let defaultValue = '# Hello'
 
@@ -45,7 +47,9 @@
   }
 </script>
 
+
 <PrismTheme />
+
 
 <svelte:head>
   <link
