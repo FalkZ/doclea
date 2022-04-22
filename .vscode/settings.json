@@ -1,5 +1,10 @@
 {
-  "editor.formatOnSave": true,
+  "prettier.configPath": "./node_modules/eslint-config-ijw/.prettierrc",
+  "eslint.validate": ["svelte"],
+
+  "eslint.enable": true,
+  "eslint.packageManager": "pnpm",
+
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -15,7 +20,7 @@
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "eslint.validate": [{ "language": "svelte", "autoFix": true }],
-  "eslint.enable": true,
-  "eslint.autoFixOnSave": false
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
 }

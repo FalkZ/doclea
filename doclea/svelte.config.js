@@ -10,7 +10,7 @@ const config = {
     // sveltePreprocess is the default. It is automatically used, when the
     // dependency is resolvable, and when the `preprocess` property is not
     // defined in this configuration file, or when no configuration-file exists.
-    sveltePreprocess(),
-  ],
+    sveltePreprocess()
+  ]
 }
 module.exports = { config }

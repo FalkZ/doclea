@@ -3,7 +3,8 @@
   import demoContent from './demo.md'
 
   import { onMount } from 'svelte'
-  //import { renderTLDrawToElement } from './tldraw/editor'
+
+  // import { renderTLDrawToElement } from './tldraw/editor'
 
   import type {
     StorageFrameworkDirectoryEntry,
@@ -20,7 +21,7 @@
   const onEntrySelected = (event: CustomEvent<SelectedEventDetail>) => {
     console.log('selected entry: ' + event.detail.entry.fullPath)
     if (event.detail.entry.isFile) {
-      let file = <StorageFrameworkFileEntry>event.detail.entry
+      const file = <StorageFrameworkFileEntry>event.detail.entry
       file
         .read()
         .then((f) => {
