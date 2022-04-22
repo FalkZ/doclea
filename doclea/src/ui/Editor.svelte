@@ -17,6 +17,7 @@
   import { upload } from '@milkdown/plugin-upload'
   import { gfm } from '@milkdown/preset-gfm/src'
   import { nord } from '@milkdown/theme-nord'
+
   import PrismTheme from './PrismTheme.svelte'
 
   import { tldraw } from 'milkdown-plugin-tldraw'
@@ -62,7 +63,9 @@
   }
 </script>
 
+
 <PrismTheme />
+
 
 <svelte:head>
   <link
