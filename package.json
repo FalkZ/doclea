@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@parcel/transformer-inline-string": "2.4.1",
-    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30", 
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
     "svelte-check": "^2.2.7",
     "svelte-preprocess": "^4.9.8",
     "tabler-icons-svelte": "^1.7.0",
@@ -22,7 +22,7 @@
     "eslint": "7.28.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-config-standard-with-typescript": "21.0.1",
-    "eslint-config-ijw": "file:../ijw",
+    "eslint-config-ijw": "npm:ijw",
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-prefer-arrow-functions": "3.1.4",
