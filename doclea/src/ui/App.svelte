@@ -17,11 +17,14 @@
 
   let content: string = demoContent
 
+  let selectedFile: StorageFrameworkFileEntry = null
+
   let rootEntry: StorageFrameworkDirectoryEntry | null = null
   const onEntrySelected = (event: CustomEvent<SelectedEventDetail>) => {
     console.log('selected entry: ' + event.detail.entry.fullPath)
     if (event.detail.entry.isFile) {
       const file = <StorageFrameworkFileEntry>event.detail.entry
+      selectedFile = file
       file
         .read()
         .then((f) => {
@@ -51,7 +54,7 @@
   {/if}
   {#key content}
     <div>
-      <Editor defaultValue={content} />
+      <Editor defaultValue={content} {selectedFile} />
       <!-- <div bind:this={tldraw} /> -->
     </div>
   {/key}
