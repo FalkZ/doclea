@@ -63,7 +63,6 @@
               {
                 type: 'button',
                 icon: 'save',
-                active: () => !selectedFile || !selectedFile.save,
               },
             ],
             ...defaultConfig,
@@ -98,13 +97,11 @@
 <div use:editor />
 
 <style>
-  div {
-    position: relative;
-    height: 100%;
-  }
   :global(.milkdown-menu) {
-    position: sticky;
-    top: 0;
-    z-index: 5;
+    max-width: 100%;
+  }
+  :global(.milkdown) {
+    height: calc(100vh - 50px);
+    overflow: scroll;
   }
 </style>

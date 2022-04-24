@@ -72,8 +72,9 @@
   }
   main {
     display: grid;
-    grid-template-columns: minmax(150px, 300px) 1fr;
+    grid-template-columns: minmax(150px, 300px) minmax(0, 1fr);
     height: 100vh;
+    width: 100vw;
   }
   :global(.icon-tabler) {
     height: 2em;
