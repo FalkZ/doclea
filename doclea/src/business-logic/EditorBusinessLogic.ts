@@ -7,13 +7,26 @@ import type {
 enum MessageType {
   Error = 'error',
   Warning = 'warning',
-  Info = 'info'
+  Info = 'info',
+  Prompt = 'prompt'
 }
 
-interface Message {
-  type: MessageType
+type Action = () => void
+
+type Label = string
+
+interface MessagePrompt {
+  type: MessageType.Prompt
+  message: string
+  actions: Record<Label, Action>
+}
+
+interface BasicMessage {
+  type: MessageType.Error | MessageType.Info | MessageType.Warning
   message: string
 }
+
+type Message = BasicMessage | MessagePrompt
 
 /**
  * Every action that is taken in the editor should be defined and executed here (except for internal actions of the milkdown editor)
@@ -45,11 +58,11 @@ export class EditorBusinessLogic {
   /**
    * Opens Storage Framework and updates fileStore
    */
-  public openGithub(): void {}
+  public openGithub(url: string): void {}
 
   public openLocal(): void {}
 
-  public openSolid(): void {}
+  public openSolid(url: string): void {}
 
   public setSelectedFile(file: StorageFrameworkFileEntry): void {}
 

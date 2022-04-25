@@ -3,8 +3,7 @@ import type { SFError } from './SFError'
 import type { SFFile } from './SFFile'
 
 export interface StorageFrameworkProvider {
-  // todo: empty?
-  open(): Result<StorageFrameworkEntry, SFError>
+  open(url?: string): Result<StorageFrameworkEntry, SFError>
 }
 
 /**
