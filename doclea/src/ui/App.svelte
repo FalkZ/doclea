@@ -1,10 +1,9 @@
 <script lang="ts">
-  import Editor from './Editor.svelte'
+  import Editor from './views/Editor.svelte'
+  import Open from './views/Open.svelte'
+  import Theming from './Theming.svelte'
+  import Router from './components/Router.svelte'
   import demoContent from './demo.md'
-
-  import { onMount } from 'svelte'
-
-  // import { renderTLDrawToElement } from './tldraw/editor'
 
   import type {
     StorageFrameworkDirectoryEntry,
@@ -41,35 +40,34 @@
   }
 </script>
 
-<main>
-  {#if !rootEntry}
-    <div id="sidepane">
-      <FileSystemPicker bind:pickedFSEntry={rootEntry} />
-    </div>
-  {/if}
-  {#if rootEntry}
-    <div id="filetree">
-      <FileTree entry={rootEntry} on:selected={onEntrySelected} config={null} />
-    </div>
-  {/if}
-  {#key content}
-    <div>
-      <Editor defaultValue={content} {selectedFile} />
-      <!-- <div bind:this={tldraw} /> -->
-    </div>
-  {/key}
-</main>
+<Theming />
+<Router editorState={{ showEditor: true, openFile: true }}>
+  <Open slot="openFile" />
+  <main slot="showEditor">
+    {#if !rootEntry}
+      <div id="sidepane">
+        <FileSystemPicker bind:pickedFSEntry={rootEntry} />
+      </div>
+    {/if}
+    {#if rootEntry}
+      <div id="filetree">
+        <FileTree
+          entry={rootEntry}
+          on:selected={onEntrySelected}
+          config={null}
+        />
+      </div>
+    {/if}
+    {#key content}
+      <div>
+        <Editor defaultValue={content} {selectedFile} />
+        <!-- <div bind:this={tldraw} /> -->
+      </div>
+    {/key}
+  </main>
+</Router>
 
 <style>
-  :root {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-      Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  }
-
-  :global(html, body) {
-    height: 100%;
-    margin: 0;
-  }
   main {
     display: grid;
     grid-template-columns: minmax(150px, 300px) minmax(0, 1fr);
@@ -86,11 +84,5 @@
   #sidepane {
     top: 0;
     height: 100vh;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :global(body) {
-      background: #2e3440;
-    }
   }
 </style>

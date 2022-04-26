@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from '../Button.svelte'
+  import Button from '../basic-elements/Button.svelte'
 
   import Folder from 'tabler-icons-svelte/icons/Folder.svelte'
   import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
