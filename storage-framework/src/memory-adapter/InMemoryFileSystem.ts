@@ -9,17 +9,17 @@ import { InMemoryDirectory } from './InMemoryDirectory'
 export class InMemoryFileSystem implements StorageFrameworkProvider {
   open(): Result<StorageFrameworkEntry, SFError> {
     return new Result((resolve) => {
-      let root = new InMemoryDirectory(null, null)
+      const root = new InMemoryDirectory(null, null)
       initSamples(root).then((_) => resolve(root))
     })
   }
 }
 
 const initSamples = async (root: InMemoryDirectory) => {
-  let studiumDir = await root.createDirectory('Studium')
+  const studiumDir = await root.createDirectory('Studium')
   {
-    let todo = await studiumDir.createFile('TODOs.MD')
-    let content = `
+    const todo = await studiumDir.createFile('TODOs.MD')
+    const content = `
     # TODO
 
     there's a lot of work left: have a look at the github issue board:
@@ -27,10 +27,10 @@ const initSamples = async (root: InMemoryDirectory) => {
     `.replace(/^[ \t]+/gm, '')
     todo.save(new File([content], '', {}))
   }
-  let sem6 = await studiumDir.createDirectory('Semester 6')
+  const sem6 = await studiumDir.createDirectory('Semester 6')
   {
-    let readme = await sem6.createFile('README.MD')
-    let content = `
+    const readme = await sem6.createFile('README.MD')
+    const content = `
     # Sample README
 
     this is an example from the in memory file system

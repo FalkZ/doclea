@@ -1,6 +1,7 @@
-import type { Result, OkOrError } from './utilities'
+import type { Result, OkOrError } from './utilities/result'
 import type { SFError } from './SFError'
 import type { SFFile } from './SFFile'
+import { Readable as Observable } from './utilities/stores'
 
 export interface StorageFrameworkProvider {
   // todo: empty?
@@ -20,6 +21,9 @@ export interface StorageFrameworkEntry {
   getParent(): Result<StorageFrameworkDirectoryEntry | null, SFError>
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError>
   rename(name: string): OkOrError<SFError>
+  /**
+   * Remove shall not be recursive
+   */
   remove(): OkOrError<SFError>
 }
 
@@ -27,6 +31,7 @@ export interface StorageFrameworkFileEntry extends StorageFrameworkEntry {
   readonly isDirectory: false
   readonly isFile: true
   read(): Result<SFFile, SFError>
+  watchContent(): Result<Observable<SFFile>, SFError>
   save(file: File): OkOrError<SFError>
 }
 
@@ -35,6 +40,7 @@ export interface StorageFrameworkDirectoryEntry extends StorageFrameworkEntry {
   readonly isFile: false
   readonly isRoot: boolean
   getChildren(): Result<StorageFrameworkEntry[], SFError>
+  watchChildren(): Result<Observable<StorageFrameworkEntry[]>, SFError>
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError>
   createDirectory(name: string): Result<StorageFrameworkDirectoryEntry, SFError>
 }

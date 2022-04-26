@@ -5,60 +5,73 @@
     StorageFrameworkDirectoryEntry,
     StorageFrameworkEntry,
   } from 'storage-framework/src/lib/StorageFrameworkEntry'
-  import type { FileTreeConfig } from './FileTreeConfig'
   import type { SelectedEventDetail } from './SelectedEventDetail'
 
   const dispatch = createEventDispatcher()
 
   export let entry: StorageFrameworkEntry
-  export let config: FileTreeConfig
   export let showAsRootNode: boolean = false
   export let indentionLevel = 0
 
+  let isSelected = false
   let showChildren = true
   let children: StorageFrameworkEntry[] = []
 
   $: {
     if (entry.isDirectory) {
-      let dirEntry: StorageFrameworkDirectoryEntry = <
+      const dirEntry: StorageFrameworkDirectoryEntry = <
         StorageFrameworkDirectoryEntry
       >entry
       dirEntry.getChildren().then((childs) => {
         children = childs
       })
+      dirEntry.watchChildren().then((observable) => {
+        observable.subscribe((childs) => {
+          children = childs
+        })
+      })
     }
   }
 
-  function onSelectClick(event: Event) {
+  const onSelectClick = (event: Event) => {
     event.stopPropagation()
-
-    if (entry.isDirectory && !config?.selectDirectories) {
-      onArrowClicked(event)
-      return
-    }
-
-    let detail: SelectedEventDetail = {
+  
+    isSelected = true
+    const detail: SelectedEventDetail = {
       entry: entry,
+      onDeselect: () => {isSelected = false}
     }
     dispatch('selected', detail)
-  }
+  };
 
-  function onArrowClicked(event: Event) {
+  const onContextMenu = (event: Event) => {
+    event.stopPropagation()
+  
+    // TODO: context menu
+    if (entry.isDirectory)
+      (<StorageFrameworkDirectoryEntry>entry).createFile('test')
+  };
+
+  const onArrowClicked = (event: Event) => {
     event.stopPropagation()
     if (!showAsRootNode) showChildren = !showChildren
-  }
+  };
 </script>
 
 {#if entry.isFile}
   <div
-    class="entry title"
+    class="entry title {isSelected?'selected':''}"
     style="--indention-level: {indentionLevel}em"
     on:click={onSelectClick}
   >
     <span>&#x1f4c3 {entry.name}</span>
   </div>
 {:else}
-  <div class="entry" on:click={onSelectClick}>
+  <div
+    class="entry {isSelected?'selected':''}"
+    on:click={onSelectClick}
+    on:contextmenu|preventDefault={onContextMenu}
+  >
     {#if showAsRootNode}
       <div class:root={showAsRootNode}>
         <b class="title" style="--indention-level: {indentionLevel}"
@@ -69,6 +82,7 @@
       <div class="title" style="--indention-level: {indentionLevel}em">
         <span
           on:click={onArrowClicked}
+          on:contextmenu|preventDefault={onContextMenu}
           class="arrow"
           class:arrowDown={showChildren}>&#x25b6</span
         >
@@ -80,7 +94,6 @@
         {#each children as child}
           <svelte:self
             entry={child}
-            {config}
             indentionLevel={indentionLevel + 1}
             on:selected
           />
@@ -92,11 +105,15 @@
 
 <style>
   .root {
-    background-color: rgba(0.7, 0.7, 0.7, 0.3);
+    background-color: rgba(0.7, 0.7, 0.7, 0.4);
   }
 
   .entry {
     cursor: pointer;
+  }
+
+  .selected {
+    background-color: rgba(0.7, 0.7, 0.7, 0.1);
   }
 
   .title {

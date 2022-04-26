@@ -1,12 +1,30 @@
 <script lang="ts">
+  import type { StorageFrameworkDirectoryEntry, StorageFrameworkEntry } from 'storage-framework/src/lib/StorageFrameworkEntry'
+  import type { DeselectionCallback, SelectedEventDetail } from './SelectedEventDetail'
+
+  import { createEventDispatcher } from 'svelte';
+
   import TreeNode from './TreeNode.svelte'
-
-  import type { StorageFrameworkDirectoryEntry } from 'storage-framework/src/lib/StorageFrameworkEntry'
-
-  import type { FileTreeConfig } from './FileTreeConfig'
-
-  export let config: FileTreeConfig | null
+  import ActionBar from './ActionBar.svelte';
+  
   export let entry: StorageFrameworkDirectoryEntry
+
+  const dispatch = createEventDispatcher()
+
+  let selectedEntry: StorageFrameworkEntry | null = null
+  let deselectionCallback: DeselectionCallback | null = null
+
+  const onEntrySelected = (event: CustomEvent<SelectedEventDetail>) => {
+    if(selectedEntry !== event.detail.entry) {
+      if(deselectionCallback)
+        deselectionCallback()
+    }
+
+    selectedEntry = event.detail.entry
+    deselectionCallback = event.detail.onDeselect
+    dispatch("selected", event.detail)
+  }
 </script>
 
-<TreeNode {entry} {config} showAsRootNode={true} on:selected />
+<ActionBar selectedEntry={selectedEntry} />
+<TreeNode {entry} showAsRootNode={true} on:selected={onEntrySelected} />

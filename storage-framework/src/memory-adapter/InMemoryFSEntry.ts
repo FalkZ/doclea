@@ -33,8 +33,9 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
 
     if (!this.parent.isNodeAttachedToRoot()) return false
 
-    return this.parent.getChildByName(this.name) == this
+    return this.parent.getChildByName(this.name) === this
   }
+
   verifyNodeIsAttachedToRoot(): SFError | null {
     if (this.isNodeAttachedToRoot()) return null
     return new SFError(
@@ -67,6 +68,7 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
         )
       } else {
         this.name = name
+        this.parent.notifyWatchListeners()
         resolve()
       }
     })
@@ -127,6 +129,8 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
         .appendChild(this)
         .then((_) => {
           this.parent.removeChild(this)
+          this.parent.notifyWatchListeners()
+          directoryNode.notifyWatchListeners()
           resolve()
         })
         .catch((e) => reject(e))

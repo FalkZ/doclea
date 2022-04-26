@@ -1,5 +1,8 @@
 import type { StorageFrameworkEntry } from 'storage-framework/src/lib/StorageFrameworkEntry'
 
-export type SelectedEventDetail = {
-  entry: StorageFrameworkEntry
+export type DeselectionCallback = () => void
+
+export interface SelectedEventDetail {
+  entry: StorageFrameworkEntry,
+  onDeselect?: DeselectionCallback
 }

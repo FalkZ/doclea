@@ -5,6 +5,7 @@ import type {
   StorageFrameworkFileEntry,
 } from '../lib/StorageFrameworkEntry'
 import { Result } from '../lib/utilities'
+import { writable, Readable, Writable } from '../lib/utilities/stores'
 import { InMemoryFile } from './InMemoryFile'
 import { InMemoryFSEntry } from './InMemoryFSEntry'
 
@@ -13,6 +14,7 @@ export class InMemoryDirectory
   implements StorageFrameworkDirectoryEntry
 {
   private children: InMemoryFSEntry[] = []
+  private readonly observable: Writable<InMemoryFSEntry[]> = writable()
 
   constructor(parent: InMemoryDirectory | null, name: string) {
     super(parent, name)
@@ -21,6 +23,7 @@ export class InMemoryDirectory
   get isDirectory(): true {
     return true
   }
+
   get isFile(): false {
     return false
   }
@@ -37,9 +40,24 @@ export class InMemoryDirectory
       resolve([...this.children])
     })
   }
+
+  watchChildren(): Result<Readable<StorageFrameworkEntry[]>, SFError> {
+    return new Result((resolve, reject) => {
+      // verify node is attached to the root node
+      const error = this.verifyNodeIsAttachedToRoot()
+      if (error != null) {
+        reject(error)
+        return
+      }
+
+      resolve(this.observable)
+    })
+  }
+
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
     return this.appendChild(new InMemoryFile(this, name))
   }
+
   createDirectory(
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
@@ -49,15 +67,19 @@ export class InMemoryDirectory
   // ================================================================================
   // additional methods
 
+  notifyWatchListeners() {
+    this.observable.set([...this.children])
+  }
+
   getChildByName(name: string): InMemoryFSEntry | null {
-    for (let child of this.children) {
+    for (const child of this.children) {
       if (child.name == name) return child
     }
     return null
   }
 
   hasChildWithName(name: string): SFError | null {
-    if (this.getChildByName(name))
+    if (this.getChildByName(name) != null)
       return new SFError(
         `${this.fullPath} already has an entry with name ${name}`
       )
@@ -74,7 +96,7 @@ export class InMemoryDirectory
       {
         // verify node is attached to the root node
         const error = this.verifyNodeIsAttachedToRoot()
-        if (error) {
+        if (error != null) {
           reject(error)
           return
         }
@@ -83,18 +105,20 @@ export class InMemoryDirectory
       {
         // check if the name is already used
         const error = this.hasChildWithName(child.name)
-        if (error) {
+        if (error != null) {
           reject(error)
           return
         }
       }
 
       this.children.push(child)
+      this.notifyWatchListeners()
       resolve(child)
     })
   }
 
   removeChild(child: InMemoryFSEntry) {
     this.children = this.children.filter((n) => n != child)
+    this.notifyWatchListeners()
   }
 }

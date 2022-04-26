@@ -9,6 +9,7 @@
   import type {
     StorageFrameworkDirectoryEntry,
     StorageFrameworkFileEntry,
+    StorageFrameworkEntry
   } from 'storage-framework/src/lib/StorageFrameworkEntry'
 
   import FileTree from './components/filetree/FileTree.svelte'
@@ -17,7 +18,7 @@
 
   let content: string = demoContent
 
-  let selectedFile: StorageFrameworkFileEntry = null
+  let selectedFile: StorageFrameworkFileEntry | null = null
 
   let rootEntry: StorageFrameworkDirectoryEntry | null = null
   const onEntrySelected = (event: CustomEvent<SelectedEventDetail>) => {
@@ -46,18 +47,19 @@
     <div id="sidepane">
       <FileSystemPicker bind:pickedFSEntry={rootEntry} />
     </div>
-  {/if}
-  {#if rootEntry}
+  {:else}
     <div id="filetree">
-      <FileTree entry={rootEntry} on:selected={onEntrySelected} config={null} />
+      <FileTree entry={rootEntry} on:selected={onEntrySelected} />
     </div>
   {/if}
+  {#if content != null}
   {#key content}
     <div>
       <Editor defaultValue={content} {selectedFile} />
       <!-- <div bind:this={tldraw} /> -->
     </div>
   {/key}
+  {/if}
 </main>
 
 <style>
