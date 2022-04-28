@@ -1,15 +1,21 @@
 export type none = undefined | null
 
 interface ResultLike<T, E> {
-  then<T2 = T, E2 = E>(
+  then: <T2 = T, E2 = E>(
     onfulfilled?: ((value: T) => T2 | ResultLike<T2, E> | this) | none,
     onrejected?: ((reason: E) => E2 | ResultLike<T, E2> | this) | none
-  ): this
+  ) => this
 }
+
+/**
+ * A Result is a promise, where return value and error value are defined
+ * 
+ * An Operation that return T if it succeeds or E if it fails
+ */
 export interface Result<T, E> extends ResultLike<T, E> {
-  catch<E2 = E>(
+  catch: <E2 = E>(
     onrejected?: ((reason: E) => E2 | Result<T, E2> | this) | none
-  ): this
+  ) => this
 }
 
 interface ResultConstructor extends PromiseConstructor {
@@ -23,4 +29,9 @@ interface ResultConstructor extends PromiseConstructor {
 
 export const Result: ResultConstructor = class Result<T> extends Promise<T> {}
 
+/**
+ * Represents the special case of a Result where the return type is void
+ * 
+ * An Operation the either succeeds without return value, or fails with type E
+ */
 export type OkOrError<E extends Error> = Result<void, E>
