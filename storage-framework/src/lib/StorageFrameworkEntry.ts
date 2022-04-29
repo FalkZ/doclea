@@ -1,6 +1,7 @@
-import type { Result, OkOrError } from './utilities'
+import type { Result, OkOrError } from './utilities/result'
 import type { SFError } from './SFError'
 import type { SFFile } from './SFFile'
+import { Readable as Observable } from './utilities/stores'
 
 /**
  * Provider for the root entry of a file system.
@@ -83,6 +84,12 @@ export interface StorageFrameworkFileEntry extends StorageFrameworkEntry {
    * @returns the data, or SFError on error
    */
   read: () => Result<SFFile, SFError>
+
+  /**
+   * Read the whole file content and watch out for updates
+   * @returns an observable for SFFile, or SFError on error
+   */
+  watchContent: () => Result<Observable<SFFile>, SFError>
   /**
    * Save the whole file
    * @returns nothing if succeded, SFError otherwise 
@@ -108,6 +115,11 @@ export interface StorageFrameworkDirectoryEntry extends StorageFrameworkEntry {
    * @returns all children, or SFError
    */
   getChildren: () => Result<StorageFrameworkEntry[], SFError>
+  /**
+   * retrive all children and watch out for any modifications
+   * @returns an observable for children, or SFError on error
+   */
+  watchChildren: () => Result<Observable<StorageFrameworkEntry[]>, SFError>
   /**
    * creates a new file with the given name
    * 

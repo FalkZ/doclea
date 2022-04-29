@@ -8,6 +8,7 @@
   import type {
     StorageFrameworkDirectoryEntry,
     StorageFrameworkFileEntry,
+    StorageFrameworkEntry
   } from 'storage-framework/src/lib/StorageFrameworkEntry'
 
   import FileTree from './components/filetree/FileTree.svelte'
@@ -16,7 +17,7 @@
 
   let content: string = demoContent
 
-  let selectedFile: StorageFrameworkFileEntry = null
+  let selectedFile: StorageFrameworkFileEntry | null = null
 
   let rootEntry: StorageFrameworkDirectoryEntry | null = null
   const onEntrySelected = (event: CustomEvent<SelectedEventDetail>) => {
@@ -54,7 +55,6 @@
         <FileTree
           entry={rootEntry}
           on:selected={onEntrySelected}
-          config={null}
         />
       </div>
     {/if}
