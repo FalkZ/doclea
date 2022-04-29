@@ -11,9 +11,40 @@ enum MessageType {
   Prompt = 'prompt'
 }
 
+// Values to be replaced with concrete Implementation of AppStateHandle
+enum AppState {
+  StorageSelection = 'Storage Selection', 
+  Editing = 'Editing',
+  Authorization = 'Authorization'
+}
+
+enum EditorState {
+  Saving,
+  Editing
+}
+
 type Action = () => void
 
 type Label = string
+
+interface AppStateHandle {
+  getNextState(): AppStateHandle
+  getPreviousState(): AppStateHandle
+  hasError: boolean
+  getError: Message
+  onError(): void
+}
+
+// todo: reduce code duplication by inheritance / abstraction
+interface EditorStateHandle {
+  getNextState(): AppStateHandle
+  getPreviousState(): AppStateHandle
+  hasError: boolean
+  getError: Message
+  onError(): void
+  isFileTreeOpen: boolean
+  toggleFileTreeOpen(): void
+}
 
 interface MessagePrompt {
   type: MessageType.Prompt
@@ -41,6 +72,11 @@ export class EditorBusinessLogic {
     writable()
 
   private readonly messageStore: Writable<Message[]> = writable([])
+
+  // to be moved to separate File/ Class AppBusinessLogic ?
+  private readonly appStateStore: Writable<AppState> = writable()
+
+  private readonly editorStateStore: Writable<EditorState> = writable()
 
   get selectedFile(): Readable<StorageFrameworkFileEntry> {
     return { subscribe: this.selectedFile.subscribe }
