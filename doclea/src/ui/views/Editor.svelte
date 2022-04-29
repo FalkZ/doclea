@@ -7,7 +7,6 @@
   import { emoji } from '@milkdown/plugin-emoji'
   import { history } from '@milkdown/plugin-history'
   import { indent } from '@milkdown/plugin-indent'
-  import { listener } from '@milkdown/plugin-listener'
   import { math } from '@milkdown/plugin-math'
   import { menu } from '@milkdown/plugin-menu'
   import { defaultConfig } from '@milkdown/plugin-menu/src/default-config'
@@ -18,17 +17,27 @@
   import { gfm } from '@milkdown/preset-gfm/src'
   import { nord } from '@milkdown/theme-nord'
 
-  import PrismTheme from './PrismTheme.svelte'
+  import { listener, listenerCtx } from '@milkdown/plugin-listener'
 
   import { tldraw } from 'milkdown-plugin-tldraw'
+  import type { StorageFrameworkFileEntry } from 'storage-framework/src/lib/StorageFrameworkEntry'
 
-  export let defaultValue = '# Hello'
+  export let defaultValue
 
-  function editor(dom) {
+  export let selectedFile: StorageFrameworkFileEntry
+
+  let output = ''
+
+  const editor = (dom) => {
     Editor.make()
       .config((ctx) => {
         ctx.set(rootCtx, dom)
         ctx.set(defaultValueCtx, defaultValue)
+
+        ctx.get(listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
+          console.log(markdown)
+          output = markdown
+        })
       })
       .use(nord)
       .use(gfm)
@@ -48,6 +57,12 @@
       .use(
         menu({
           config: [
+            [
+              {
+                type: 'button',
+                icon: 'save',
+              },
+            ],
             ...defaultConfig,
             [
               {
@@ -60,12 +75,13 @@
         })
       )
       .create()
+      .then(() => {
+        document.querySelector('[title="save"]').onclick = () => {
+          selectedFile.save(new File([output], 'test.md'))
+        }
+      })
   }
 </script>
-
-
-<PrismTheme />
-
 
 <svelte:head>
   <link
@@ -77,13 +93,11 @@
 <div use:editor />
 
 <style>
-  div {
-    position: relative;
-    height: 100%;
-  }
   :global(.milkdown-menu) {
-    position: sticky;
-    top: 0;
-    z-index: 5;
+    max-width: 100%;
+  }
+  :global(.milkdown) {
+    height: calc(100vh - 50px);
+    overflow: scroll;
   }
 </style>
