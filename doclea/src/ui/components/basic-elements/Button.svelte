@@ -1,0 +1,29 @@
+<script lang="ts">
+  export let inline = false
+  export let className = []
+
+  className.push('Button')
+</script>
+
+<button on:click class:inline class={className.join(' ')}><slot /></button>
+
+<style>
+  button {
+    box-shadow: var(--ui-box-shadow);
+    box-sizing: border-box;
+    color: var(--ui-foreground-400);
+    background-color: var(--ui-background-600);
+    border: none;
+    letter-spacing: 0.5px;
+    border-radius: var(--ui-radius-400);
+    padding: var(--ui-padding-400);
+    display: block;
+    margin: 1em;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .inline {
+    display: inline-block;
+  }
+</style>

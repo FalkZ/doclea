@@ -1,4 +1,0 @@
-- [ ] Bussinesslogic Class
-- [ ] open with url
-- [ ] eslint
-- [ ] testing

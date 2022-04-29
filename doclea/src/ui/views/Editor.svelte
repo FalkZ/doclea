@@ -19,8 +19,6 @@
 
   import { listener, listenerCtx } from '@milkdown/plugin-listener'
 
-  import PrismTheme from './PrismTheme.svelte'
-
   import { tldraw } from 'milkdown-plugin-tldraw'
   import type { StorageFrameworkFileEntry } from 'storage-framework/src/lib/StorageFrameworkEntry'
 
@@ -84,8 +82,6 @@
       })
   }
 </script>
-
-<PrismTheme />
 
 <svelte:head>
   <link
