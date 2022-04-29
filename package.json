@@ -10,7 +10,6 @@
     "setup": "pnpm install -r"
   },
   "devDependencies": {
-    "@parcel/transformer-inline-string": "2.4.1",
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
     "@tsconfig/svelte": "3.0.0",
     "@typescript-eslint/eslint-plugin": "4.0.1",

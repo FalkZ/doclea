@@ -3,7 +3,7 @@
   import Open from './views/Open.svelte'
   import Theming from './Theming.svelte'
   import Router from './components/Router.svelte'
-  import demoContent from './demo.md'
+  import demoContent from './demo.md?raw'
 
   import type {
     StorageFrameworkDirectoryEntry,

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import svg from 'bundle-text:../../assets/favicon.svg'
+  import svg from '/assets/favicon.svg?raw'
   import Button from './../components/basic-elements/Button.svelte'
   import Input from './../components/basic-elements/Input.svelte'
   import Folder from 'tabler-icons-svelte/icons/Folder.svelte'

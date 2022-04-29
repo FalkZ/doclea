@@ -3,9 +3,12 @@
   "private": true,
   "version": "0.0.0",
   "source": "src/index.html",
+  "type": "module",
   "scripts": {
-    "dev": "parcel",
-    "build": "parcel build",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
     "postinstall": "patch-package"
   },
   "dependencies": {
@@ -35,12 +38,13 @@
   },
   "devDependencies": {
     "@milahu/patch-package-with-pnpm-support": "^6.4.10",
-    "@parcel/config-default": "^2.4.1",
-    "@parcel/transformer-inline-string": "^2.5.0",
-    "@parcel/transformer-raw": "^2.4.1",
-    "parcel": "^2.5.0",
-    "parcel-transformer-svelte3-plus": "0.2.7",
-    "process": "^0.11.10",
-    "svelte": "^3.46.6"
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
+    "@tsconfig/svelte": "^2.0.1",
+    "svelte": "^3.44.0",
+    "svelte-check": "^2.2.7",
+    "svelte-preprocess": "^4.9.8",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.4",
+    "vite": "^2.9.5"
   }
 }
