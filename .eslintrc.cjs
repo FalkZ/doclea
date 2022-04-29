@@ -1,3 +1,6 @@
 module.exports = {
-  extends: ['ijw']
+  extends: ['ijw'],
+  rules: {
+    '@typescript-eslint/method-signature-style': ['error', 'method']
+  }
 }

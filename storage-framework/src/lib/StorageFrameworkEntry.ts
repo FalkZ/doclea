@@ -1,7 +1,7 @@
 import type { Result, OkOrError } from './utilities/result'
 import type { SFError } from './SFError'
 import type { SFFile } from './SFFile'
-import { Readable as Observable } from './utilities/stores'
+import type { Readable as Observable } from './utilities/stores'
 
 /**
  * Provider for the root entry of a file system.
@@ -15,7 +15,7 @@ export interface StorageFrameworkProvider {
    *
    * @returns the root entry, or an error
    */
-  open: () => Result<StorageFrameworkEntry, SFError>
+  open(): Result<StorageFrameworkEntry, SFError>
 }
 
 /**
@@ -47,33 +47,33 @@ export interface StorageFrameworkEntry {
    *
    * @returns the parent directory entry or null if this is the root nody, SFError is returned in case of an error
    */
-  getParent: () => Result<StorageFrameworkDirectoryEntry | null, SFError>
+  getParent(): Result<StorageFrameworkDirectoryEntry | null, SFError>
   /**
    * move this entry to given directory, the destination
-   * 
+   *
    * @returns nothing if succeded, SFError otherwise
    */
-  moveTo: (directory: StorageFrameworkDirectoryEntry) => OkOrError<SFError>
+  moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError>
   /**
    * renames this entry to the given name
-   * 
+   *
    * @returns nothing if succeded, SFError otherwise
    */
-  rename: (name: string) => OkOrError<SFError>
+  rename(name: string): OkOrError<SFError>
   /**
    * removes/deletes this entry
-   * 
+   *
    * removing directories is not recursive,
    * the directory must be empty before removing
-   * 
+   *
    * @returns nothing if succeded, SFError otherwise
    */
-  remove: () => OkOrError<SFError>
+  remove(): OkOrError<SFError>
 }
 
 /**
  * Representation of a file entry in the storage framework
- * 
+ *
  * Reading and writing is done as a whole, read() returns the whole file and save() saves the whole file
  */
 export interface StorageFrameworkFileEntry extends StorageFrameworkEntry {
@@ -83,24 +83,24 @@ export interface StorageFrameworkFileEntry extends StorageFrameworkEntry {
    * Read the whole file and return the data
    * @returns the data, or SFError on error
    */
-  read: () => Result<SFFile, SFError>
+  read(): Result<SFFile, SFError>
 
   /**
    * Read the whole file content and watch out for updates
    * @returns an observable for SFFile, or SFError on error
    */
-  watchContent: () => Result<Observable<SFFile>, SFError>
+  watchContent(): Result<Observable<SFFile>, SFError>
   /**
    * Save the whole file
-   * @returns nothing if succeded, SFError otherwise 
+   * @returns nothing if succeded, SFError otherwise
    */
-  save: (file: File) => OkOrError<SFError>
+  save(file: File): OkOrError<SFError>
 }
 
 /**
  * Representation of a directory in the storage framework
- * 
- * 
+ *
+ *
  */
 export interface StorageFrameworkDirectoryEntry extends StorageFrameworkEntry {
   readonly isDirectory: true
@@ -111,27 +111,25 @@ export interface StorageFrameworkDirectoryEntry extends StorageFrameworkEntry {
   readonly isRoot: boolean
   /**
    * retrieve all children of this directory
-   * 
+   *
    * @returns all children, or SFError
    */
-  getChildren: () => Result<StorageFrameworkEntry[], SFError>
+  getChildren(): Result<StorageFrameworkEntry[], SFError>
   /**
    * retrive all children and watch out for any modifications
    * @returns an observable for children, or SFError on error
    */
-  watchChildren: () => Result<Observable<StorageFrameworkEntry[]>, SFError>
+  watchChildren(): Result<Observable<StorageFrameworkEntry[]>, SFError>
   /**
    * creates a new file with the given name
-   * 
+   *
    * @returns the created file entry if succeded, SFError otherwise
    */
-  createFile: (name: string) => Result<StorageFrameworkFileEntry, SFError>
+  createFile(name: string): Result<StorageFrameworkFileEntry, SFError>
   /**
    * create a new directory with the given name
-   * 
+   *
    * @returns the created directory entry if succeded, SFError otherwise
    */
-  createDirectory: (
-    name: string
-  ) => Result<StorageFrameworkDirectoryEntry, SFError>
+  createDirectory(name: string): Result<StorageFrameworkDirectoryEntry, SFError>
 }
