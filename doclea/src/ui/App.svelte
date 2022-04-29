@@ -41,7 +41,7 @@
 </script>
 
 <Theming />
-<Router editorState={{ showEditor: true, openFile: true }}>
+<Router editorState={{ showEditor: true, openFile: false }}>
   <Open slot="openFile" />
   <main slot="showEditor">
     {#if !rootEntry}

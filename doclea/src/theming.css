@@ -28,13 +28,13 @@
 }
 
 :root {
+  --ui-padding-300: 6px;
   --ui-padding-400: 12px;
   --ui-padding-500: 24px;
   --ui-radius-400: 3px;
 }
 
 :root,
-div,
 p,
 input,
 button {
