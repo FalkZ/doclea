@@ -20,7 +20,8 @@ enum AppState {
 
 enum EditorState {
   Saving,
-  Editing
+  EditingMarkdown,
+  EditingSVG
 }
 
 type Action = () => void
@@ -37,13 +38,15 @@ interface AppStateHandle {
 
 // todo: reduce code duplication by inheritance / abstraction
 interface EditorStateHandle {
-  getNextState(): AppStateHandle
-  getPreviousState(): AppStateHandle
+  getNextState(): EditorStateHandle
+  getPreviousState(): EditorStateHandle
   hasError: boolean
   getError: Message
   onError(): void
   isFileTreeOpen: boolean
   toggleFileTreeOpen(): void
+  isTlDrawOpen: boolean
+  toggleTlDrawOpen(): void
 }
 
 interface MessagePrompt {
@@ -106,4 +109,14 @@ export class EditorBusinessLogic {
    * Adds message to messageStore and removes it after messageTimeMs
    */
   public showMessage(message: Message) {}
+
+  public openFileTree(root: StorageFrameworkDirectoryEntry): void {}
+
+  public closeFileTree(): void {}
+
+  public saveFile(): void {}
+
+  public exportFiles(): void {}
+
+  public toggleDarkMode(): void {}
 }
