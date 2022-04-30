@@ -88,9 +88,25 @@
   }
   #sidepane,
   #filetree {
+    display: block;
+    box-sizing: border-box;
+    height: 100vh;
     background: var(--ui-background-500);
+  }
+
+  :global(html) {
+    background-color: var(--ui-background-500) !important;
+  }
+  :global(.splitpanes) {
+    background-color: var(--ui-background-500) !important;
   }
   :global(.splitpanes__splitter) {
     background-color: var(--ui-background-500) !important;
+    border-color: var(--ui-background-500) !important;
+    color: var(--ui-foreground-400) !important;
+  }
+
+  :global(.splitpanes__splitter::before, .splitpanes__splitter::after) {
+    background-color: var(--ui-foreground-300) !important;
   }
 </style>

@@ -4,8 +4,9 @@
     --ui-background-500: hsl(221, 16%, 19%);
     --ui-background-600: hsl(222, 15%, 17%);
     --ui-border-400: hsl(220, 17%, 32%);
+    --ui-foreground-300: hsl(219, 28%, 78%);
     --ui-foreground-400: hsl(219, 28%, 88%);
-    --ui-foreground-500: #eceff4;
+    --ui-foreground-500: hsl(218, 27%, 94%);
     --ui-accent-400: hsl(213, 32%, 52%);
   }
 }
@@ -15,8 +16,9 @@
     --ui-background-500: #f5f7f9;
     --ui-background-600: #eceff4;
     --ui-border-400: #d8dee9;
-    --ui-foreground-400: #4c566a;
-    --ui-foreground-500: #2e3440;
+    --ui-foreground-300: hsl(220, 16%, 46%);
+    --ui-foreground-400: hsl(220, 16%, 36%);
+    --ui-foreground-500: hsl(220, 16%, 22%);
     --ui-accent-400: #5e81ac;
   }
 }
