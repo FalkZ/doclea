@@ -5,10 +5,12 @@
   import Router from './components/Router.svelte'
   import demoContent from './demo.md?raw'
 
+  import { Pane, Splitpanes } from 'svelte-splitpanes'
+
   import type {
     StorageFrameworkDirectoryEntry,
     StorageFrameworkFileEntry,
-    StorageFrameworkEntry
+    StorageFrameworkEntry,
   } from 'storage-framework/src/lib/StorageFrameworkEntry'
 
   import FileTree from './components/filetree/FileTree.svelte'
@@ -45,32 +47,35 @@
 <Router editorState={{ showEditor: true, openFile: false }}>
   <Open slot="openFile" />
   <main slot="showEditor">
-    {#if !rootEntry}
-      <div id="sidepane">
-        <FileSystemPicker bind:pickedFSEntry={rootEntry} />
-      </div>
-    {/if}
-    {#if rootEntry}
-      <div id="filetree">
-        <FileTree
-          entry={rootEntry}
-          on:selected={onEntrySelected}
-        />
-      </div>
-    {/if}
-    {#key content}
-      <div>
-        <Editor defaultValue={content} {selectedFile} />
-        <!-- <div bind:this={tldraw} /> -->
-      </div>
-    {/key}
+    <Splitpanes class="default-theme" style="height: 100%; width: 100vw">
+      <Pane size="20">
+        {#if !rootEntry}
+          <div id="sidepane">
+            <FileSystemPicker bind:pickedFSEntry={rootEntry} />
+          </div>
+        {/if}
+        {#if rootEntry}
+          <div id="filetree">
+            <FileTree entry={rootEntry} on:selected={onEntrySelected} />
+          </div>
+        {/if}
+      </Pane>
+      <Pane>
+        {#key content}
+          <div>
+            <Editor defaultValue={content} {selectedFile} />
+            <!-- <div bind:this={tldraw} /> -->
+          </div>
+        {/key}
+      </Pane>
+    </Splitpanes>
   </main>
 </Router>
 
 <style>
   main {
     display: grid;
-    grid-template-columns: minmax(150px, 300px) minmax(0, 1fr);
+    /* grid-template-columns: minmax(150px, 300px) minmax(0, 1fr); */
     height: 100vh;
     width: 100vw;
   }
@@ -81,8 +86,11 @@
     position: relative;
     top: 0.1em;
   }
-  #sidepane {
-    top: 0;
-    height: 100vh;
+  #sidepane,
+  #filetree {
+    background: var(--ui-background-500);
+  }
+  :global(.splitpanes__splitter) {
+    background-color: var(--ui-background-500) !important;
   }
 </style>

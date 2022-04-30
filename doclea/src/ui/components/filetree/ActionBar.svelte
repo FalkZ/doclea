@@ -1,47 +1,89 @@
 <script lang="ts">
-import type { StorageFrameworkEntry, StorageFrameworkDirectoryEntry } from "storage-framework/src/lib/StorageFrameworkEntry";
+  import type {
+    StorageFrameworkEntry,
+    StorageFrameworkDirectoryEntry,
+  } from 'storage-framework/src/lib/StorageFrameworkEntry'
 
-    export let selectedEntry: StorageFrameworkEntry | null = null
+  import logo from '/assets/favicon.svg?raw'
+  import FolderPlus from 'tabler-icons-svelte/icons/FolderPlus'
+  import FilePlus from 'tabler-icons-svelte/icons/FilePlus'
+  import Trash from 'tabler-icons-svelte/icons/Trash'
 
-    const canCreate = selectedEntry?.isDirectory
-    const canRemove = selectedEntry != null
+  export let selectedEntry: StorageFrameworkEntry | null = null
 
-    const createFolder = () => {
-        (selectedEntry as StorageFrameworkDirectoryEntry).createDirectory("new folder")
-    }
+  const canCreate = selectedEntry?.isDirectory
+  const canRemove = selectedEntry != null
 
-    const createFile = () => {
-        (selectedEntry as StorageFrameworkDirectoryEntry).createFile("new file")
-    }
+  const createFolder = () => {
+    ;(selectedEntry as StorageFrameworkDirectoryEntry).createDirectory(
+      'new folder'
+    )
+  }
 
-    const removeEntry = () => {
-        selectedEntry?.remove()
-    }
+  const createFile = () => {
+    ;(selectedEntry as StorageFrameworkDirectoryEntry).createFile('new file')
+  }
+
+  const removeEntry = () => {
+    selectedEntry?.remove()
+  }
 </script>
 
 <div id="actionbar">
-    {#if selectedEntry != null}
-    <span id="create-folder"
-        disabled={!canCreate}
-        on:click={createFolder}
-        >+ folder</span>
-    <span id="create-file"
-        disabled={!canCreate}
-        on:click={createFile}
-        >+ file</span>
-    <span id="remove-entry"
-        disabled={!canRemove}
-        on:click={removeEntry}
-        >remove</span>
-    {/if}
+  <span id="open" disabled={!canCreate}>{@html logo} OPEN</span>
+  {#if selectedEntry != null}
+    <span
+      id="create-file"
+      class="right"
+      disabled={!canCreate}
+      on:click={createFile}><FilePlus /></span
+    >
+    <span
+      id="create-folder"
+      class="right"
+      disabled={!canCreate}
+      on:click={createFolder}><FolderPlus /></span
+    >
+
+    <span
+      id="remove-entry"
+      class="right"
+      disabled={!canRemove}
+      on:click={removeEntry}><Trash /></span
+    >
+  {/if}
 </div>
 
 <style>
-    span {
-        margin: 1em;
-        cursor: pointer;
-    }
-    span:hover {
-        background-color: rgba(0.7, 0.7, 0.7, 0.1);
-    }
+  #actionbar :global(.icon-tabler-folder-plus) {
+    position: relative;
+    top: 0.25em;
+  }
+
+  #actionbar :global(.logo) {
+    height: 1.4em;
+    width: 1.4em;
+    margin: -0.2em;
+    position: relative;
+    top: 0.1em;
+  }
+  #actionbar {
+    display: block;
+
+    padding: var(--ui-padding-400);
+    padding-top: 8px;
+  }
+  span {
+    padding: var(--ui-padding-300);
+    cursor: pointer;
+    display: inline-block;
+    font-weight: bold;
+  }
+  span:hover {
+    background-color: var(--ui-background-500);
+  }
+
+  .right {
+    float: right;
+  }
 </style>

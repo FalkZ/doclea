@@ -6,12 +6,17 @@
     StorageFrameworkEntry,
   } from 'storage-framework/src/lib/StorageFrameworkEntry'
   import type { SelectedEventDetail } from './SelectedEventDetail'
+  import ChevronRight from 'tabler-icons-svelte/icons/ChevronRight'
+  import File from 'tabler-icons-svelte/icons/File'
 
   const dispatch = createEventDispatcher()
 
   export let entry: StorageFrameworkEntry
   export let showAsRootNode: boolean = false
   export let indentionLevel = 0
+
+  const getIndentationLevelStyle = (indentionLevel: number) =>
+    `--indention-level: calc(${indentionLevel} * var(--ui-padding-500))`
 
   let isSelected = false
   let showChildren = true
@@ -35,56 +40,58 @@
 
   const onSelectClick = (event: Event) => {
     event.stopPropagation()
-  
+
     isSelected = true
     const detail: SelectedEventDetail = {
       entry: entry,
-      onDeselect: () => {isSelected = false}
+      onDeselect: () => {
+        isSelected = false
+      },
     }
     dispatch('selected', detail)
-  };
+  }
 
   const onContextMenu = (event: Event) => {
     event.stopPropagation()
-  
+
     // TODO: context menu
     if (entry.isDirectory)
       (<StorageFrameworkDirectoryEntry>entry).createFile('test')
-  };
+  }
 
   const onArrowClicked = (event: Event) => {
     event.stopPropagation()
     if (!showAsRootNode) showChildren = !showChildren
-  };
+  }
 </script>
 
 {#if entry.isFile}
   <div
-    class="entry title {isSelected?'selected':''}"
-    style="--indention-level: {indentionLevel}em"
+    class="entry title {isSelected ? 'selected' : ''}"
+    style={getIndentationLevelStyle(indentionLevel)}
     on:click={onSelectClick}
   >
-    <span>&#x1f4c3 {entry.name}</span>
+    <span><File /> {entry.name}</span>
   </div>
 {:else}
   <div
-    class="entry {isSelected?'selected':''}"
+    class="entry {isSelected ? 'selected' : ''}"
     on:click={onSelectClick}
     on:contextmenu|preventDefault={onContextMenu}
   >
     {#if showAsRootNode}
       <div class:root={showAsRootNode}>
-        <b class="title" style="--indention-level: {indentionLevel}"
+        <b class="" style={getIndentationLevelStyle(indentionLevel)}
           >{entry.fullPath}</b
         >
       </div>
     {:else}
-      <div class="title" style="--indention-level: {indentionLevel}em">
+      <div class="title" style={getIndentationLevelStyle(indentionLevel)}>
         <span
           on:click={onArrowClicked}
           on:contextmenu|preventDefault={onContextMenu}
           class="arrow"
-          class:arrowDown={showChildren}>&#x25b6</span
+          class:arrowDown={showChildren}><ChevronRight /></span
         >
         <span>{entry.name}</span>
       </div>
@@ -105,23 +112,28 @@
 
 <style>
   .root {
-    background-color: rgba(0.7, 0.7, 0.7, 0.4);
+    padding: var(--ui-padding-400);
+    font-weight: bold;
+    /* background-color: rgba(0.7, 0.7, 0.7, 0.4); */
   }
 
   .entry {
     cursor: pointer;
+    font-weight: bold;
   }
 
   .selected {
-    background-color: rgba(0.7, 0.7, 0.7, 0.1);
+    background-color: var(--ui-background-600);
   }
 
   .title {
+    user-select: none;
+    padding: var(--ui-padding-300);
     padding-left: var(--indention-level);
   }
 
   .title:hover {
-    background-color: rgba(0.7, 0.7, 0.7, 0.1);
+    background-color: var(--ui-background-400);
   }
 
   .arrow {

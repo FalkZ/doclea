@@ -34,6 +34,7 @@
     "milkdown-plugin-tldraw": "file:./milkdown-plugin-tldraw",
     "prism-themes": "^1.9.0",
     "storage-framework": "file:../storage-framework",
+    "svelte-splitpanes": "^0.6.3",
     "tabler-icons-svelte": "^1.7.0"
   },
   "devDependencies": {

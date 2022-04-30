@@ -7,9 +7,6 @@
     --ui-foreground-400: hsl(219, 28%, 88%);
     --ui-foreground-500: #eceff4;
     --ui-accent-400: hsl(213, 32%, 52%);
-    --ui-box-shadow: rgba(59, 66, 82, 0.14) 0px 1px 1px 0px,
-      rgba(59, 66, 82, 0.12) 0px 2px 1px 0px,
-      rgba(59, 66, 82, 0.2) 0px 1px 3px 0px;
   }
 }
 @media (prefers-color-scheme: light) {
@@ -21,9 +18,6 @@
     --ui-foreground-400: #4c566a;
     --ui-foreground-500: #2e3440;
     --ui-accent-400: #5e81ac;
-    --ui-box-shadow: rgba(59, 66, 82, 0.14) 0px 1px 1px 0px,
-      rgba(59, 66, 82, 0.12) 0px 2px 1px 0px,
-      rgba(59, 66, 82, 0.2) 0px 1px 3px 0px;
   }
 }
 
@@ -32,6 +26,13 @@
   --ui-padding-400: 12px;
   --ui-padding-500: 24px;
   --ui-radius-400: 3px;
+
+  --ui-box-shadow: rgba(59, 66, 82, 0.14) 0px 1px 1px 0px,
+    rgba(59, 66, 82, 0.12) 0px 2px 1px 0px,
+    rgba(59, 66, 82, 0.2) 0px 1px 3px 0px;
+  --ui-box-shadow-inset: inset rgba(59, 66, 82, 0.14) 0px 1px 1px 0px,
+    inset rgba(59, 66, 82, 0.12) 0px 2px 1px 0px,
+    inset rgba(59, 66, 82, 0.2) 0px 1px 3px 0px;
 }
 
 :root,

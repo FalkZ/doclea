@@ -7,7 +7,7 @@
 
 <style>
   input {
-    box-shadow: var(--ui-box-shadow);
+    box-shadow: var(--ui-box-shadow-inset);
     box-sizing: border-box;
     color: var(--ui-foreground-400);
     background-color: var(--ui-background-600);
