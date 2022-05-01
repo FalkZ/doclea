@@ -2,6 +2,7 @@ module.exports = {
   extends: ['ijw'],
   rules: {
     '@typescript-eslint/method-signature-style': 'off',
+    'no-new': 'off',
     '@typescript-eslint/naming-convention': [
       'error',
       {

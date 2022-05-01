@@ -1,34 +1,50 @@
+import {
+  type State,
+  StateMachine,
+  type DefinableStates,
+  type StateReturns,
+  type States,
+  type UnwrapStateMachine
+} from './State'
+import type { BusinessLogicStateMachine } from './BusinessLogic'
+import type { businessLogic } from './BusinessLogic'
 
-type StorageSelectionTransitions = Record<string, StorageSelectionState>
+export class StorageSelectionState
+  implements State<UnwrapStateMachine<typeof businessLogic>>
+{
+  private async runInnerStateMachine(): Promise<void> {
+    return await new Promise((resolve) => {
+      new StateMachine({
+        init: ({ authenticate }) => {
+          // wait for button
+          return authenticate
+        },
+        error: ({ init }) => {
+          // show message
+          return init
+        },
+        authenticate: ({ open, error }) => {
+          const err = false
+          if (err) return error
 
-abstract class StorageSelectionState {
-    constructor(transitions: StorageSelectionTransitions){};
-    
-}
+          return open
+        },
+        open: ({ end, error }) => {
+          const err = false
+          if (err) return error
 
-export class StorageSelectionInitState extends StorageSelectionState {
-    constructor({success, failed}){
-        super();
+          resolve()
+          return end
+        }
+      })
+    })
+  }
 
-        this.apply();
+  async run(
+    states: States<BusinessLogicStateMachine>
+  ): StateReturns<BusinessLogicStateMachine> {
+    await this.runInnerStateMachine()
 
-        if(dlkfd) new success()
-        if(error) new fail()
-
-    }
-
-    apply(){}
-
-}
-
-
-export class StorageSelectionErrorState extends StorageSelectionState {
-
-}
-export class StorageSelectionAuthenticatedState extends StorageSelectionState {
-
-}
-
-export class StorageSelectionSelectedState extends StorageSelectionState {
-
+    return states.end
+  }
 }
