@@ -18,6 +18,97 @@ enum AppState {
   Authorization = 'Authorization'
 }
 
+
+type Store = EditorStore | StorageSelectionStore
+
+
+// bedingungen => state
+
+class StorageSelectionInitState {
+
+  contructor(){
+
+  }
+
+  public authenticate(): StorageSelectionInitState | StorageSelectionAthenticatedState {
+
+  }
+
+}
+
+class StorageSelectionAthenticatedState {
+
+  
+
+  public open(){
+    
+  }
+}
+
+
+class BusinessLogic {
+  private readonly store: Writable<Store> = writable()
+
+}
+
+export class EditorStore {
+  private readonly filesStore: Writable<StorageFrameworkDirectoryEntry> =
+    writable()
+
+  private readonly selectedFileStore: Writable<StorageFrameworkFileEntry> =
+    writable()
+
+
+  get selectedFile(): Readable<StorageFrameworkFileEntry> {
+    return { subscribe: this.selectedFile.subscribe }
+  }
+
+  get files(): Readable<StorageFrameworkDirectoryEntry> {
+    return { subscribe: this.filesStore.subscribe }
+  }
+
+  public setSelectedFile(file: StorageFrameworkFileEntry): void {}
+
+  public openFileTree(root: StorageFrameworkDirectoryEntry): void {}
+
+  public closeFileTree(): void {}
+
+  public saveFile(): void {}
+
+  public exportFiles(): void {}
+
+  public toggleDarkMode(): void {}
+}
+
+
+
+
+export class StorageSelectionStore {
+  /**
+   * Opens Storage Framework and updates fileStore
+   */
+  private stateMachine: StorageSelectionInitState;
+
+  constructor(stateMachine: StorageSelectionInitState){}
+  public openGithub(url: string): void {
+
+    this.stateMachine.authenticate({
+      fail:  StorageSelectionErrorState
+      success:  StorageSelectionAthenticadedState
+    })
+
+    
+
+  }
+
+  public openLocal(): void {}
+
+  public openSolid(url: string): void {}
+
+}
+
+
+
 enum EditorState {
   Saving,
   EditingMarkdown,
