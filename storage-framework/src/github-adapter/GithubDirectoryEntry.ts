@@ -1,4 +1,5 @@
 import { Octokit } from '@octokit/core'
+import type { Readable } from 'src/lib/utilities/stores'
 import { SFError } from '../lib/SFError'
 import {
   StorageFrameworkDirectoryEntry,
@@ -12,9 +13,10 @@ import { GithubFileSystem } from './GithubFileSystem'
 export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
   readonly isDirectory = true
   readonly isFile = false
-  readonly fullPath: string
+  fullPath: string
   readonly name: string
-  isRoot: boolean
+  githubEntry: any
+  readonly isRoot: boolean
   children: StorageFrameworkEntry[] = []
   parent: StorageFrameworkDirectoryEntry
   octokit: Octokit
@@ -28,35 +30,86 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
     this.parent = parent
     this.name = githubEntry.name
     this.fullPath = githubEntry.path
-    this.octokit = octokit
     this.isRoot = isRoot
+    this.octokit = octokit
+    this.githubEntry = githubEntry
 
     if (this.isRoot == false) return
+    this.fullPath = ''
 
-    githubEntry.forEach((element) => {
+    this.createChildren()
+  }
+
+  private createChildren() {
+    this.githubEntry.data.forEach((element) => {
       if (element.type == 'dir') {
-        this.addDirectory(element)
+        const githubDirectory = new GithubDirectoryEntry(
+          this,
+          element,
+          false,
+          this.octokit
+        )
+
+        console.log(githubDirectory)
+        this.children.push(githubDirectory)
       } else if (element.type == 'file') {
-        this.addFile(element)
+        const githubFile = new GithubFileEntry(this, element, this.octokit)
+
+        console.log(githubFile)
+        this.children.push(githubFile)
       }
     })
   }
 
+  watchChildren(): Result<Readable<StorageFrameworkEntry[]>, SFError> {
+    throw new Error('Method not implemented.')
+  }
+
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
-    return new Result(() => {
+    return new Result((resolve, reject) => {
       if (this.isRoot == false) {
-        const obj = {
-          name: this.name,
-          path: this.fullPath
-        }
-        this.readDirFromGithub(obj)
+        this.octokit
+          .request('GET /repos/{owner}/{repo}/contents/{path}', {
+            owner: GithubFileSystem.config.owner,
+            repo: GithubFileSystem.config.repo,
+            path: this.fullPath
+          })
+          .then((data) => {
+            console.log(data)
+            this.githubEntry = data
+            this.createChildren()
+            resolve(this.children)
+          })
+          .catch((error) => {
+            console.log(error)
+            reject(new SFError('Failed to get ', error))
+          })
+      } else {
+        resolve(this.children)
       }
-      this.children
     })
   }
 
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      this.octokit
+        .request('PUT /repos/{owner}/{repo}/contents/{path}', {
+          owner: GithubFileSystem.config.owner,
+          repo: GithubFileSystem.config.repo,
+          path: this.fullPath + '/' + name,
+          message: 'my commit message',
+          content: 'bXkgbmV3IGZpbGUgY29udGVudHM='
+        })
+        .then((response) => {
+          console.log(response)
+          if (response.status == 201) {
+            const githubFile = new GithubFileEntry(this, response, this.octokit)
+            resolve(githubFile)
+          } else {
+            reject(new SFError('Failed to create file'))
+          }
+        })
+    })
   }
 
   createDirectory(
@@ -79,46 +132,5 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
 
   remove(): OkOrError<SFError> {
     throw new Error('Method not implemented.')
-  }
-
-  private addFile(githubObj) {
-    const githubFile = new GithubFileEntry(this, githubObj, this.octokit)
-    this.children.push(githubFile)
-  }
-
-  private addDirectory(githubObj) {
-    const githubDirectory = new GithubDirectoryEntry(
-      this,
-      githubObj,
-      false,
-      this.octokit
-    )
-
-    this.children.push(githubDirectory)
-  }
-
-  private async readDirFromGithub(githubObj) {
-    let pathToGet = githubObj.name
-    if (this.fullPath != null) {
-      pathToGet = this.fullPath + '/' + githubObj.name
-    }
-
-    const { data } = await this.octokit.request(
-      'GET /repos/{owner}/{repo}/contents/{path}',
-      {
-        owner: GithubFileSystem.config.owner,
-        repo: GithubFileSystem.config.repo,
-        path: pathToGet
-      }
-    )
-
-    const githubDirectory = new GithubDirectoryEntry(
-      this,
-      data,
-      false,
-      this.octokit
-    )
-    this.children.push(githubDirectory)
-    return githubDirectory
   }
 }

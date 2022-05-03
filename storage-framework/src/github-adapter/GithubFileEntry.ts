@@ -1,4 +1,5 @@
 import { Octokit } from '@octokit/core'
+import type { Readable } from 'src/lib/utilities/stores'
 import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
 import {
@@ -27,6 +28,10 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     this.githubObj = githubObj
   }
 
+  watchContent(): Result<Readable<SFFile>, SFError> {
+    throw new Error('Method not implemented.')
+  }
+
   read(): Result<SFFile, SFError> {
     return new Result((resolve, reject) => {
       fetch(this.content_url)
@@ -35,30 +40,34 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
             reject(new SFError(`Failed to fetch ${this.content_url}`, null))
           return response.text()
         })
-        .then((text) => resolve(new SFFile(this.name, 0, [text])))
+        .then((text) => {
+          console.log(text)
+          resolve(new SFFile(this.name, 0, [text]))
+        })
     })
   }
 
   save(file: File): OkOrError<SFError> {
     return new Result((resolve, reject) => {
-      this.saveFileInGithub(file).catch((error) =>
-        reject(new SFError('Failed to save file', error))
-      )
+      this.octokit
+        .request('PUT /repos/{owner}/{repo}/contents/{path}', {
+          owner: GithubFileSystem.config.owner,
+          repo: GithubFileSystem.config.repo,
+          path: this.fullPath,
+          message: 'doclea update',
+          content: window.btoa(unescape(encodeURIComponent(file.text.toString()))),
+          sha: this.githubObj.sha
+        })
+        .then((response) => {
+          if (response.status == 200) {
+            // this.parent.getChildren() // update parent
+            resolve()
+          } else {
+            console.log(response)
+            reject(new SFError('Failed to save file'))
+          }
+        })
     })
-  }
-
-  private async saveFileInGithub(file: File) {
-    const { data } = await this.octokit.request(
-      'PUT /repos/{owner}/{repo}/contents/{path}',
-      {
-        owner: GithubFileSystem.config.owner,
-        repo: GithubFileSystem.config.repo,
-        path: this.fullPath,
-        message: 'update content',
-        content: file.text.toString()
-      }
-    )
-    return
   }
 
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
@@ -75,30 +84,98 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
 
   remove(): OkOrError<SFError> {
     return new Result((resolve, reject) => {
-      this.deleteFileInGithub().catch((error) =>
-        reject(new SFError('Failed to save file', error))
-      )
+      this.octokit
+        .request('DELETE /repos/{owner}/{repo}/contents/{path}', {
+          owner: GithubFileSystem.config.owner,
+          repo: GithubFileSystem.config.repo,
+          path: this.fullPath,
+          message: 'doclea removed file',
+          sha: this.githubObj.sha
+        })
+        .then((response) => {
+          if (response.status == 200) {
+            // this.parent.getChildren() // update parent
+            resolve()
+          } else {
+            console.log(response)
+            reject(new SFError('Failed to delete file'))
+          }
+        })
     })
   }
 
-  private async deleteFileInGithub() {
-    const { data } = await this.octokit.request(
-      'DELETE /repos/{owner}/{repo}/contents/{path}',
-      {
-        owner: GithubFileSystem.config.owner,
-        repo: GithubFileSystem.config.repo,
-        path: this.fullPath,
-        message: 'delete file',
-        sha: this.githubObj.sha
-      }
-    )
-  }
-
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+
+      let fileName = this.fullPath.split("/").pop()
+      const pathOfNewFile = directory.isRoot ? fileName : (directory.fullPath + '/' + fileName)
+
+      fetch(this.content_url)
+        .then((response) => {
+          if (!response.ok)
+            reject(new SFError(`Failed to fetch ${this.content_url}`, null))
+          return response.text()
+        })
+        .then((text) => {
+          this.octokit
+          .request('PUT /repos/{owner}/{repo}/contents/{path}', {
+            owner: GithubFileSystem.config.owner,
+            repo: GithubFileSystem.config.repo,
+            path: pathOfNewFile,
+            message: 'doclea moved file',
+            content: window.btoa(
+              unescape(encodeURIComponent(text))
+            ),
+          })
+          .then((response) => {
+            if (response.status == 201) {
+              const githubFile = new GithubFileEntry(this, response, this.octokit)
+            } else {
+              reject(new SFError('Failed to create file'))
+            }
+          })
+          .then(() => {
+            this.remove()
+            resolve()
+          })
+        })
+    })
   }
 
   rename(name: string): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      fetch(this.content_url)
+        .then((response) => {
+          if (!response.ok)
+            reject(new SFError(`Failed to fetch ${this.content_url}`, null))
+          return response.text()
+        })
+        .then((text) => {
+
+          const pathOfNewFile = this.parent.isRoot ? name : this.parent.fullPath + '/' + name
+
+          this.octokit
+          .request('PUT /repos/{owner}/{repo}/contents/{path}', {
+            owner: GithubFileSystem.config.owner,
+            repo: GithubFileSystem.config.repo,
+            path: pathOfNewFile,
+            message: 'doclea renamed file',
+            content: window.btoa(
+              unescape(encodeURIComponent(text))
+            ),
+          })
+          .then((response) => {
+            if (response.status == 201) {
+              const githubFile = new GithubFileEntry(this, response, this.octokit)
+            } else {
+              reject(new SFError('Failed to create file'))
+            }
+          })
+          .then(() => {
+            this.remove()
+            resolve()
+          })
+        })
+    })
   }
 }
