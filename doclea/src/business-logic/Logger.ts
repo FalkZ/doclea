@@ -1,21 +1,7 @@
 export class Logger {
-  public log(...args): void {
-    console.log(...args)
-  }
-
-  public warn(...args): void {
-    console.warn(...args)
-  }
-
-  public error(...args): void {
-    console.error(...args)
-  }
-
-  public group(name): void {
-    console.groupCollapsed(name)
-  }
-
-  public groupEnd(): void {
-    console.groupEnd()
-  }
+  log = console.log
+  warn = console.warn
+  error = console.error
+  group = console.groupCollapsed
+  groupEnd = console.groupEnd
 }

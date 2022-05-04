@@ -1,11 +1,11 @@
 import {
-  type AbstractState,
-  StateMachine,
   type DefinableStates,
   type StateReturns,
   type States,
   type UnwrapStateMachine
-} from './State'
+} from './state-machine/State'
+import { type AbstractState } from './state-machine/AbstractState'
+import { StateMachine } from './state-machine/StateMachine'
 import type { BusinessLogicStateMachine } from './BusinessLogic'
 import type { businessLogic } from './BusinessLogic'
 

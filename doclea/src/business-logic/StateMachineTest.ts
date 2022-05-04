@@ -1,4 +1,5 @@
-import { StateMachine, StateMachineDefinition, State } from './State'
+import { StateMachineDefinition, State } from './state-machine/State'
+import { StateMachine } from './state-machine/StateMachine'
 
 import { Open } from './Open'
 

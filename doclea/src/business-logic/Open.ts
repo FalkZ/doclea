@@ -1,4 +1,5 @@
-import { AbstractState, States, type NextState } from './State'
+import { States, type NextState } from './state-machine/State'
+import { AbstractState } from './state-machine/AbstractState'
 import type { TestMachine } from './StateMachineTest'
 
 export class Open extends AbstractState<TestMachine> {

@@ -1,4 +1,5 @@
-import { StateMachine, type DefinableStates } from './State'
+import { type DefinableStates } from './state-machine/State'
+import { StateMachine } from './state-machine/StateMachine'
 import { StorageSelectionState } from './StorageSelection'
 
 const stateMachineSkeleton: DefinableStates = {
