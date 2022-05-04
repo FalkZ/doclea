@@ -7,23 +7,22 @@ export interface TestMachine extends StateMachineDefinition {
   open: State<this>
 }
 
-const s: TestMachine = {
+const test = new StateMachine<TestMachine>({
   init: ({ authenticate }) => {
     // wait for button
     return authenticate
   },
   error: ({ init }, arg: Error) => {
-    // show message
+    console.error('an error occurred', arg)
     return init
   },
   authenticate: async ({ open, error }) => {
-    if (Math.random() > 0.2) return error.arg(new Error('d '))
+    if (Math.random() > 0.2) throw new Error('dsflj')
+    // return error.arg(new Error('d '))
 
     return open
   },
   open: new Open()
-}
-
-const test = new StateMachine(s)
+})
 
 test.run()

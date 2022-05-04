@@ -103,11 +103,12 @@ export class StateMachine<T extends StateMachineDefinition> {
 
     while (state) {
       this.logger.group(state.name)
-      const promise =
-        typeof state === 'function'
-          ? state(this.states)
-          : state.runWithArgs(this.states)
-      state = await Promise.resolve(promise)
+      try {
+        const promise = state.runWithArgs(this.states)
+        state = await Promise.resolve(promise)
+      } catch (e) {
+        state = this.states.error.arg(e)
+      }
       this.logger.groupEnd()
     }
   }
