@@ -40,6 +40,7 @@ export class StateMachine<T extends DefinableStates> {
           ? state(this.states)
           : state.run(this.states)
       state = await Promise.resolve(promise)
+      console.log(state.name)
     }
   }
 }
