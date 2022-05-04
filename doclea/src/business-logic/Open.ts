@@ -1,8 +1,8 @@
-import { State, type StateReturns, States } from './State'
-import type { SM } from './StateMachineTest'
+import { AbstractState, States, type NextState } from './State'
+import type { TestMachine } from './StateMachineTest'
 
-export class Open extends State<SM, never> {
-  protected run(states: States<SM>): State<any, any> {
+export class Open extends AbstractState<TestMachine> {
+  protected run(states: States<TestMachine>): NextState {
     return states.end
   }
 }

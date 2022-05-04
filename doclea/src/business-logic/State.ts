@@ -3,13 +3,11 @@ import { Logger } from './Logger'
 type OneOf<T> = T[keyof T]
 
 type MaybePromise<T> = T | Promise<T>
-type Apply<T> = <A>(
-  actions: T,
-  arg?: A
-) => MaybePromise<OneOf<T>> | EndState['end']
 
-export abstract class State<T extends DefinableStates, A> {
-  protected abstract run(states: States<T>, arg?: A): StateReturns<T>
+export type NextState = AbstractState<any, any>
+
+export abstract class AbstractState<T, A = never> {
+  protected abstract run(states: States<T>, arg?: A): NextState
   private _name: string
   private _arg: A
 
@@ -17,7 +15,7 @@ export abstract class State<T extends DefinableStates, A> {
     return this._name
   }
 
-  public runWithArgs(states: States<T>): StateReturns<T> {
+  public runWithArgs(states: States<T>): OneOf<States<T>> {
     const r = this.run(states, this._arg)
 
     this._arg = null
@@ -34,69 +32,52 @@ export abstract class State<T extends DefinableStates, A> {
   }
 }
 
-type Functional<Self extends DefinableStates, Args> = (
+type Functional<Self, Args> = (
   states: States<Self>,
   arg?: Args
-) => State<any, any>
+) => MaybePromise<NextState>
 
-export class FuntionalState<T extends DefinableStates, A> extends State<T, A> {
-  private readonly fn: Functional<T>
+export class FunctionalState<
+  T extends DefinableStates,
+  A
+> extends AbstractState<T, A> {
+  private readonly fn: Functional<T, A>
 
-  constructor(fn: Functional<T>) {
+  constructor(fn: Functional<T, A>) {
     super()
     this.fn = fn
   }
 
-  protected run(states: States<T>, arg?: A): StateReturns<T> {
+  protected run(states: States<T>, arg?: A): NextState {
     return this.fn(states, arg)
   }
 }
 
-interface EndState {
-  end: () => void
-}
-
 export interface DefinableStates {
-  [state: string]: Functional<this> | State<this, any>
+  [state: string]: Functional<this, any> | AbstractState<this, any>
+  end: never
 }
 
-export type S<Self, Args> = Functional<Self, Args> | State<Self, Args>
+export type State<Self, Args = never> =
+  | Functional<Self, Args>
+  | AbstractState<Self, Args>
 
-export interface StateMachineDef {
-  init: S<this, never>
-  error: S<this, Error>
+export interface StateMachineDefinition {
+  init: State<this, never>
+  error: State<this, Error>
 }
 
-export interface DefinableStates2 {
-  [state: string]: <A>(states: this, arg?: A) => StateReturns<any>
-}
+type ConvertFunctionalToClass<S> = S extends Functional<infer Self, infer Arg>
+  ? AbstractState<Self, Arg>
+  : S
 
-type Simp<T extends DefinableStates, A> = (
-  states: T,
-  arg?: A
-) => StateReturns<T>
-
-type ConvertFunctional<S> = S extends Simp<infer T, infer A> ? State<T, A> : S
-
-export type States<T extends DefinableStates> = {
-  [Property in keyof T]: ConvertFunctional<T[Property]>
+export type States<Self> = {
+  [Property in keyof Self]: ConvertFunctionalToClass<Self[Property]>
 } & {
-  end: State<T, never>
+  end: AbstractState<any, never>
 }
 
-export type StateReturns<T extends DefinableStates> =
-  | MaybePromise<OneOf<States<T>>>
-  | EndState['end']
-
-export type States2<T extends DefinableStates2> = {
-  [Property in keyof T]: ConvertFunctional<T[Property]>
-}
-
-export type StateReturns2<T extends DefinableStates2> = MaybePromise<
-  OneOf<States2<T>>
->
-
-export class StateMachine<T extends StateMachineDef> {
+export class StateMachine<T extends StateMachineDefinition> {
   /**
    *
    * @param states first state is the init state
@@ -107,7 +88,7 @@ export class StateMachine<T extends StateMachineDef> {
   constructor(states: T) {
     const e = Object.entries({ ...states, end: () => {} }).map(
       ([key, value]) => {
-        if (typeof value === 'function') value = new FuntionalState(value)
+        if (typeof value === 'function') value = new FunctionalState(value)
 
         value.setName(key)
         return [key, value]
@@ -131,8 +112,3 @@ export class StateMachine<T extends StateMachineDef> {
     }
   }
 }
-
-type StateMachineDefinition<T extends DefinableStates> = StateMachine<T>
-
-export type UnwrapStateMachine<T extends StateMachineDefinition<any>> =
-  T extends StateMachineDefinition<infer F> ? F : never

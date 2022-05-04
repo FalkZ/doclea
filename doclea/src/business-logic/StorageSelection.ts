@@ -1,5 +1,5 @@
 import {
-  type State,
+  type AbstractState,
   StateMachine,
   type DefinableStates,
   type StateReturns,
@@ -10,7 +10,7 @@ import type { BusinessLogicStateMachine } from './BusinessLogic'
 import type { businessLogic } from './BusinessLogic'
 
 export class StorageSelectionState
-  implements State<UnwrapStateMachine<typeof businessLogic>>
+  implements AbstractState<UnwrapStateMachine<typeof businessLogic>>
 {
   private async runInnerStateMachine(): Promise<void> {
     return await new Promise((resolve) => {

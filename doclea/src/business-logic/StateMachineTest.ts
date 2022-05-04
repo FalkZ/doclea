@@ -1,23 +1,13 @@
-import {
-  StateMachine,
-  type UnwrapStateMachine,
-  type State,
-  StateReturns,
-  States,
-  DefinableStates,
-  DefinableStates2,
-  StateMachineDef,
-  S
-} from './State'
+import { StateMachine, StateMachineDefinition, State } from './State'
 
 import { Open } from './Open'
 
-export interface SM extends StateMachineDef {
-  authenticate: S<this, never>
-  open: S<this, never>
+export interface TestMachine extends StateMachineDefinition {
+  authenticate: State<this>
+  open: State<this>
 }
 
-const s: SM = {
+const s: TestMachine = {
   init: ({ authenticate }) => {
     // wait for button
     return authenticate
@@ -26,7 +16,7 @@ const s: SM = {
     // show message
     return init
   },
-  authenticate: ({ open, error }) => {
+  authenticate: async ({ open, error }) => {
     if (Math.random() > 0.2) return error.arg(new Error('d '))
 
     return open
