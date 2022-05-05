@@ -16,6 +16,7 @@
   import FileTree from './components/filetree/FileTree.svelte'
   import FileSystemPicker from './components/fs-picker/FileSystemPicker.svelte'
   import type { SelectedEventDetail } from './components/filetree/SelectedEventDetail'
+  import Messages from './components/prompt/Messages.svelte'
 
   let content: string = demoContent
 
@@ -44,7 +45,8 @@
 </script>
 
 <Theming />
-<Router editorState={{ showEditor: true, openFile: false }}>
+<Messages />
+<Router editorState={{ showEditor: true, openFile: true }}>
   <Open slot="openFile" />
   <main slot="showEditor">
     <Splitpanes class="default-theme" style="height: 100%; width: 100vw">

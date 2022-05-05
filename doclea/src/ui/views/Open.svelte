@@ -4,7 +4,7 @@
   import Input from './../components/basic-elements/Input.svelte'
   import Folder from 'tabler-icons-svelte/icons/Folder.svelte'
   import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
-  import Cloud from 'tabler-icons-svelte/icons/Cloud.svelte'
+  import Hexagon from 'tabler-icons-svelte/icons/Hexagon'
   import X from 'tabler-icons-svelte/icons/X.svelte'
 
   console.log(svg)
@@ -20,14 +20,14 @@
     <Input placeholder="https://github.com/..." />
 
     <p>
-      <Button inline={true} className={['left']}><Cloud /> Solid</Button>
+      <Button inline={true} className={['left']}><Hexagon /> Solid</Button>
       or
       <Button inline={true} className={['right']}><BrandGithub /> GitHub</Button
       >
     </p>
   </div>
   <hr />
-  or <Button inline={true}><Folder /> Open Local Folder</Button>
+  <Button inline={true}><Folder /> open local folder</Button>
 </div>
 
 <style>
