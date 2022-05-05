@@ -1,31 +1,42 @@
 import { SFError } from '../lib/SFError'
-import {
+import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry,
   StorageFrameworkFileEntry
 } from '../lib/StorageFrameworkEntry'
-import { Result, OkOrError } from '../lib/utilities'
+import { Result, type OkOrError } from '../lib/utilities'
 
 import {
   getSolidDataset,
   getThingAll,
   isContainer,
-  deleteSolidDataset,
-  createContainerAt
+  deleteContainer,
+  createContainerAt,
+  saveFileInContainer,
+  type WithResourceInfo,
+  saveSolidDatasetAt
 } from '@inrupt/solid-client'
 import { SolidFileEntry } from './SolidFileEntry'
+import type { Readable } from 'src/lib/utilities/stores'
 
 export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   readonly isDirectory: true
   readonly isFile: false
   fullPath: string
   name: string
+  isRoot: boolean
   private parent: SolidDirectoryEntry
 
-  constructor(fullPath: string, name: string, parent: SolidDirectoryEntry) {
+  constructor(fullPath: string, parent: SolidDirectoryEntry, isRoot: boolean) {
     this.fullPath = fullPath
-    this.name = this.getName(fullPath)
+    this.name = this.getFileName(fullPath)
     this.parent = parent
+    this.isRoot = isRoot
+  }
+
+  //TODO
+  watchChildren(): Result<Readable<StorageFrameworkEntry[]>, SFError> {
+    throw new Error('Method not implemented.')
   }
 
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
@@ -35,15 +46,11 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
           resolve(
             subjects.map((subject) => {
               if (isContainer(subject.url)) {
-                return new SolidDirectoryEntry(
-                  subject.url,
-                  this.getName(subject.url),
-                  this
-                )
+                return new SolidDirectoryEntry(subject.url, this, false)
               } else {
                 return new SolidFileEntry(
                   subject.url,
-                  this.getName(subject.url),
+                  this.getFileName(subject.url),
                   this
                 )
               }
@@ -54,7 +61,21 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
     })
   }
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      this.createEmptyFile(name)
+        .then((newFile) =>
+          resolve(
+            new SolidFileEntry(
+              newFile.internal_resourceInfo.sourceIri,
+              this.getFileName(newFile.internal_resourceInfo.sourceIri),
+              this
+            )
+          )
+        )
+        .catch((err) =>
+          reject(new SFError(`Failed to delete ${this.fullPath}`, err))
+        )
+    })
   }
   createDirectory(
     name: string
@@ -65,8 +86,8 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
           resolve(
             new SolidDirectoryEntry(
               container.internal_resourceInfo.sourceIri,
-              this.getName(container.internal_resourceInfo.sourceIri),
-              this.parent
+              this.parent,
+              false
             )
           )
         )
@@ -92,10 +113,18 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
     })
   }
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      this.moveToDirectory(directory)
+        .then(() => resolve())
+        .catch((err) => reject(new SFError(`Failed to move directory`, err)))
+    })
   }
   rename(name: string): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      this.rename(name)
+        .then(() => resolve())
+        .catch((err) => reject(new SFError(`Failed to rename directory`, err)))
+    })
   }
   remove(): OkOrError<SFError> {
     return new Result((resolve, reject) => {
@@ -127,7 +156,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   async deleteSolidDataset() {
-    await deleteSolidDataset(this.fullPath, { fetch: fetch })
+    await deleteContainer(this.fullPath, { fetch: fetch })
   }
 
   async createContainer(name: string) {
@@ -136,7 +165,55 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
     })
   }
 
-  getName(url: string): string {
+  async createEmptyFile(name: string): Promise<Blob & WithResourceInfo> {
+    const newFile = await saveFileInContainer(
+      this.fullPath,
+      new Blob([''], { type: 'plain/text' }),
+      { slug: name, fetch: fetch }
+    )
+    return newFile
+  }
+
+  async renameDirectory(name: string) {
+    const existingDataset = await getSolidDataset(this.fullPath, {
+      fetch: fetch
+    })
+    const directoryName = this.getFileName(
+      existingDataset.internal_resourceInfo.sourceIri
+    )
+    const newDirectoryPath =
+      existingDataset.internal_resourceInfo.sourceIri.replace(
+        directoryName,
+        name
+      )
+
+    await saveSolidDatasetAt(newDirectoryPath, existingDataset, {
+      fetch: fetch
+    })
+    await deleteContainer(this.fullPath, { fetch: fetch })
+    this.fullPath = newDirectoryPath
+  }
+
+  async moveToDirectory(directory: StorageFrameworkDirectoryEntry) {
+    if (directory instanceof SolidDirectoryEntry) {
+      const existingDataset = await getSolidDataset(this.fullPath, {
+        fetch: fetch
+      })
+      const directoryName = this.getFileName(
+        existingDataset.internal_resourceInfo.sourceIri
+      )
+      const moveToDirectory = directory.fullPath + directoryName
+      await saveSolidDatasetAt(moveToDirectory, existingDataset, {
+        fetch: fetch
+      })
+      directory.fullPath = moveToDirectory
+      const children = await this.getChildren()
+      children.forEach((child) => child.moveTo(directory))
+    }
+    this.deleteSolidDataset()
+  }
+
+  getFileName(url: string): string {
     return url.match('([^/]+)(?=[^/]*/?$)')[0]
   }
 }
