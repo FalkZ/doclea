@@ -87,8 +87,10 @@
     text-align: right;
     width: 100%;
     padding: 0 var(--ui-padding-300);
+    padding-right: var(--ui-padding-400);
     box-sizing: border-box;
     user-select: none;
     pointer-events: none;
+    margin-top: 50px;
   }
 </style>

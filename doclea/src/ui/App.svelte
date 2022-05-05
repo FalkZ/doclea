@@ -46,7 +46,7 @@
 
 <Theming />
 <Messages />
-<Router editorState={{ showEditor: true, openFile: true }}>
+<Router editorState={{ showEditor: true, openFile: false }}>
   <Open slot="openFile" />
   <main slot="showEditor">
     <Splitpanes class="default-theme" style="height: 100%; width: 100vw">
