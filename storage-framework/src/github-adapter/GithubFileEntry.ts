@@ -26,6 +26,8 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     this.content_url = githubObj.download_url
     this.octokit = octokit
     this.githubObj = githubObj
+
+    this.getGithubObject()
   }
 
   watchContent(): Result<Readable<SFFile>, SFError> {
@@ -55,7 +57,9 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
           repo: GithubFileSystem.config.repo,
           path: this.fullPath,
           message: 'doclea update',
-          content: window.btoa(unescape(encodeURIComponent(file.text.toString()))),
+          content: window.btoa(
+            unescape(encodeURIComponent(file.text.toString()))
+          ),
           sha: this.githubObj.sha
         })
         .then((response) => {
@@ -83,18 +87,19 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
   }
 
   remove(): OkOrError<SFError> {
-    return new Result((resolve, reject) => {
+    return new Result(async (resolve, reject) => {
+      await this.getGithubObject()
       this.octokit
         .request('DELETE /repos/{owner}/{repo}/contents/{path}', {
           owner: GithubFileSystem.config.owner,
           repo: GithubFileSystem.config.repo,
           path: this.fullPath,
           message: 'doclea removed file',
-          sha: this.githubObj.sha
+          sha: this.githubObj.data.sha
         })
         .then((response) => {
           if (response.status == 200) {
-            // this.parent.getChildren() // update parent
+            //this.parent.getChildren() // update parent
             resolve()
           } else {
             console.log(response)
@@ -106,9 +111,10 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
 
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result((resolve, reject) => {
-
-      let fileName = this.fullPath.split("/").pop()
-      const pathOfNewFile = directory.isRoot ? fileName : (directory.fullPath + '/' + fileName)
+      let fileName = this.fullPath.split('/').pop()
+      const pathOfNewFile = directory.isRoot
+        ? fileName
+        : directory.fullPath + '/' + fileName
 
       fetch(this.content_url)
         .then((response) => {
@@ -118,26 +124,28 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
         })
         .then((text) => {
           this.octokit
-          .request('PUT /repos/{owner}/{repo}/contents/{path}', {
-            owner: GithubFileSystem.config.owner,
-            repo: GithubFileSystem.config.repo,
-            path: pathOfNewFile,
-            message: 'doclea moved file',
-            content: window.btoa(
-              unescape(encodeURIComponent(text))
-            ),
-          })
-          .then((response) => {
-            if (response.status == 201) {
-              const githubFile = new GithubFileEntry(this, response, this.octokit)
-            } else {
-              reject(new SFError('Failed to create file'))
-            }
-          })
-          .then(() => {
-            this.remove()
-            resolve()
-          })
+            .request('PUT /repos/{owner}/{repo}/contents/{path}', {
+              owner: GithubFileSystem.config.owner,
+              repo: GithubFileSystem.config.repo,
+              path: pathOfNewFile,
+              message: 'doclea moved file',
+              content: window.btoa(unescape(encodeURIComponent(text)))
+            })
+            .then((response) => {
+              if (response.status == 201) {
+                const githubFile = new GithubFileEntry(
+                  this,
+                  response,
+                  this.octokit
+                )
+              } else {
+                reject(new SFError('Failed to create file'))
+              }
+            })
+            .then(() => {
+              this.remove()
+              resolve()
+            })
         })
     })
   }
@@ -151,31 +159,50 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
           return response.text()
         })
         .then((text) => {
-
-          const pathOfNewFile = this.parent.isRoot ? name : this.parent.fullPath + '/' + name
+          const pathOfNewFile = this.parent.isRoot
+            ? name
+            : this.parent.fullPath + '/' + name
 
           this.octokit
-          .request('PUT /repos/{owner}/{repo}/contents/{path}', {
-            owner: GithubFileSystem.config.owner,
-            repo: GithubFileSystem.config.repo,
-            path: pathOfNewFile,
-            message: 'doclea renamed file',
-            content: window.btoa(
-              unescape(encodeURIComponent(text))
-            ),
-          })
-          .then((response) => {
-            if (response.status == 201) {
-              const githubFile = new GithubFileEntry(this, response, this.octokit)
-            } else {
-              reject(new SFError('Failed to create file'))
-            }
-          })
-          .then(() => {
-            this.remove()
-            resolve()
-          })
+            .request('PUT /repos/{owner}/{repo}/contents/{path}', {
+              owner: GithubFileSystem.config.owner,
+              repo: GithubFileSystem.config.repo,
+              path: pathOfNewFile,
+              message: 'doclea renamed file',
+              content: window.btoa(unescape(encodeURIComponent(text)))
+            })
+            .then((response) => {
+              if (response.status == 201) {
+                const githubFile = new GithubFileEntry(
+                  this,
+                  response,
+                  this.octokit
+                )
+              } else {
+                reject(new SFError('Failed to create file'))
+              }
+            })
+            .then(() => {
+              this.remove()
+              resolve()
+            })
         })
     })
+  }
+
+  private getGithubObject(): Promise<void> {
+    return this.octokit
+      .request('GET /repos/{owner}/{repo}/contents/{path}', {
+        owner: GithubFileSystem.config.owner,
+        repo: GithubFileSystem.config.repo,
+        path: this.fullPath
+      })
+      .then((data) => {
+        console.log(data)
+        this.githubObj = data
+      })
+      .catch((error) => {
+        console.log(error)
+      })
   }
 }

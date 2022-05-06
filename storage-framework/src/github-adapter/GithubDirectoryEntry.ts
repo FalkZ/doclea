@@ -123,7 +123,18 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      this.getChildren()
+        .then((elements) => {
+          elements.forEach((element) => {
+            element.moveTo(directory)
+          })
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          reject(new SFError('Failed to delete directory'))
+        })
+    })
   }
 
   rename(name: string): OkOrError<SFError> {
