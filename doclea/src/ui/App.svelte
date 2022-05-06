@@ -64,7 +64,7 @@
       </Pane>
       <Pane>
         {#key content}
-          <div>
+          <div class="editor">
             <Editor defaultValue={content} {selectedFile} />
             <!-- <div bind:this={tldraw} /> -->
           </div>
@@ -88,6 +88,10 @@
     position: relative;
     top: 0.1em;
   }
+  .editor {
+    position: relative;
+  }
+
   #sidepane,
   #filetree {
     display: block;

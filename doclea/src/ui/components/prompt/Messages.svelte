@@ -54,6 +54,7 @@
     margin-left: auto;
     margin-right: 0;
     color: var(--ui-foreground-500);
+    pointer-events: all;
   }
   div.warning {
     background-color: var(--ui-color-warn);
