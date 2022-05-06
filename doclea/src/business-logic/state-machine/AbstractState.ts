@@ -1,6 +1,6 @@
 import { States, NextState, OneOf } from './State'
 
-export abstract class AbstractState<T, E, A = never> {
+export abstract class AbstractState<T, E = never, A = never> {
   protected abstract run(states: States<T>, arg?: A): NextState
   private _name: string
   private _arg: A
