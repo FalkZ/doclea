@@ -7,13 +7,15 @@ import {
 
 import { AbstractState } from './state-machine/AbstractState'
 import type { AppStateMachine } from './AppStateMachine'
-import { GithubFileSystem } from 'storage-framework/src'
+import { GithubFileSystem, LocalFileSystem, SolidFileSystem } from 'storage-framework/src'
 import { StateMachine } from './state-machine/StateMachine'
 import type { StorageFrameworkProvider } from 'storage-framework/src/lib/StorageFrameworkEntry'
+import type { none } from 'storage-framework'
 
 interface SelectingStorageStateMachine extends StateMachineDefinition {
   authenticate: State<this>
-  open: State<this, StorageFrameworkProvider>
+  open: State<this, StorageFrameworkProvider>,
+  end: none
 }
 
 enum SelectingStorageEventType {
@@ -37,6 +39,8 @@ export class SelectingStorage extends AbstractState<
 > {
   private async runSelectingStorageStateMachine() {
     const parentState = this
+    let fs 
+    let rootDirectory  // todo move to global store? editing state needs access to rootdir
     const selectingStorageStateMachine =
       new StateMachine<SelectingStorageStateMachine>({
         init: ({ authenticate }) => {
@@ -47,21 +51,53 @@ export class SelectingStorage extends AbstractState<
           console.error('an error occurred', arg)
           return init
         },
-        open: ({ error }, storageFrameworkProvider) => {
-          return error
+        open: async ({ end, error }) => {
+          if (fs) {
+            try {
+              rootDirectory = await fs.open()
+              return end
+            } catch(err) {
+              return error
+            }
+            
+          }
+          else return error
         },
-        authenticate: async ({ open, error }, string) => {
+        authenticate: async ({ open, error }) => {
           const event = await parentState.onNextEvent()
           switch (event.type) {
+            
             case SelectingStorageEventType.Github:
-              const fs = new GithubFileSystem()
-              await fs.authenticate()
+              try {
+                fs = new GithubFileSystem()
+                await fs.authenticate()
+                return open
+              } catch(err) {
+                return error
+              }
+              
 
-              return open
+            case SelectingStorageEventType.Solid:
+              try {
+                fs = new SolidFileSystem()
+                await fs.authenticate()
+                return open
+              }catch(err) {
+                return error
+              }
+              
+
+            case SelectingStorageEventType.Local:
+              try {
+                fs = new LocalFileSystem()
+                return open
+              } catch(err) {
+                return error
+              }
+              
           }
-
-          return error
-        }
+        },
+        end: undefined, // which state to return here? state machine needs to stop here 
       })
 
     await selectingStorageStateMachine.run()
@@ -69,17 +105,5 @@ export class SelectingStorage extends AbstractState<
   protected async run(states: States<AppStateMachine>): NextState {
     await this.runSelectingStorageStateMachine()
     return states.editing
-  }
-
-  public openLocal(): void {
-    this.dispatchEvent({ type: SelectingStorageEventType.Local })
-  }
-
-  public openSolid(url: string): void {
-    //todo
-  }
-
-  public openGithub(url: string): void {
-    //todo
   }
 }
