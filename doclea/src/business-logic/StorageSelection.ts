@@ -2,7 +2,7 @@ import {
   type DefinableStates,
   type StateReturns,
   type States,
-  type UnwrapStateMachine
+  type UnwrapStateMachine,
 } from './state-machine/State'
 import { type AbstractState } from './state-machine/AbstractState'
 import { StateMachine } from './state-machine/StateMachine'
@@ -35,7 +35,7 @@ export class StorageSelectionState
 
           resolve()
           return end
-        }
+        },
       })
     })
   }
