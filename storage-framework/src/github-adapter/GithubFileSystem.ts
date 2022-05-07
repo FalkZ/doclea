@@ -6,6 +6,7 @@ import {
 } from '../lib/StorageFrameworkEntry'
 import { Result } from '../lib/utilities'
 import { GithubDirectoryEntry } from './GithubDirectoryEntry'
+import type { GithubResponse } from './GithubTypes'
 
 const guid = 'github-auth-reiupkvhldwe'
 
@@ -74,7 +75,7 @@ export class GithubFileSystem implements StorageFrameworkProvider {
 
   open(): Result<StorageFrameworkEntry, SFError> {
     return new Result((resolve, reject) => {
-      this.token = 'ghp_TODO'
+      this.token = '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'
       this.octokit = new Octokit({
         auth: this.token, // https://github.com/settings/tokens
         userAgent: 'doclea',
@@ -95,9 +96,14 @@ export class GithubFileSystem implements StorageFrameworkProvider {
           repo: GithubFileSystem.config.repo,
           path: ''
         })
-        .then((data) => {
+        .then(({ data }) => {
+
           console.log(data)
-          resolve(new GithubDirectoryEntry(null, data, true, this.octokit))
+         
+         const data2 = <GithubResponse> data
+
+          if(typeof data2 === "array")
+            resolve(new GithubDirectoryEntry(null, data2, true, this.octokit))
         })
         .catch((error) => {
           console.log(error)

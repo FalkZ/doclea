@@ -9,13 +9,14 @@ import {
 import { Result, OkOrError } from '../lib/utilities'
 import { GithubFileEntry } from './GithubFileEntry'
 import { GithubFileSystem } from './GithubFileSystem'
+import type { ArrayResponse, Directory, GithubResponse } from './GithubTypes'
 
 export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
   readonly isDirectory = true
   readonly isFile = false
   fullPath: string
   readonly name: string
-  githubEntry: any
+  githubEntry: ArrayResponse| Directory
   readonly isRoot: boolean
   children: StorageFrameworkEntry[] = []
   parent: StorageFrameworkDirectoryEntry
@@ -23,7 +24,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
 
   constructor(
     parent: StorageFrameworkDirectoryEntry,
-    githubEntry,
+    githubEntry: ArrayResponse | Directory,
     isRoot: boolean,
     octokit: Octokit
   ) {
@@ -41,7 +42,8 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   private createChildren() {
-    this.githubEntry.data.forEach((element) => {
+    this.children = []
+    this.githubEntry.forEach((element) => {
       if (element.type == 'dir') {
         const githubDirectory = new GithubDirectoryEntry(
           this,

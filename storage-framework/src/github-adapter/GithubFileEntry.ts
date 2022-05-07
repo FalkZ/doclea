@@ -27,7 +27,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     this.octokit = octokit
     this.githubObj = githubObj
 
-    this.getGithubObject()
+    // this.getGithubObject()
   }
 
   watchContent(): Result<Readable<SFFile>, SFError> {
@@ -89,6 +89,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
   remove(): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       await this.getGithubObject()
+      console.log('remove: ' + this.fullPath)
       this.octokit
         .request('DELETE /repos/{owner}/{repo}/contents/{path}', {
           owner: GithubFileSystem.config.owner,
@@ -191,6 +192,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
   }
 
   private getGithubObject(): Promise<void> {
+    console.log('getGithubObject: ' + this.fullPath)
     return this.octokit
       .request('GET /repos/{owner}/{repo}/contents/{path}', {
         owner: GithubFileSystem.config.owner,
@@ -202,6 +204,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
         this.githubObj = data
       })
       .catch((error) => {
+        console.log('getGithubObject failed: ' + this.fullPath)
         console.log(error)
       })
   }
