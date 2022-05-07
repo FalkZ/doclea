@@ -1,7 +1,7 @@
 import { States, NextState, OneOf } from './State'
 
 export abstract class AbstractState<T, E = never, A = never> {
-  protected abstract run(states: States<T>, arg?: A): NextState
+  protected abstract run(states: States<T>, arg?: A): Promise<NextState>
   private _name: string
   private _arg: A
 

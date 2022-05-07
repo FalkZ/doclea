@@ -10,12 +10,15 @@ import type { AppStateMachine } from './AppStateMachine'
 import { GithubFileSystem, LocalFileSystem, SolidFileSystem } from 'storage-framework/src'
 import { StateMachine } from './state-machine/StateMachine'
 import type { StorageFrameworkProvider } from 'storage-framework/src/lib/StorageFrameworkEntry'
-import type { none } from 'storage-framework'
+import type { none, StorageFrameworkDirectoryEntry, StorageFrameworkEntry } from 'storage-framework'
+import type { StorageFrameworkFileSystem } from 'storage-framework/src/lib/StorageFrameworkFileSystem'
+import { end_hydrating } from 'svelte/internal'
+import { Editing } from './Editing'
 
 interface SelectingStorageStateMachine extends StateMachineDefinition {
   authenticate: State<this>
   open: State<this, StorageFrameworkProvider>,
-  end: none
+  //end: State<this>
 }
 
 enum SelectingStorageEventType {
@@ -39,8 +42,8 @@ export class SelectingStorage extends AbstractState<
 > {
   private async runSelectingStorageStateMachine() {
     const parentState = this
-    let fs 
-    let rootDirectory  // todo move to global store? editing state needs access to rootdir
+    let fs: StorageFrameworkFileSystem
+    let rootDirectory: StorageFrameworkDirectoryEntry  // todo move to global store? editing state needs access to rootdir
     const selectingStorageStateMachine =
       new StateMachine<SelectingStorageStateMachine>({
         init: ({ authenticate }) => {
@@ -58,15 +61,13 @@ export class SelectingStorage extends AbstractState<
               return end
             } catch(err) {
               return error
-            }
-            
+            }       
           }
           else return error
         },
         authenticate: async ({ open, error }) => {
           const event = await parentState.onNextEvent()
           switch (event.type) {
-            
             case SelectingStorageEventType.Github:
               try {
                 fs = new GithubFileSystem()
@@ -75,8 +76,6 @@ export class SelectingStorage extends AbstractState<
               } catch(err) {
                 return error
               }
-              
-
             case SelectingStorageEventType.Solid:
               try {
                 fs = new SolidFileSystem()
@@ -85,8 +84,6 @@ export class SelectingStorage extends AbstractState<
               }catch(err) {
                 return error
               }
-              
-
             case SelectingStorageEventType.Local:
               try {
                 fs = new LocalFileSystem()
@@ -96,14 +93,13 @@ export class SelectingStorage extends AbstractState<
               }
               
           }
-        },
-        end: undefined, // which state to return here? state machine needs to stop here 
+        }
       })
 
     await selectingStorageStateMachine.run()
   }
-  protected async run(states: States<AppStateMachine>): NextState {
+  protected async run(states: States<AppStateMachine>): Promise<NextState> {
     await this.runSelectingStorageStateMachine()
-    return states.editing
+    return new Promise((resolve) => resolve(states.end))
   }
 }

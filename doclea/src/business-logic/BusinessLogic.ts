@@ -1,4 +1,4 @@
-import { type DefinableStates } from './state-machine/State'
+import type { DefinableStates } from './state-machine/State'
 import { StateMachine } from './state-machine/StateMachine'
 import { StorageSelectionState } from './StorageSelection'
 
