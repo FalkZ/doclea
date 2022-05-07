@@ -7,11 +7,10 @@ import {
 
 import { AbstractState } from './state-machine/AbstractState'
 import type { AppStateMachine } from './AppStateMachine'
-import { GithubFileSystem, LocalFileSystem, SolidFileSystem } from 'storage-framework/src'
+import { LocalFileSystem, SolidFileSystem, GithubFileSystem } from 'storage-framework'
 import { StateMachine } from './state-machine/StateMachine'
-import type { StorageFrameworkProvider } from 'storage-framework/src/lib/StorageFrameworkEntry'
 import type { none, StorageFrameworkDirectoryEntry } from 'storage-framework'
-import type { StorageFrameworkFileSystem } from 'storage-framework/src/lib/StorageFrameworkFileSystem'
+import type { StorageFrameworkProvider } from 'storage-framework'
 import { Editing } from './Editing'
 
 interface SelectingStorageStateMachine extends StateMachineDefinition {
@@ -25,7 +24,7 @@ enum SelectingStorageEventType {
   Local
 }
 
-type SelectingStorageEvent =
+export type SelectingStorageEvent =
   | {
       type: SelectingStorageEventType.Github | SelectingStorageEventType.Solid
       url: string
@@ -40,7 +39,7 @@ export class SelectingStorage extends AbstractState<
 > {
   private async runSelectingStorageStateMachine() {
     const parentState = this
-    let fs: StorageFrameworkFileSystem
+    let fs: StorageFrameworkProvider
     let rootDirectory: StorageFrameworkDirectoryEntry  // todo move to global store? editing state needs access to rootdir
     const selectingStorageStateMachine =
       new StateMachine<SelectingStorageStateMachine>({
@@ -69,6 +68,7 @@ export class SelectingStorage extends AbstractState<
             case SelectingStorageEventType.Github:
               try {
                 fs = new GithubFileSystem()
+                fs.isLoggedIn
                 await fs.authenticate()
                 return open
               } catch(err) {
@@ -98,6 +98,10 @@ export class SelectingStorage extends AbstractState<
   }
   protected async run(states: States<AppStateMachine>): Promise<NextState> {
     await this.runSelectingStorageStateMachine()
-    return new Promise(resolve => resolve(states.end))
+    return states.end
+  }
+
+  public openLocal(){
+    this.dispatchEvent({type: SelectingStorageEventType.Local})
   }
 }
