@@ -22,7 +22,7 @@ export class FunctionalState<
     this.fn = fn
   }
 
-  protected run(states: States<T>, arg?: A): NextState {
+  protected async run(states: States<T>, arg?: A): Promise<NextState> {
     return this.fn(states, arg)
   }
 }

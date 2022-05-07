@@ -6,20 +6,22 @@ import { SelectingStorage } from './SelectingStorage'
 
 export interface AppStateMachine extends StateMachineDefinition {
   editing: State<this, string>
-  selectingStorage: State<this>
+  //selectingStorage: State<this>
 }
 
-const app = new StateMachine<AppStateMachine>({
-  init: ({ selectingStorage }) => {
+export const appStateMachine = new StateMachine<AppStateMachine>({
+  init: ({ editing }, arg) => {
     // wait for button
-    return selectingStorage
+    console.log('AppStateMachine: Init State', arg)
+    return editing
   },
   error: ({ init }, arg: Error) => {
     console.error('an error occurred', arg)
     return init
   },
-  selectingStorage: new SelectingStorage(),
+  //selectingStorage: new SelectingStorage(),
   editing: new Editing()
 })
 
-app.run()
+appStateMachine.run()
+

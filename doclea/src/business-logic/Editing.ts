@@ -1,13 +1,14 @@
 import { States, type NextState } from './state-machine/State'
 import { AbstractState } from './state-machine/AbstractState'
 import type { AppStateMachine } from './AppStateMachine'
+import { StateMachine } from './state-machine/StateMachine';
 
 export class Editing extends AbstractState<AppStateMachine> {
-  protected async run(states: States<AppStateMachine>): NextState {
+  protected async run(states: States<AppStateMachine>): Promise<NextState> {
 
-    await editingStateMachine.run();
+    //await editingStateMachine.run();
 
-    return states.end
+    return new Promise(resolve => resolve(states.end))
   }
 
   private readonly filesStore: Writable<StorageFrameworkDirectoryEntry> =
@@ -49,7 +50,7 @@ export class Editing extends AbstractState<AppStateMachine> {
     //todo
   }
 }
-
+/*
 const editingStateMachine = new StateMachine<AppStateMachine>({
   init: ({ editing }) => {
     // wait for button
@@ -58,5 +59,6 @@ const editingStateMachine = new StateMachine<AppStateMachine>({
   error: ({ init }, arg: Error) => {
     console.error('an error occurred', arg)
     return init
-  },
+  }
 })
+*/

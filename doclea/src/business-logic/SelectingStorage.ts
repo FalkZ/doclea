@@ -10,15 +10,13 @@ import type { AppStateMachine } from './AppStateMachine'
 import { GithubFileSystem, LocalFileSystem, SolidFileSystem } from 'storage-framework/src'
 import { StateMachine } from './state-machine/StateMachine'
 import type { StorageFrameworkProvider } from 'storage-framework/src/lib/StorageFrameworkEntry'
-import type { none, StorageFrameworkDirectoryEntry, StorageFrameworkEntry } from 'storage-framework'
+import type { none, StorageFrameworkDirectoryEntry } from 'storage-framework'
 import type { StorageFrameworkFileSystem } from 'storage-framework/src/lib/StorageFrameworkFileSystem'
-import { end_hydrating } from 'svelte/internal'
 import { Editing } from './Editing'
 
 interface SelectingStorageStateMachine extends StateMachineDefinition {
   authenticate: State<this>
   open: State<this, StorageFrameworkProvider>,
-  //end: State<this>
 }
 
 enum SelectingStorageEventType {
@@ -47,7 +45,7 @@ export class SelectingStorage extends AbstractState<
     const selectingStorageStateMachine =
       new StateMachine<SelectingStorageStateMachine>({
         init: ({ authenticate }) => {
-          // wait for button
+          console.log('SelectingStorageStatemachine: Init state')
           return authenticate
         },
         error: ({ init }, arg: Error) => {
@@ -100,6 +98,6 @@ export class SelectingStorage extends AbstractState<
   }
   protected async run(states: States<AppStateMachine>): Promise<NextState> {
     await this.runSelectingStorageStateMachine()
-    return new Promise((resolve) => resolve(states.end))
+    return new Promise(resolve => resolve(states.end))
   }
 }
