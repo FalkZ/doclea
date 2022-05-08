@@ -1,4 +1,5 @@
 import { Octokit } from '@octokit/core'
+import { ReactivityDirDecorator } from 'src/lib/wrappers/ReactivityDecorator'
 import { SFError } from '../lib/SFError'
 import {
   StorageFrameworkProvider,
@@ -33,7 +34,7 @@ export class GithubFileSystem implements StorageFrameworkProvider {
 
       this.readDirFromGithub()
         .then((githubEntry) => {
-          resolve(githubEntry)
+          resolve(new ReactivityDirDecorator(null, githubEntry))
         })
         .catch(() => {
           reject(new SFError('Failed to get github workspace', new Error()))

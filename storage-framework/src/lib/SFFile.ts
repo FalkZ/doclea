@@ -6,3 +6,8 @@ export class SFFile extends File {
     super(content, name, { lastModified })
   }
 }
+
+export const duplicateFile = async (file: File): Promise<SFFile> => {
+  const data = new Uint8Array(await file.arrayBuffer()).buffer
+  return new SFFile(file.name, file.lastModified, [data])
+}

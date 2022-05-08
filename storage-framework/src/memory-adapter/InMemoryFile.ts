@@ -1,23 +1,16 @@
 import { SFFile } from '../lib/SFFile'
-import { OkOrError, Result } from '../lib/utilities'
-import { writable, Readable, Writable } from '../lib/utilities/stores'
+import { Result, type OkOrError } from '../lib/utilities'
 
 import { InMemoryFSEntry } from './InMemoryFSEntry'
 
 import type { SFError } from '../lib/SFError'
 import type { StorageFrameworkFileEntry } from '../lib/StorageFrameworkEntry'
-import type { InMemoryDirectory } from './InMemoryDirectory'
 
 export class InMemoryFile
   extends InMemoryFSEntry
   implements StorageFrameworkFileEntry
 {
   private data = new ArrayBuffer(0)
-  private readonly observable: Writable<SFFile> = writable()
-
-  constructor(parent: InMemoryDirectory, name: string) {
-    super(parent, name)
-  }
 
   get isDirectory(): false {
     return false
@@ -30,7 +23,7 @@ export class InMemoryFile
   read(): Result<SFFile, SFError> {
     return new Result((resolve, reject) => {
       const error = this.verifyNodeIsAttachedToRoot()
-      if (error) {
+      if (error !== null) {
         reject(error)
         return
       }
@@ -38,23 +31,11 @@ export class InMemoryFile
       resolve(this.toSFFile())
     })
   }
-  
-  watchContent(): Result<Readable<SFFile>, SFError> {
-    return new Result((resolve, reject) => {
-      const error = this.verifyNodeIsAttachedToRoot()
-      if (error) {
-        reject(error)
-        return
-      }
-
-      resolve(this.observable)
-    })
-  }
 
   save(file: File): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       const error = this.verifyNodeIsAttachedToRoot()
-      if (error) {
+      if (error !== null) {
         reject(error)
         return
       }
@@ -64,7 +45,6 @@ export class InMemoryFile
         .then((data) => new Uint8Array(data).buffer)
         .then((data) => {
           this.data = data
-          this.observable.set(this.toSFFile())
           resolve()
         })
         .catch(reject)
