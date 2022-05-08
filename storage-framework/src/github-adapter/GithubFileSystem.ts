@@ -74,8 +74,9 @@ export class GithubFileSystem implements StorageFrameworkProvider {
   octokit: Octokit
 
   open(): Result<StorageFrameworkEntry, SFError> {
+    console.log('GitHub open!')
     return new Result((resolve, reject) => {
-      this.token = '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'
+      this.token = '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'
       this.octokit = new Octokit({
         auth: this.token, // https://github.com/settings/tokens
         userAgent: 'doclea',
@@ -90,25 +91,9 @@ export class GithubFileSystem implements StorageFrameworkProvider {
         }
       })
 
-      this.octokit
-        .request('GET /repos/{owner}/{repo}/contents/{path}', {
-          owner: GithubFileSystem.config.owner,
-          repo: GithubFileSystem.config.repo,
-          path: ''
-        })
-        .then(({ data }) => {
-
-          console.log(data)
-         
-         const data2 = <GithubResponse> data
-
-          if(typeof data2 === "array")
-            resolve(new GithubDirectoryEntry(null, data2, true, this.octokit))
-        })
-        .catch((error) => {
-          console.log(error)
-          reject(new SFError('Failed to get github workspace', error))
-        })
+      let workspace = new GithubDirectoryEntry(null, '', '', this.octokit)
+      workspace.getChildren()
+      resolve(workspace)
     })
   }
 }
