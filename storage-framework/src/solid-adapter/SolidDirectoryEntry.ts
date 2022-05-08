@@ -25,13 +25,13 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   fullPath: string
   name: string
   isRoot: boolean
-  private parent: SolidDirectoryEntry
+  private parent: SolidDirectoryEntry | null
 
-  constructor(fullPath: string, parent: SolidDirectoryEntry, isRoot: boolean) {
+  constructor(fullPath: string, parent: SolidDirectoryEntry) {
     this.fullPath = fullPath
     this.name = this.getFileName(fullPath)
     this.parent = parent
-    this.isRoot = isRoot
+    this.isRoot = parent == null
   }
 
   //TODO
@@ -46,7 +46,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
           resolve(
             subjects.map((subject) => {
               if (isContainer(subject.url)) {
-                return new SolidDirectoryEntry(subject.url, this, false)
+                return new SolidDirectoryEntry(subject.url, this)
               } else {
                 return new SolidFileEntry(
                   subject.url,
@@ -86,8 +86,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
           resolve(
             new SolidDirectoryEntry(
               container.internal_resourceInfo.sourceIri,
-              this.parent,
-              false
+              this.parent
             )
           )
         )

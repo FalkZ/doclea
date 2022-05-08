@@ -67,7 +67,7 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
   }
   rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
-      this.rename(name)
+      this.renameFile(name)
         .then(() => resolve())
         .catch((err) => reject(new SFError(`Failed to rename file`, err)))
     })

@@ -22,23 +22,21 @@ export class SolidFileSystem implements StorageFrameworkProvider {
   isSignedIn: boolean
   sessionId: string
 
-  readonly urlPod: string = 'https://pod.inrupt.com/pm4'
-
-  open(): Result<StorageFrameworkEntry, SFError> {
+  open(urlPod: string): Result<StorageFrameworkEntry, SFError> {
     return new Result((resolve, reject) => {
-      this.loginAndFetch()
-        .then((root) => resolve(new SolidDirectoryEntry(root.url, null, true)))
+      this.loginAndFetch(urlPod)
+        .then((root) => resolve(new SolidDirectoryEntry(root.url, null)))
         .catch((e) => reject(new SFError('Failed to ...', e)))
     })
   }
 
   //TODO only root fetch
-  async loginAndFetch() {
+  async loginAndFetch(urlPod: string) {
     if (!this.sessionId) {
       await this.authenticate()
     }
 
-    const dataset = await getSolidDataset(this.urlPod, {
+    const dataset = await getSolidDataset(urlPod, {
       fetch: fetch
     })
 
