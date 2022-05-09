@@ -37,7 +37,9 @@
     </p>
   </div>
   <hr />
-  or <Button inline={true}><Folder /> Open Local Folder</Button>
+  or <Button inline={true}
+    on:click={() => selectingStorageState.openLocal()}
+    active={$activeOpenButton}><Folder /> Open Local Folder</Button>
 </div>
 
 <style>

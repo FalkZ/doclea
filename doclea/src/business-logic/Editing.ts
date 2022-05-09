@@ -50,7 +50,7 @@ export class Editing extends AbstractState<AppStateMachine, EditorEvent> {
     writable()
 
   get selectedFile(): Readable<StorageFrameworkFileEntry> {
-    return { subscribe: this.selectedFile.subscribe }
+    return { subscribe: this.selectedFileStore.subscribe }
   }
 
   get files(): Readable<StorageFrameworkDirectoryEntry> {

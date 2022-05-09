@@ -16,7 +16,7 @@ import { StateMachine } from './state-machine/StateMachine'
 import type { none, StorageFrameworkEntry } from 'storage-framework'
 import type { StorageFrameworkProvider } from 'storage-framework'
 import { Editing } from './Editing'
-import type { Readable } from 'svelte/store'
+import { writable, type Readable, type Writable } from 'svelte/store'
 
 interface SelectingStorageStateMachine extends StateMachineDefinition {
   authenticate: State<this>
@@ -117,7 +117,12 @@ export class SelectingStorage extends AbstractState<
     return this.endState
   }
 
-  get activeOpenButton(): Readable<boolean> {}
+  private readonly openButtonStateStore: Writable<boolean> =
+    writable()
+
+  get openButtonState(): Readable<boolean> {
+    return { subscribe: this.openButtonStateStore.subscribe}
+  }
 
   public openLocal() {
     this.dispatchEvent({ type: SelectingStorageEventType.Local })
