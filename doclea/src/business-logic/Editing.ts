@@ -1,23 +1,23 @@
 import { States, type NextState } from './state-machine/State'
 import { AbstractState } from './state-machine/AbstractState'
 import type { AppStateMachine } from './AppStateMachine'
-import { StateMachine } from './state-machine/StateMachine';
-import type { StorageFrameworkDirectoryEntry, StorageFrameworkFileEntry } from 'storage-framework';
+import { StateMachine } from './state-machine/StateMachine'
+import type {
+  StorageFrameworkDirectoryEntry,
+  StorageFrameworkFileEntry
+} from 'storage-framework'
+import { Readable, Writable, writable } from 'svelte/store'
 
 export class Editing extends AbstractState<AppStateMachine> {
   protected async run(states: States<AppStateMachine>): Promise<NextState> {
-
-    //await editingStateMachine.run();
-
-    return new Promise(resolve => resolve(states.end))
+    return new Promise((resolve) => resolve(states.end))
   }
-/*
+
   private readonly filesStore: Writable<StorageFrameworkDirectoryEntry> =
     writable()
 
   private readonly selectedFileStore: Writable<StorageFrameworkFileEntry> =
     writable()
-
 
   get selectedFile(): Readable<StorageFrameworkFileEntry> {
     return { subscribe: this.selectedFile.subscribe }
@@ -26,7 +26,7 @@ export class Editing extends AbstractState<AppStateMachine> {
   get files(): Readable<StorageFrameworkDirectoryEntry> {
     return { subscribe: this.filesStore.subscribe }
   }
-*/
+
   public setSelectedFile(file: StorageFrameworkFileEntry): void {
     //todo
   }
@@ -50,7 +50,6 @@ export class Editing extends AbstractState<AppStateMachine> {
   public toggleDarkMode(): void {
     //todo
   }
-  
 }
 /*
 const editingStateMachine = new StateMachine<AppStateMachine>({

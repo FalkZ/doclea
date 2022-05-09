@@ -1,37 +1,29 @@
 <script lang="ts">
-  import Milkdown from '../components/Milkdown.svelte'
+  import Open from './views/Open.svelte'
+  import Editor from './views/Editor.svelte'
+  import Theming from './Theming.svelte'
 
-  import { Pane, Splitpanes } from 'svelte-splitpanes'
+  import type { StateMachine } from '../business-logic/state-machine/StateMachine'
+  import type {
+    AppStateMachine,
+    Controller,
+  } from '../business-logic/AppStateMachine'
 
-  import FileTree from '../components/filetree/FileTree.svelte'
+  export let controller: Controller
 
-  import type { Editing } from 'src/business-logic/Editing'
+  const { states } = controller.appStateMachine
 
-  export let editingState: Editing
-
-  const { selectedFile, files } = editingState
+  $: console.log($states)
 </script>
 
-<main>
-  <Splitpanes class="default-theme" style="height: 100%; width: 100vw">
-    <Pane size="20">
-      <div id="filetree">
-        <FileTree
-          entry={$files}
-          on:selected={(event) =>
-            editingState.setSelectedFile(event.detail.entry)}
-        />
-      </div>
-    </Pane>
-    <Pane>
-      <div>
-        <Milkdown selectedFile={$selectedFile} />
-      </div>
-    </Pane>
-  </Splitpanes>
-</main>
-
-// TODO: style cleanup
+<Theming />
+{#if $states.name === 'selectingStorage'}
+  <Open selectingStorageState={$states} />
+{:else if $states.name === 'editing'}
+  <Editor editingState={$states} />
+{:else}
+  Loading...
+{/if}
 
 <style>
   main {

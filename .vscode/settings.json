@@ -2,7 +2,7 @@
   "prettier.configPath": "./node_modules/eslint-config-ijw/.prettierrc",
   "eslint.validate": ["svelte"],
 
-  "eslint.enable": true,
+  "eslint.enable": false,
   "eslint.packageManager": "pnpm",
 
   "[javascript]": {
