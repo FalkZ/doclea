@@ -1,12 +1,17 @@
+import { Readable, Writable, writable } from 'svelte/store'
 import { Logger } from '../Logger'
 import { StateMachineDefinition, States, FunctionalState, OneOf } from './State'
 
 export class StateMachine<T extends StateMachineDefinition> {
-  /**
-   *
-   * @param states first state is the init state
-   */
-  private readonly states: States<T>
+  private readonly _states: States<T>
+
+  private statesObservable: Writable<OneOf<States<T>>>
+
+  get states(): Readable<OneOf<States<T>>> {
+    return {
+      subscribe: (cb) => this.statesObservable.subscribe(cb)
+    }
+  }
 
   private readonly logger = new Logger()
   constructor(states: T) {
@@ -19,19 +24,21 @@ export class StateMachine<T extends StateMachineDefinition> {
       }
     )
 
-    this.states = Object.fromEntries(e)
+    this._states = Object.fromEntries(e)
+    this.statesObservable = writable(this._states.init)
   }
 
   async run(): Promise<void> {
-    let state: OneOf<States<T>> = this.states.init
+    let state: OneOf<States<T>> = this._states.init
 
     while (state) {
       this.logger.group(state.name)
+      this.statesObservable.set(state)
       try {
-        const promise = state.runWithArgs(this.states)
+        const promise = state.runWithArgs(this._states)
         state = await Promise.resolve(promise)
       } catch (e) {
-        state = this.states.error.arg(e)
+        state = this._states.error.arg(e)
       }
       this.logger.groupEnd()
     }

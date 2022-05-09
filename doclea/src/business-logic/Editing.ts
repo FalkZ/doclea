@@ -2,8 +2,8 @@ import type { States, NextState } from './state-machine/State'
 import { AbstractState } from './state-machine/AbstractState'
 import type { AppStateMachine } from './AppStateMachine'
 import { StateMachine } from './state-machine/StateMachine';
-import type { Readable, StorageFrameworkDirectoryEntry, StorageFrameworkFileEntry } from 'storage-framework';
-import { writable, type Writable } from 'storage-framework/src/lib/utilities/stores';
+import type { StorageFrameworkDirectoryEntry, StorageFrameworkFileEntry } from 'storage-framework';
+import { type Readable, type Writable, writable } from 'svelte/store';
 
 export class Editing extends AbstractState<AppStateMachine> {
   protected async run(states: States<AppStateMachine>): Promise<NextState> {
@@ -18,7 +18,6 @@ export class Editing extends AbstractState<AppStateMachine> {
 
   private readonly selectedFileStore: Writable<StorageFrameworkFileEntry> =
     writable()
-
 
   get selectedFile(): Readable<StorageFrameworkFileEntry> {
     return { subscribe: this.selectedFile.subscribe }
@@ -55,7 +54,6 @@ export class Editing extends AbstractState<AppStateMachine> {
   closeEditor(): void {
 
   }
-  
 }
 
 const editingStateMachine = new StateMachine<AppStateMachine>({

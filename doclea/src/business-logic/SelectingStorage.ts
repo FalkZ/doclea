@@ -7,15 +7,20 @@ import {
 
 import { AbstractState } from './state-machine/AbstractState'
 import type { AppStateMachine } from './AppStateMachine'
-import { LocalFileSystem, SolidFileSystem, GithubFileSystem } from 'storage-framework'
+import {
+  LocalFileSystem,
+  SolidFileSystem,
+  GithubFileSystem
+} from 'storage-framework'
 import { StateMachine } from './state-machine/StateMachine'
 import type { none, StorageFrameworkEntry } from 'storage-framework'
 import type { StorageFrameworkProvider } from 'storage-framework'
 import { Editing } from './Editing'
+import type { Readable } from 'svelte/store'
 
 interface SelectingStorageStateMachine extends StateMachineDefinition {
   authenticate: State<this>
-  open: State<this, StorageFrameworkProvider>,
+  open: State<this, StorageFrameworkProvider>
 }
 
 enum SelectingStorageEventType {
@@ -40,7 +45,7 @@ export class SelectingStorage extends AbstractState<
   private async runSelectingStorageStateMachine() {
     const parentState = this
     let fs: StorageFrameworkProvider
-    let rootEntry: StorageFrameworkEntry  // todo move to global store? editing state needs access to rootdir
+    let rootEntry: StorageFrameworkEntry // todo move to global store? editing state needs access to rootdir
     const selectingStorageStateMachine =
       new StateMachine<SelectingStorageStateMachine>({
         init: ({ authenticate }) => {
@@ -53,25 +58,26 @@ export class SelectingStorage extends AbstractState<
         },
         open: async ({ end, error }) => {
           if (fs) {
+            // TODO: set url hash
             try {
               rootEntry = await fs.open()
               return end
-            } catch(err) {
+            } catch (err) {
               return error
-            }       
-          }
-          else return error
+            }
+          } else return error
         },
         authenticate: async ({ open, error }) => {
+          // TODO: activate open buttons
           const event = await parentState.onNextEvent()
           switch (event.type) {
             case SelectingStorageEventType.Github:
               try {
-                fs = new GithubFileSystem();
+                fs = new GithubFileSystem()
                 //(<GithubFileSystem>fs).isLoggedIn
                 //await (<GithubFileSystem>fs).authenticate()
                 return open
-              } catch(err) {
+              } catch (err) {
                 return error
               }
             case SelectingStorageEventType.Solid:
@@ -79,17 +85,16 @@ export class SelectingStorage extends AbstractState<
                 fs = new SolidFileSystem()
                 //await fs.authenticate()
                 return open
-              }catch(err) {
+              } catch (err) {
                 return error
               }
             case SelectingStorageEventType.Local:
               try {
                 fs = new LocalFileSystem()
                 return open
-              } catch(err) {
+              } catch (err) {
                 return error
               }
-              
           }
         }
       })
@@ -97,20 +102,27 @@ export class SelectingStorage extends AbstractState<
     await selectingStorageStateMachine.run()
   }
 
+  /**
+   * Sets url hash to e.g. #https://github.com/...
+   */
+  private setUrlHash() {}
+
   protected async run(states: States<AppStateMachine>): Promise<NextState> {
     await this.runSelectingStorageStateMachine()
     return states.end
   }
 
-  public openLocal(){
-    this.dispatchEvent({type: SelectingStorageEventType.Local})
+  get activeOpenButton(): Readable<boolean> {}
+
+  public openLocal() {
+    this.dispatchEvent({ type: SelectingStorageEventType.Local })
   }
 
   public openSolid(url: string): void {
-    this.dispatchEvent({type: SelectingStorageEventType.Solid, url: url})
+    this.dispatchEvent({ type: SelectingStorageEventType.Solid, url: url })
   }
 
   public openGithub(url: string): void {
-    this.dispatchEvent({type: SelectingStorageEventType.Github, url: url})
+    this.dispatchEvent({ type: SelectingStorageEventType.Github, url: url })
   }
 }

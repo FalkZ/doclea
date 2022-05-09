@@ -115,9 +115,7 @@ enum EditorState {
   EditingSVG
 }
 
-type Action = () => void
 
-type Label = string
 
 interface AppStateHandle {
   getNextState(): AppStateHandle
@@ -140,18 +138,7 @@ interface EditorStateHandle {
   toggleTlDrawOpen(): void
 }
 
-interface MessagePrompt {
-  type: MessageType.Prompt
-  message: string
-  actions: Record<Label, Action>
-}
 
-interface BasicMessage {
-  type: MessageType.Error | MessageType.Info | MessageType.Warning
-  message: string
-}
-
-type Message = BasicMessage | MessagePrompt
 
 /**
  * Every action that is taken in the editor should be defined and executed here (except for internal actions of the milkdown editor)
