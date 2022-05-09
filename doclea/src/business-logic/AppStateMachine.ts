@@ -22,7 +22,7 @@ export class Controller {
   private readonly messageTimeMs = 2000
 
   private readonly messageStore: Writable<Message[]> = writable([])
-
+  private editing = new Editing()
   public appStateMachine = new StateMachine<AppStateMachine>({
     init: ({ selectingStorage }) => {
       // wait for button
@@ -32,8 +32,8 @@ export class Controller {
       console.error('an error occurred', arg)
       return init
     },
-    selectingStorage: new SelectingStorage(),
-    editing: new Editing()
+    editing: this.editing,
+    selectingStorage: new SelectingStorage(this.editing)
   })
 
   constructor() {

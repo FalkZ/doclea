@@ -42,6 +42,11 @@ export class SelectingStorage extends AbstractState<
   AppStateMachine,
   SelectingStorageEvent
 > {
+  private endState;
+  constructor(endState: AbstractState<AppStateMachine, SelectingStorageEvent>) {
+    super()
+    this.endState = endState
+  }
   private async runSelectingStorageStateMachine() {
     const parentState = this
     let fs: StorageFrameworkProvider
@@ -109,7 +114,7 @@ export class SelectingStorage extends AbstractState<
 
   protected async run(states: States<AppStateMachine>): Promise<NextState> {
     await this.runSelectingStorageStateMachine()
-    return states.end
+    return this.endState
   }
 
   get activeOpenButton(): Readable<boolean> {}
