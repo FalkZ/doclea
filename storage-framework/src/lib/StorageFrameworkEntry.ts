@@ -9,13 +9,14 @@ import type { Readable as Observable } from './utilities/stores'
  * The provider takes care of any authentication implementations.
  */
 export interface StorageFrameworkProvider {
-  // todo: empty?
   /**
    * Provide the root entry of a file system.
    *
    * @returns the root entry, or an error
    */
-  open(): Result<StorageFrameworkEntry, SFError>
+  open(url?: string): Result<StorageFrameworkEntry, SFError>
+  readonly isSignedIn: boolean
+  authenticate()
 }
 
 /**
