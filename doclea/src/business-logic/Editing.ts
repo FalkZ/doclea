@@ -27,7 +27,6 @@ export class Editing extends AbstractState<AppStateMachine, EditorEvent> {
     const parentState = this
     const editingStateMachine = new StateMachine<EditingStateMachine>({
       init: ({ editing }) => {
-        // wait for button
         return editing
       },
       error: ({ init }, arg: Error) => {

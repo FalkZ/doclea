@@ -29,6 +29,11 @@ enum SelectingStorageEventType {
   Local
 }
 
+enum ButtonState {
+  Active,
+  Inactive
+}
+
 export type SelectingStorageEvent =
   | {
       type: SelectingStorageEventType.Github | SelectingStorageEventType.Solid
@@ -117,10 +122,10 @@ export class SelectingStorage extends AbstractState<
     return this.endState
   }
 
-  private readonly openButtonStateStore: Writable<boolean> =
-    writable()
+  private readonly openButtonStateStore: Writable<ButtonState> =
+    writable(ButtonState.Inactive)
 
-  get openButtonState(): Readable<boolean> {
+  get openButtonState(): Readable<ButtonState> {
     return { subscribe: this.openButtonStateStore.subscribe}
   }
 
