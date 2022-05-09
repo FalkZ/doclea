@@ -7,7 +7,6 @@ import {
 import { Result } from '../lib/utilities'
 import { GithubDirectoryEntry } from './GithubDirectoryEntry'
 import type { GithubResponse } from './GithubTypes'
-
 const guid = 'github-auth-reiupkvhldwe'
 
 if (window.location.hash === '#' + guid) {
@@ -20,8 +19,7 @@ if (window.location.hash === '#' + guid) {
 
     const params = new URLSearchParams({
       client_id: 'b0febf46067600eed6e5',
-      client_secret: '44e2e6e329257ae5c2196d920bfe91ee43184c3d ',
-      // redirect_uri: `http://127.0.0.1:3000#${guid}`,
+      client_secret: '228480a8a7eae9aed8299126211402f47c488013',
       redirect_uri: 'http://127.0.0.1:3000#${guid}',
       code: code
     })
@@ -37,8 +35,8 @@ if (window.location.hash === '#' + guid) {
         return response.json()
       })
       .then((json) => {
-        console.log('received token', json)
-        sessionStorage.setItem(guid, json.token)
+        console.log('global - the token: ', json.access_token)
+        sessionStorage.setItem(guid, json.access_token)
       })
   }
 }
@@ -49,6 +47,7 @@ export class GithubFileSystem implements StorageFrameworkProvider {
 
   constructor() {
     this.token = sessionStorage.getItem(guid)
+    console.log('constructor() - the token: ', this.token)
     this.isSignedIn = this.token ? true : false
   }
 
@@ -74,9 +73,10 @@ export class GithubFileSystem implements StorageFrameworkProvider {
   octokit: Octokit
 
   open(): Result<StorageFrameworkEntry, SFError> {
+    this.token = sessionStorage.getItem(guid)
+    console.log('open() - the token: ', this.token)
     console.log('GitHub open!')
-    return new Result((resolve, reject) => {
-      this.token = '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'
+    return new Result(async (resolve, reject) => {
       this.octokit = new Octokit({
         auth: this.token, // https://github.com/settings/tokens
         userAgent: 'doclea',
