@@ -59,7 +59,6 @@ export class SelectingStorage extends AbstractState<
     const selectingStorageStateMachine =
       new StateMachine<SelectingStorageStateMachine>({
         init: ({ authenticate }) => {
-          console.log('SelectingStorageStatemachine: Init state')
           return authenticate
         },
         error: ({ init }, arg: Error) => {
@@ -78,7 +77,7 @@ export class SelectingStorage extends AbstractState<
           } else return error
         },
         authenticate: async ({ open, error }) => {
-          // TODO: activate open buttons
+          parentState.openButtonStateStore.update(() => ButtonState.Active)
           const event = await parentState.onNextEvent()
           switch (event.type) {
             case SelectingStorageEventType.Github:
