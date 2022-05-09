@@ -1,17 +1,18 @@
-import { States, type NextState } from './state-machine/State'
+import type { States, NextState } from './state-machine/State'
 import { AbstractState } from './state-machine/AbstractState'
 import type { AppStateMachine } from './AppStateMachine'
 import { StateMachine } from './state-machine/StateMachine';
-import type { StorageFrameworkDirectoryEntry, StorageFrameworkFileEntry } from 'storage-framework';
+import type { Readable, StorageFrameworkDirectoryEntry, StorageFrameworkFileEntry } from 'storage-framework';
+import { writable, type Writable } from 'storage-framework/src/lib/utilities/stores';
 
 export class Editing extends AbstractState<AppStateMachine> {
   protected async run(states: States<AppStateMachine>): Promise<NextState> {
 
-    //await editingStateMachine.run();
+    await editingStateMachine.run();
 
     return new Promise(resolve => resolve(states.end))
   }
-/*
+
   private readonly filesStore: Writable<StorageFrameworkDirectoryEntry> =
     writable()
 
@@ -26,9 +27,9 @@ export class Editing extends AbstractState<AppStateMachine> {
   get files(): Readable<StorageFrameworkDirectoryEntry> {
     return { subscribe: this.filesStore.subscribe }
   }
-*/
+
   public setSelectedFile(file: StorageFrameworkFileEntry): void {
-    //todo
+    this.selectedFileStore.set(file)
   }
 
   public openFileTree(root: StorageFrameworkDirectoryEntry): void {
@@ -50,9 +51,13 @@ export class Editing extends AbstractState<AppStateMachine> {
   public toggleDarkMode(): void {
     //todo
   }
+
+  closeEditor(): void {
+
+  }
   
 }
-/*
+
 const editingStateMachine = new StateMachine<AppStateMachine>({
   init: ({ editing }) => {
     // wait for button
@@ -63,4 +68,3 @@ const editingStateMachine = new StateMachine<AppStateMachine>({
     return init
   }
 })
-*/
