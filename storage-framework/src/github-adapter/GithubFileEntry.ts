@@ -10,15 +10,34 @@ import { Result, OkOrError } from '../lib/utilities'
 import { GithubFileSystem } from './GithubFileSystem'
 import type { ArrayResponse, SingleFile } from './GithubTypes'
 
+import { Mutex } from '../lib/utilities/mutex'
+
+// const timeout = () =>
+//   new Promise<void>((resolve) => setTimeout(() => resolve(), 2000))
+
+// const fn = (nr) => async () => {
+//   console.log(nr, 'test 1')
+//   await timeout()
+//   console.log(nr, 'test 2')
+// }
+
+// const mutex = new Mutex()
+// mutex.apply(fn(1))
+// mutex.apply(fn(2))
+
+// console.log(mutex)
+
 export class GithubFileEntry implements StorageFrameworkFileEntry {
   readonly isDirectory = false
   readonly isFile = true
   readonly fullPath: string
   readonly name: string
   readonly content_url: string
-  private parent: StorageFrameworkDirectoryEntry
+  private readonly parent: StorageFrameworkDirectoryEntry
   octokit: Octokit
   githubEntry: SingleFile
+
+  private readonly mutex = new Mutex()
 
   constructor(
     parent: StorageFrameworkDirectoryEntry,
@@ -85,10 +104,17 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
   }
 
   remove(): OkOrError<SFError> {
-    return new Result(async (resolve) => {
-      await this.getGithubFile(this.fullPath)
-      await this.removeGithubFile(this.fullPath, this.githubEntry.sha)
-      resolve
+    return new Result((resolve, reject) => {
+      this.mutex.apply(async () => {
+        try {
+          await this.getGithubFile(this.fullPath)
+          await this.removeGithubFile(this.fullPath, this.githubEntry.sha)
+
+          resolve()
+        } catch (error) {
+          reject(new SFError('Failed to remove file', error))
+        }
+      })
     })
   }
 
@@ -96,8 +122,8 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     return new Result(async () => {
       await this.getGithubFile(this.fullPath)
 
-      let fileName = this.fullPath.split('/').pop()
-      let newFullPathOfFile = directory.isRoot
+      const fileName = this.fullPath.split('/').pop()
+      const newFullPathOfFile = directory.isRoot
         ? fileName
         : directory.fullPath + '/' + fileName
       await this.createGithubFile(newFullPathOfFile, this.githubEntry.content)
@@ -110,7 +136,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     return new Result(async () => {
       await this.getGithubFile(this.fullPath)
 
-      let newFileFullPath = this.parent.isRoot
+      const newFileFullPath = this.parent.isRoot
         ? name
         : this.parent.fullPath + '/' + name
       await this.createGithubFile(newFileFullPath, this.githubEntry.content)
@@ -139,7 +165,10 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
-  private createGithubFile(newFileFullPath: string, contentInBase65: string): Result<void, void> {
+  private createGithubFile(
+    newFileFullPath: string,
+    contentInBase65: string
+  ): Result<void, void> {
     return new Result((resolve, reject) => {
       this.octokit
         .request('PUT /repos/{owner}/{repo}/contents/{path}', {
@@ -161,7 +190,10 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
-  private removeGithubFile(removeFileFullPath: string, sha: string): Result<void, void> {
+  private removeGithubFile(
+    removeFileFullPath: string,
+    sha: string
+  ): Result<void, void> {
     return new Result((resolve, reject) => {
       this.octokit
         .request('DELETE /repos/{owner}/{repo}/contents/{path}', {
