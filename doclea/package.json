@@ -37,6 +37,7 @@
     "tabler-icons-svelte": "^1.7.0"
   },
   "devDependencies": {
+    "@babel/core": ">=7.10.2 <8.0.0",
     "@milahu/patch-package-with-pnpm-support": "^6.4.10",
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
     "@tsconfig/svelte": "^2.0.1",
