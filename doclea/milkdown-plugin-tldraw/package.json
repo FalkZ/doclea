@@ -10,5 +10,8 @@
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "unist-util-visit": "^4.1.0"
+  },
+  "devDependencies": {
+    "vite": "2.9.0"
   }
 }
