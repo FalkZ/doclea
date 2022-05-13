@@ -53,10 +53,6 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     console.log(this)
   }
 
-  watchContent(): Result<Readable<SFFile>, SFError> {
-    throw new Error('Method not implemented.')
-  }
-
   read(): Result<SFFile, SFError> {
     return new Result(async (result) => {
       await this.getGithubFile(this.fullPath)
@@ -83,13 +79,13 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
         })
         .then((response) => {
           if (response.status == 200) {
-            // this.parent.getChildren() // update parent
             resolve()
           } else {
             console.log(response)
             reject(new SFError('Failed to save file'))
           }
         })
+        .catch((err) => reject(new SFError(`Failed to save file`, err)))
     })
   }
 
@@ -119,29 +115,48 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
   }
 
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
-    return new Result(async () => {
-      await this.getGithubFile(this.fullPath)
+    return new Result((resolve, reject) => {
+      this.mutex.apply(async () => {
+        try {
+          await this.getGithubFile(this.fullPath)
 
-      const fileName = this.fullPath.split('/').pop()
-      const newFullPathOfFile = directory.isRoot
-        ? fileName
-        : directory.fullPath + '/' + fileName
-      await this.createGithubFile(newFullPathOfFile, this.githubEntry.content)
+          const fileName = this.fullPath.split('/').pop()
+          const newFullPathOfFile = directory.isRoot
+            ? fileName
+            : directory.fullPath + '/' + fileName
+          await this.createGithubFile(
+            newFullPathOfFile,
+            this.githubEntry.content
+          )
 
-      await this.removeGithubFile(this.fullPath, this.githubEntry.sha)
+          await this.removeGithubFile(this.fullPath, this.githubEntry.sha)
+
+          resolve()
+        } catch (error) {
+          reject(new SFError('Failed to move file', error))
+        }
+      })
     })
   }
 
   rename(name: string): OkOrError<SFError> {
-    return new Result(async () => {
-      await this.getGithubFile(this.fullPath)
+    return new Result(async (resolve, reject) => {
+      this.mutex.apply(async () => {
+        try {
+          await this.getGithubFile(this.fullPath)
 
-      const newFileFullPath = this.parent.isRoot
-        ? name
-        : this.parent.fullPath + '/' + name
-      await this.createGithubFile(newFileFullPath, this.githubEntry.content)
+          const newFileFullPath = this.parent.isRoot
+            ? name
+            : this.parent.fullPath + '/' + name
+          await this.createGithubFile(newFileFullPath, this.githubEntry.content)
 
-      await this.removeGithubFile(this.fullPath, this.githubEntry.sha)
+          await this.removeGithubFile(this.fullPath, this.githubEntry.sha)
+
+          resolve()
+        } catch (error) {
+          reject(new SFError('Failed to rename file', error))
+        }
+      })
     })
   }
 

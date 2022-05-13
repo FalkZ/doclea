@@ -24,10 +24,6 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     this.parent = parent
   }
 
-  watchContent(): Result<Readable<SFFile>, SFError> {
-    throw new Error('Method not implemented.')
-  }
-
   read(): Result<SFFile, SFError> {
     return new Result((resolve, reject) => {
       this.file.file(

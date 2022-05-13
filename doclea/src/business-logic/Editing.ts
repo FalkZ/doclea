@@ -1,10 +1,19 @@
-import type { States, NextState, StateMachineDefinition, State } from './state-machine/State'
+import type {
+  States,
+  NextState,
+  StateMachineDefinition,
+  State
+} from './state-machine/State'
 import { AbstractState } from './state-machine/AbstractState'
 import type { AppStateMachine } from './AppStateMachine'
-import { StateMachine } from './state-machine/StateMachine';
-import type { StorageFrameworkDirectoryEntry, StorageFrameworkFileEntry, StorageFrameworkEntry } from 'storage-framework';
-import { type Readable, type Writable, writable } from 'svelte/store';
-import { set_attributes } from 'svelte/internal';
+import { StateMachine } from './state-machine/StateMachine'
+import type {
+  StorageFrameworkDirectoryEntry,
+  StorageFrameworkFileEntry,
+  StorageFrameworkEntry
+} from 'storage-framework'
+import { type Readable, type Writable, writable } from 'svelte/store'
+import { set_attributes } from 'svelte/internal'
 
 interface EditingStateMachine extends StateMachineDefinition {
   editing: State<this>
@@ -16,15 +25,21 @@ enum EditorEventType {
 
 export type EditorEvent = EditorEventType.CloseEditor
 
-export class Editing extends AbstractState<AppStateMachine, EditorEvent, StorageFrameworkEntry> {
-  protected async run({ selectingStorage }: States<AppStateMachine>, rootEntry: StorageFrameworkEntry): Promise<NextState> {
-
-    console.log(rootEntry)
+export class Editing extends AbstractState<
+  AppStateMachine,
+  EditorEvent,
+  StorageFrameworkEntry
+> {
+  protected async run(
+    { selectingStorage }: States<AppStateMachine>,
+    rootEntry: StorageFrameworkEntry
+  ): Promise<NextState> {
+    console.log('added files', rootEntry)
+    this.filesStore.set(rootEntry)
     const event = await this.onNextEvent()
 
     return selectingStorage
   }
-
 
   private async runEditingStateMachine() {
     const parentState = this
@@ -35,8 +50,8 @@ export class Editing extends AbstractState<AppStateMachine, EditorEvent, Storage
       error: ({ init }, arg: Error) => {
         console.error('an error occurred', arg)
         return init
-      }, 
-      editing: async ( { end } ) => {
+      },
+      editing: async ({ end }) => {
         const event = await parentState.onNextEvent()
 
         return end
@@ -67,4 +82,3 @@ export class Editing extends AbstractState<AppStateMachine, EditorEvent, Storage
     this.dispatchEvent(EditorEventType.CloseEditor)
   }
 }
-

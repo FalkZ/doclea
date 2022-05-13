@@ -45,7 +45,12 @@ export class GithubFileSystem implements StorageFrameworkProvider {
   isSignedIn: boolean
   private token
 
-  constructor() {
+  constructor(
+    client_id: string,
+    client_secret: string,
+    repo: string,
+    owner: string
+  ) {
     this.token = sessionStorage.getItem(guid)
     console.log('constructor() - the token: ', this.token)
     this.isSignedIn = this.token ? true : false
@@ -96,4 +101,11 @@ export class GithubFileSystem implements StorageFrameworkProvider {
       resolve(new ReactivityDirDecorator(null, workspace))
     })
   }
+}
+
+try {
+  window.tempMikko = new GithubFileSystem()
+  window.tempMikko.open()
+} catch (e) {
+  console.error(e)
 }

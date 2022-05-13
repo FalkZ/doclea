@@ -34,11 +34,6 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
     this.isRoot = parent == null
   }
 
-  //TODO
-  watchChildren(): Result<Readable<StorageFrameworkEntry[]>, SFError> {
-    throw new Error('Method not implemented.')
-  }
-
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
     return new Result((resolve, reject) => {
       this.fetch()

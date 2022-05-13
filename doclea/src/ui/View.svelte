@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Open from './views/Open.svelte'
-  import Editor from './views/Editor.svelte'
-  import Theming from './Theming.svelte'
+  import Open from '@ui/views/Open.svelte'
+  import Editor from '@ui/views/Editor.svelte'
+  import Theming from '@ui/Theming.svelte'
 
   import type { StateMachine } from '../business-logic/state-machine/StateMachine'
   import type {

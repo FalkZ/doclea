@@ -1,8 +1,6 @@
-import View from './ui/View.svelte'
+import View from '@ui/View.svelte'
 
-//import './business-logic/StateMachineTest'
-import { AppStateMachine, Controller } from './business-logic/AppStateMachine'
-import type { StateMachine } from './business-logic/state-machine/StateMachine'
+import { Controller } from './business-logic/AppStateMachine'
 
 const controller = new Controller()
 

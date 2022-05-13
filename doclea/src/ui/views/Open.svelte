@@ -1,7 +1,7 @@
 <script lang="ts">
   import svg from '/assets/favicon.svg?raw'
-  import Button from './../components/basic-elements/Button.svelte'
-  import Input from './../components/basic-elements/Input.svelte'
+  import Button from '@ui/components/basic-elements/Button.svelte'
+  import Input from '@ui/components/basic-elements/Input.svelte'
   import Folder from 'tabler-icons-svelte/icons/Folder.svelte'
   import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
   import Hexagon from 'tabler-icons-svelte/icons/Hexagon'

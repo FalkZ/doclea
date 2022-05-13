@@ -31,6 +31,8 @@
       .config(async (ctx) => {
         const defaultValue = await (await selectedFile.read()).text()
         ctx.set(rootCtx, dom)
+
+        console.log(defaultValue)
         ctx.set(defaultValueCtx, defaultValue)
 
         ctx.get(listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
@@ -60,6 +62,7 @@
               {
                 type: 'button',
                 icon: 'save',
+                key: '',
               },
             ],
             ...defaultConfig,
@@ -76,6 +79,7 @@
       .create()
       .then(() => {
         document.querySelector('[title="save"]').onclick = () => {
+          console.log('start saving')
           selectedFile.save(new File([output], 'test.md'))
         }
       })

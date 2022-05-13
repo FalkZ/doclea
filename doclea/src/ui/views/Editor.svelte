@@ -1,11 +1,11 @@
 <script lang="ts">
-  import Milkdown from '../components/Milkdown.svelte'
+  import Milkdown from '@ui/components/Milkdown.svelte'
 
   import { Pane, Splitpanes } from 'svelte-splitpanes'
 
-  import FileTree from '../components/filetree/FileTree.svelte'
+  import FileTree from '@ui/components/filetree/FileTree.svelte'
 
-  import type { Editing } from 'src/business-logic/Editing'
+  import type { Editing } from '@src/business-logic/Editing'
 
   export let editingState: Editing
 
@@ -25,18 +25,18 @@
     </Pane>
     <Pane>
       <div>
-        <Milkdown selectedFile={$selectedFile} />
+        {#if $selectedFile}
+          <Milkdown selectedFile={$selectedFile} />
+        {:else}
+          select a file to start editing
+        {/if}
       </div>
     </Pane>
   </Splitpanes>
 </main>
 
-// TODO: style cleanup
-
 <style>
   main {
-    display: grid;
-    /* grid-template-columns: minmax(150px, 300px) minmax(0, 1fr); */
     height: 100vh;
     width: 100vw;
   }

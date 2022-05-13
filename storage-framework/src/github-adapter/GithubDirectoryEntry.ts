@@ -37,10 +37,6 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
     console.log(this)
   }
 
-  watchChildren(): Result<Readable<StorageFrameworkEntry[]>, SFError> {
-    throw new Error('Method not implemented.')
-  }
-
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
     return new Result(async (resolve, reject) => {
       await this.getGithubDir()
@@ -49,7 +45,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
           resolve(this.children)
         })
         .catch(() => {
-          console.log('Failed to get childer')
+          console.log('Failed to get children')
         })
     })
   }
@@ -67,7 +63,12 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
         .then((response) => {
           console.log(response)
           if (response.status == 201) {
-            const file = new GithubFileEntry(this, this.fullPath, name, this.octokit)
+            const file = new GithubFileEntry(
+              this,
+              this.fullPath,
+              name,
+              this.octokit
+            )
             resolve(file)
           } else {
             reject(new SFError('Failed to create file'))
@@ -110,25 +111,26 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
       const storageElements = await this.getChildren()
       console.log(storageElements.length)
       for (let index = 0; index < storageElements.length; index++) {
-
-        
         if (storageElements[index].isFile) {
           // 1. read file for sha
-          storageElements[index].read() 
+          storageElements[index].read()
 
           // 2. create new file with renamed directory
           let newDirFullPath = this.parent.isRoot
-          ? name
-          : this.parent.fullPath + '/' + name
-          let newFileFullPath = newDirFullPath + '/' + storageElements[index].name
-          this.createGithubFile(newFileFullPath, storageElements[index].githubEntry.sha) // githubEntry undelined read? maybe casting needed?
+            ? name
+            : this.parent.fullPath + '/' + name
+          let newFileFullPath =
+            newDirFullPath + '/' + storageElements[index].name
+          this.createGithubFile(
+            newFileFullPath,
+            storageElements[index].githubEntry.sha
+          ) // githubEntry undelined read? maybe casting needed?
 
           // 3. remove old file from old directory
-          await storageElements[index].remove() 
+          await storageElements[index].remove()
         } else {
-
         }
-        console.log("trying to remove: ", storageElements[index].fullPath)
+        console.log('trying to remove: ', storageElements[index].fullPath)
       }
     })
   }
@@ -139,7 +141,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
       console.log(storageElements.length)
       for (let index = 0; index < storageElements.length; index++) {
         await storageElements[index].remove()
-        console.log("trying to remove: ", storageElements[index].fullPath)
+        console.log('trying to remove: ', storageElements[index].fullPath)
       }
     })
   }
@@ -189,10 +191,20 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
     this.children = []
     this.githubEntry.forEach((element) => {
       if (element.type == 'dir') {
-        const githubDirectory = new GithubDirectoryEntry(this, element.path, element.name, this.octokit)
+        const githubDirectory = new GithubDirectoryEntry(
+          this,
+          element.path,
+          element.name,
+          this.octokit
+        )
         this.children.push(githubDirectory)
       } else if (element.type == 'file') {
-        const githubFile = new GithubFileEntry(this, element.path, element.name, this.octokit)
+        const githubFile = new GithubFileEntry(
+          this,
+          element.path,
+          element.name,
+          this.octokit
+        )
         this.children.push(githubFile)
       }
     })
