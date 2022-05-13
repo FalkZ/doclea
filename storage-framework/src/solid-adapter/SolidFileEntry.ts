@@ -1,17 +1,14 @@
 import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
-import {
+import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkFileEntry
 } from '../lib/StorageFrameworkEntry'
-import { Result, OkOrError } from '../lib/utilities'
-import { SolidDirectoryEntry } from './SolidDirectoryEntry'
-import {
-  saveFileInContainer,
-  overwriteFile,
-  deleteFile,
-  getFile
-} from '@inrupt/solid-client'
+import { Result, type OkOrError } from '../lib/utilities'
+import type { SolidDirectoryEntry } from './SolidDirectoryEntry'
+import { saveFileInContainer, deleteFile, getFile } from '@inrupt/solid-client'
+
+import type { Readable } from 'src/lib/utilities/stores'
 
 export class SolidFileEntry implements StorageFrameworkFileEntry {
   fullPath: string
@@ -26,6 +23,11 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     this.name = name
     this.parent = parent
   }
+
+  watchContent(): Result<Readable<SFFile>, SFError> {
+    throw new Error('Method not implemented.')
+  }
+
   read(): Result<SFFile, SFError> {
     return new Result((resolve, reject) => {
       this.file.file(
@@ -57,11 +59,18 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     })
   }
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      this.moveFileToContainer(directory)
+        .then(() => resolve())
+        .catch((err) => reject(new SFError(`Failed to move file`, err)))
+    })
   }
   rename(name: string): OkOrError<SFError> {
-    //let modifiedFile = new SFFile(name, null, [this.file.file])
-    throw new Error('Method not implemented.')
+    return new Result((resolve, reject) => {
+      this.renameFile(name)
+        .then(() => resolve())
+        .catch((err) => reject(new SFError(`Failed to rename file`, err)))
+    })
   }
   remove(): OkOrError<SFError> {
     return new Result((resolve, reject) => {
@@ -73,21 +82,48 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
+  async renameFile(name: string) {
+    const file = await getFile(this.fullPath, { fetch: fetch })
+
+    type file = Awaited<ReturnType<typeof getFile>>
+
+    let fileName = this.getFileName(file.internal_resourceInfo.sourceIri)
+    let newFileName = this.replaceFileNameWithNewName(fileName, name)
+    file.internal_resourceInfo.sourceIri =
+      file.internal_resourceInfo.sourceIri.replace(fileName, '')
+    const renamedFile = await saveFileInContainer(
+      file.internal_resourceInfo.sourceIri,
+      file,
+      { slug: newFileName, fetch: fetch }
+    )
+    this.name = renamedFile.internal_resourceInfo.sourceIri
+  }
+
   //There is also an overwriteFile function which overwrites the file
   //if it exists and creates the containers which are in the url but not in the pod
   async saveFile(file: File) {
     await saveFileInContainer(this.parent.fullPath, file)
   }
 
-  async overwriteFile(file: File) {
-    await overwriteFile(this.fullPath, file)
-  }
-
   async deleteFile() {
     await deleteFile(this.fullPath, { fetch: fetch })
   }
 
-  async getFile() {
-    await getFile(this.fullPath, { fetch: fetch })
+  async moveFileToContainer(directory: StorageFrameworkDirectoryEntry) {
+    const file = await getFile(this.fullPath, { fetch: fetch })
+    type file = Awaited<ReturnType<typeof getFile>>
+    return await saveFileInContainer(directory.fullPath, file, {
+      slug: this.getFileName(file.internal_resourceInfo.sourceIri),
+      fetch: fetch
+    })
+  }
+
+  replaceFileNameWithNewName(fileName: string, newName: string): string {
+    let match = fileName.match('(.+?)(.[^.]*$|$)')[0]
+    return fileName.replace(match, newName)
+  }
+
+  getFileName(url: string): string {
+    return url.match('([^/]+)(?=[^/]*/?$)')[0]
   }
 }

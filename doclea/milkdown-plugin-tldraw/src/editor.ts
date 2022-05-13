@@ -5,11 +5,16 @@ import { getDocumentFromImageUri } from './getDocumentFromImageUri'
 
 import { dataURLtoFile, serializeDocument, toImageURL } from './convertions'
 
+const placeholder = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+    width="800mm" height="600mm"
+    viewBox="-400 -300 800 600">
+</svg>`
 const prefersDarkMode = Boolean(
   window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
 )
 
-function Component({ resolveApi, tdDocument }) {
+const Component = ({ resolveApi, tdDocument }) => {
   const rTldrawApp = React.useRef<TldrawApp>()
 
   const handleMount = React.useCallback((app: TldrawApp) => {
@@ -25,7 +30,7 @@ function Component({ resolveApi, tdDocument }) {
       onMount: handleMount,
       onSaveProjectAs: console.log,
       showMenu: false,
-      showPages: false,
+      showPages: false
     },
     null
   )
@@ -96,7 +101,7 @@ export class TldrawView {
 
     if (prefersDarkMode) this.api.toggleDarkMode()
 
-    //@ts-ignore
+    // @ts-expect-error
 
     if (!document) this.api.addMediaFromFile(dataURLtoFile(src, 'input.svg'))
     else this.api.loadDocument(document)
@@ -105,11 +110,13 @@ export class TldrawView {
   async destroy() {
     // export svg
     let svg: string = await new Promise(async (resolve) => {
-      // @ts-ignore
+      // @ts-expect-error
       this.api.callbacks.onExport = (all) => {
         resolve(all.serialized)
       }
-      await this.api.exportAllShapesAs(TDExportTypes.SVG)
+      await this.api
+        .exportAllShapesAs(TDExportTypes.SVG)
+        .catch(() => resolve(placeholder))
     })
 
     // add serialized document

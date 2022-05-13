@@ -9,13 +9,14 @@ import type { Readable as Observable } from './utilities/stores'
  * The provider takes care of any authentication implementations.
  */
 export interface StorageFrameworkProvider {
-  // todo: empty?
   /**
    * Provide the root entry of a file system.
    *
    * @returns the root entry, or an error
    */
-  open(): Result<StorageFrameworkEntry, SFError>
+  open(url?: string): Result<StorageFrameworkEntry, SFError>
+  readonly isSignedIn: boolean
+  authenticate()
 }
 
 /**
@@ -86,15 +87,22 @@ export interface StorageFrameworkFileEntry extends StorageFrameworkEntry {
   read(): Result<SFFile, SFError>
 
   /**
-   * Read the whole file content and watch out for updates
-   * @returns an observable for SFFile, or SFError on error
-   */
-  watchContent(): Result<Observable<SFFile>, SFError>
-  /**
    * Save the whole file
    * @returns nothing if succeded, SFError otherwise
    */
   save(file: File): OkOrError<SFError>
+}
+
+/**
+ * Add observability to the StorageFrameworkFileEntry
+ */
+export interface ObservableStorageFrameworkFileEntry extends StorageFrameworkFileEntry {
+
+  /**
+   * Read the whole file content and watch out for updates
+   * @returns an observable for SFFile, or SFError on error
+   */
+   watchContent(): Result<Observable<SFFile>, SFError>
 }
 
 /**
@@ -116,11 +124,6 @@ export interface StorageFrameworkDirectoryEntry extends StorageFrameworkEntry {
    */
   getChildren(): Result<StorageFrameworkEntry[], SFError>
   /**
-   * retrive all children and watch out for any modifications
-   * @returns an observable for children, or SFError on error
-   */
-  watchChildren(): Result<Observable<StorageFrameworkEntry[]>, SFError>
-  /**
    * creates a new file with the given name
    *
    * @returns the created file entry if succeded, SFError otherwise
@@ -132,4 +135,16 @@ export interface StorageFrameworkDirectoryEntry extends StorageFrameworkEntry {
    * @returns the created directory entry if succeded, SFError otherwise
    */
   createDirectory(name: string): Result<StorageFrameworkDirectoryEntry, SFError>
+}
+
+/**
+ * Add observability to the StorageFrameworkDirectoryEntry
+ */
+export interface ObservableStorageFrameworkDirectoryEntry extends StorageFrameworkDirectoryEntry {
+
+  /**
+   * retrive all children and watch out for any modifications
+   * @returns an observable for children, or SFError on error
+   */
+   watchChildren(): Result<Observable<StorageFrameworkEntry[]>, SFError>
 }

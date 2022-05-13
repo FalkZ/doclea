@@ -2,10 +2,14 @@
   export let inline = false
   export let className = []
 
+  export let active = true
+
   className.push('Button')
 </script>
 
-<button on:click class:inline class={className.join(' ')}><slot /></button>
+<button on:click class:inline class={className.join(' ')} disabled={!active}
+  ><slot /></button
+>
 
 <style>
   button {

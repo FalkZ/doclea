@@ -1,18 +1,19 @@
-import { SFError } from '../lib/SFError'
-import type { StorageFrameworkEntry } from '../lib/StorageFrameworkEntry'
-import type { StorageFrameworkFileSystem } from '../lib/StorageFrameworkFileSystem'
+import type { SFError } from '../lib/SFError'
+import type {  StorageFrameworkEntry } from '../lib/StorageFrameworkEntry'
+import type {StorageFrameworkProvider} from '../lib/StorageFrameworkEntry'
+import { ReactivityDirDecorator } from '../lib/wrappers/ReactivityDecorator'
 import { Result } from '../lib/utilities'
 import LocalFallbackDirectoryEntry from './local-fallback-fs-adapter/LocalFallbackDirectoryEntry'
 import { LocalDirectoryEntry } from './LocalDirectoryEntry'
 
-export class LocalFileSystem implements StorageFrameworkFileSystem {
+export class LocalFileSystem implements StorageFrameworkProvider {
   open(): Result<StorageFrameworkEntry, SFError> {
-    return new Result(async (resolve, reject) => {
+    return new Result(async (resolve) => {
       if (window.showDirectoryPicker) {
         const dirHandle = await window.showDirectoryPicker({
           multiple: true
         })
-        resolve(new LocalDirectoryEntry(dirHandle, null, true))
+        resolve(new ReactivityDirDecorator(null, new LocalDirectoryEntry(dirHandle, null, true)))
       } else {
         const el = document.createElement('input')
         el.setAttribute('type', 'file')
@@ -25,11 +26,13 @@ export class LocalFileSystem implements StorageFrameworkFileSystem {
             ? '/' + ev.target.files[0].webkitRelativePath.split('/')[0]
             : ''
           resolve(
-            new LocalFallbackDirectoryEntry(
-              dirName,
-              ev.target.files,
-              true,
-              null
+            new ReactivityDirDecorator(null, 
+              new LocalFallbackDirectoryEntry(
+                dirName,
+                ev.target.files,
+                true,
+                null
+              )
             )
           )
         }
