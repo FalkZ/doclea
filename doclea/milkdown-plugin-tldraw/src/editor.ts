@@ -1,5 +1,10 @@
 import * as React from 'react'
-import { Tldraw, TldrawApp, TDDocument, TDExportTypes } from '@tldraw/tldraw'
+import {
+  Tldraw,
+  TldrawApp,
+  TDDocument,
+  type TDExportTypes
+} from '@tldraw/tldraw'
 import ReactDOM from 'react-dom'
 import { getDocumentFromImageUri } from './getDocumentFromImageUri'
 

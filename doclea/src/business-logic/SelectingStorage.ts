@@ -47,7 +47,7 @@ export class SelectingStorage extends AbstractState<
   AppStateMachine,
   SelectingStorageEvent
 > {
-  private rootEntry: StorageFrameworkEntry 
+  private rootEntry: StorageFrameworkEntry
   private async runSelectingStorageStateMachine() {
     const parentState = this
     let fs: StorageFrameworkProvider
@@ -56,18 +56,17 @@ export class SelectingStorage extends AbstractState<
         init: ({ authenticate }) => {
           return authenticate
         },
-        error: ({ init }, arg: Error) => {
+        error: ({ init, end }, arg: Error) => {
           console.error('an error occurred', arg)
-          return init
+          return end
         },
         open: async ({ end, error }) => {
-       
-            // TODO: set url hash
-              this.rootEntry = await fs.open()
-              return end
+          // TODO: set url hash
+          this.rootEntry = await fs.open()
+          return end
         },
         authenticate: async ({ open, error }) => {
-          parentState.openButtonStateStore.set(b)
+          //parentState.openButtonStateStore.set(b)
           const event = await parentState.onNextEvent()
           switch (event.type) {
             case SelectingStorageEventType.Github:
@@ -82,7 +81,7 @@ export class SelectingStorage extends AbstractState<
             case SelectingStorageEventType.Solid:
               try {
                 fs = new SolidFileSystem()
-                
+
                 //await fs.authenticate()
                 return open
               } catch (err) {
@@ -107,18 +106,20 @@ export class SelectingStorage extends AbstractState<
    */
   private setUrlHash() {}
 
-
-  protected async run({ editing }: States<AppStateMachine>): Promise<NextState> {
+  protected async run({
+    editing
+  }: States<AppStateMachine>): Promise<NextState> {
     await this.runSelectingStorageStateMachine()
 
     return editing.arg(this.rootEntry)
   }
 
-  private readonly openButtonStateStore: Writable<ButtonState> =
-    writable(ButtonState.Inactive)
+  private readonly openButtonStateStore: Writable<ButtonState> = writable(
+    ButtonState.Inactive
+  )
 
   get isOpenButtonActive(): Readable<boolean> {
-    return { subscribe: this.openButtonStateStore.subscribe}
+    return { subscribe: this.openButtonStateStore.subscribe }
   }
 
   public openLocal() {

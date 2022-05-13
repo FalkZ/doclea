@@ -13,9 +13,9 @@ const test = new StateMachine<TestMachine>({
     // wait for button
     return authenticate
   },
-  error: ({ init }, arg: Error) => {
+  error: ({ init, end }, arg: Error) => {
     console.error('an error occurred', arg)
-    return init
+    return end
   },
   authenticate: async ({ open, error }) => {
     if (Math.random() > 0.2) throw new Error('dsflj')

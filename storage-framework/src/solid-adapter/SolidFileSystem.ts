@@ -26,7 +26,14 @@ export class SolidFileSystem implements StorageFrameworkProvider {
   open(urlPod: string): Result<StorageFrameworkEntry, SFError> {
     return new Result((resolve, reject) => {
       this.loginAndFetch(urlPod)
-        .then((root) => resolve(new ReactivityDirDecorator(null, new SolidDirectoryEntry(root.url, null))))
+        .then((root) =>
+          resolve(
+            new ReactivityDirDecorator(
+              null,
+              new SolidDirectoryEntry(root.url, null)
+            )
+          )
+        )
         .catch((e) => reject(new SFError('Failed to ...', e)))
     })
   }
