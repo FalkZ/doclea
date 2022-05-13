@@ -37,7 +37,6 @@
     "@parcel/packager-ts": "2.5.0",
     "@parcel/transformer-typescript-types": "latest",
     "@types/wicg-file-system-access": "^2020.9.5",
-    "parcel": "latest",
-    "@parcel/core": ">=2.5.0 <3.0.0"
+    "parcel": "latest"
   }
 }
