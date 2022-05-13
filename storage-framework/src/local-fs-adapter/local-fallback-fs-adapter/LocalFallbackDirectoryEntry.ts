@@ -5,7 +5,7 @@ import type {
   StorageFrameworkFileEntry
 } from '../../lib/StorageFrameworkEntry'
 import { Result, type OkOrError } from '../../lib/utilities'
-import LocalFallbackFileEntry from './LocalFallbackFileEntry'
+import { LocalFallbackFileEntry } from './LocalFallbackFileEntry'
 
 /**
  * use public or private fields
