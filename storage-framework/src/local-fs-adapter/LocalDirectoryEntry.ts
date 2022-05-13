@@ -2,7 +2,7 @@ import { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry,
-  StorageFrameworkFileEntry,
+  StorageFrameworkFileEntry
 } from '../lib/StorageFrameworkEntry'
 import { Result, type OkOrError } from '../lib/utilities/result'
 import { LocalFileEntry } from './LocalFileEntry'
@@ -13,8 +13,8 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
   readonly fullPath: string
   readonly name: string
   readonly isRoot: boolean
-  private parent: LocalDirectoryEntry
-  private directoryHandle: FileSystemDirectoryHandle
+  private readonly parent: LocalDirectoryEntry
+  private readonly directoryHandle: FileSystemDirectoryHandle
 
   constructor(
     directoryHandle: FileSystemDirectoryHandle,
@@ -37,24 +37,23 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
 
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
     return new Result(async (resolve, reject) => {
-      let children: StorageFrameworkEntry[] = []
-      ;(async () => {
-        for await (const value of this.directoryHandle.values()) {
-          let child: FileSystemHandle = value
-          if (child.kind === 'directory') {
-            children.push(
-              new LocalDirectoryEntry(
-                <FileSystemDirectoryHandle>child,
-                this,
-                false
-              )
+      const children: StorageFrameworkEntry[] = []
+
+      for await (const value of this.directoryHandle.values()) {
+        const child: FileSystemHandle = value
+        if (child.kind === 'directory') {
+          children.push(
+            new LocalDirectoryEntry(
+              <FileSystemDirectoryHandle>child,
+              this,
+              false
             )
-          } else if (child.kind === 'file') {
-            children.push(new LocalFileEntry(<FileSystemFileHandle>child, this))
-          }
+          )
+        } else if (child.kind === 'file') {
+          children.push(new LocalFileEntry(<FileSystemFileHandle>child, this))
         }
-        resolve(children)
-      })()
+      }
+      resolve(children)
     })
   }
 
@@ -103,9 +102,9 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   remove(): OkOrError<SFError> {
-    return new Result((resolve, reject) => {
+    return new Result(async (resolve, reject) => {
       if (this.parent) {
-        this.parent.removeEntry(this.name)
+        await this.parent.removeEntry(this.name)
         resolve()
       } else {
         const errMsg = `Failed to remove directory ${this.fullPath}`

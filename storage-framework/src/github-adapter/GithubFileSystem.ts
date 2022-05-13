@@ -5,7 +5,7 @@ import { GithubDirectoryEntry } from './GithubDirectoryEntry'
 import type { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkProvider,
-  StorageFrameworkEntry,
+  StorageFrameworkEntry
 } from '../lib/StorageFrameworkEntry'
 const guid = 'github-auth-reiupkvhldwe'
 
@@ -20,15 +20,15 @@ if (window.location.hash === '#' + guid) {
     const params = new URLSearchParams({
       client_id: 'b0febf46067600eed6e5',
       client_secret: '228480a8a7eae9aed8299126211402f47c488013',
-      redirect_uri: 'http://127.0.0.1:3000#${guid}',
-      code: code,
+      redirect_uri: `http://127.0.0.1:3000#${guid}`,
+      code: code
     })
 
-    fetch('https://github.com/login/oauth/access_token?' + params, {
+    void fetch('https://github.com/login/oauth/access_token?' + params, {
       method: 'POST',
       headers: {
-        Accept: 'application/json',
-      },
+        Accept: 'application/json'
+      }
     })
       .then((response) => {
         if (!response.ok) console.error('failed fetch', response)
@@ -53,7 +53,7 @@ export class GithubFileSystem implements StorageFrameworkProvider {
   ) {
     this.token = sessionStorage.getItem(guid)
     console.log('constructor() - the token: ', this.token)
-    this.isSignedIn = this.token ? true : false
+    this.isSignedIn = !!this.token
   }
 
   authenticate() {
@@ -62,7 +62,7 @@ export class GithubFileSystem implements StorageFrameworkProvider {
       // redirect_uri: window.location.origin,
       // redirect_uri: window.location.href,
       redirect_uri: `http://127.0.0.1:3000#${guid}`,
-      scope: 'repo',
+      scope: 'repo'
     })
 
     window.location.href = 'https://github.com/login/oauth/authorize?' + params
@@ -72,7 +72,7 @@ export class GithubFileSystem implements StorageFrameworkProvider {
 
   static readonly config = {
     owner: 'mikko-abad',
-    repo: 'doclea',
+    repo: 'doclea'
   }
 
   octokit: Octokit
@@ -92,11 +92,11 @@ export class GithubFileSystem implements StorageFrameworkProvider {
           debug: console.debug,
           info: console.info,
           warn: console.warn,
-          error: console.error,
-        },
+          error: console.error
+        }
       })
 
-      let workspace = new GithubDirectoryEntry(null, '', '', this.octokit)
+      const workspace = new GithubDirectoryEntry(null, '', '', this.octokit)
       workspace.getChildren()
       resolve(new ReactivityDirDecorator(null, workspace))
     })

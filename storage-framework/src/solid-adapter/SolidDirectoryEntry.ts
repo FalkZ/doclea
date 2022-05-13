@@ -2,7 +2,7 @@ import { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry,
-  StorageFrameworkFileEntry,
+  StorageFrameworkFileEntry
 } from '../lib/StorageFrameworkEntry'
 
 import {
@@ -13,7 +13,7 @@ import {
   createContainerAt,
   saveFileInContainer,
   type WithResourceInfo,
-  saveSolidDatasetAt,
+  saveSolidDatasetAt
 } from '@inrupt/solid-client'
 
 import { SolidFileEntry } from './SolidFileEntry'
@@ -55,6 +55,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
         .catch((e) => reject(new SFError('Failed to ...', e)))
     })
   }
+
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
     return new Result((resolve, reject) => {
       this.createEmptyFile(name)
@@ -72,6 +73,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
         )
     })
   }
+
   createDirectory(
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
@@ -95,6 +97,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
         )
     })
   }
+
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
       if (this.parent) {
@@ -104,6 +107,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
       }
     })
   }
+
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.moveToDirectory(directory)
@@ -111,6 +115,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
         .catch((err) => reject(new SFError(`Failed to move directory`, err)))
     })
   }
+
   rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.rename(name)
@@ -118,6 +123,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
         .catch((err) => reject(new SFError(`Failed to rename directory`, err)))
     })
   }
+
   remove(): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.deleteSolidDataset()
@@ -128,15 +134,15 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
     })
   }
 
-  async fetch() {
+  private async fetch() {
     const dataset = await getSolidDataset(this.fullPath, {
-      fetch: fetch,
+      fetch: fetch
     })
 
     const all = Object.keys(dataset.graphs.default)
       .map((graph) =>
         getSolidDataset(graph, {
-          fetch: fetch,
+          fetch: fetch
         })
       )
       .map((values) => values.then((v) => getThingAll(v)))
@@ -147,13 +153,18 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
     return dataFlatten
   }
 
-  async deleteSolidDataset() {
+  private async deleteSolidDataset(): Promise<void> {
     await deleteContainer(this.fullPath, { fetch: fetch })
   }
 
-  async createContainer(name: string) {
+  /**
+   *
+   * @param name TODO: add correct return type
+   * @returns
+   */
+  async createContainer(name: string): Promise<void> {
     return await createContainerAt(this.parent.fullPath + name, {
-      fetch: fetch,
+      fetch: fetch
     })
   }
 
@@ -166,9 +177,9 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
     return newFile
   }
 
-  async renameDirectory(name: string) {
+  async renameDirectory(name: string): Promise<void> {
     const existingDataset = await getSolidDataset(this.fullPath, {
-      fetch: fetch,
+      fetch: fetch
     })
     const directoryName = this.getFileName(
       existingDataset.internal_resourceInfo.sourceIri
@@ -180,29 +191,31 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
       )
 
     await saveSolidDatasetAt(newDirectoryPath, existingDataset, {
-      fetch: fetch,
+      fetch: fetch
     })
     await deleteContainer(this.fullPath, { fetch: fetch })
     this.fullPath = newDirectoryPath
   }
 
-  async moveToDirectory(directory: StorageFrameworkDirectoryEntry) {
+  async moveToDirectory(
+    directory: StorageFrameworkDirectoryEntry
+  ): Promise<void> {
     if (directory instanceof SolidDirectoryEntry) {
       const existingDataset = await getSolidDataset(this.fullPath, {
-        fetch: fetch,
+        fetch: fetch
       })
       const directoryName = this.getFileName(
         existingDataset.internal_resourceInfo.sourceIri
       )
       const moveToDirectory = directory.fullPath + directoryName
       await saveSolidDatasetAt(moveToDirectory, existingDataset, {
-        fetch: fetch,
+        fetch: fetch
       })
       directory.fullPath = moveToDirectory
       const children = await this.getChildren()
       children.forEach((child) => child.moveTo(directory))
     }
-    this.deleteSolidDataset()
+    await this.deleteSolidDataset()
   }
 
   getFileName(url: string): string {

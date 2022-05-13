@@ -2,7 +2,7 @@ import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
 import type {
   StorageFrameworkDirectoryEntry,
-  StorageFrameworkFileEntry,
+  StorageFrameworkFileEntry
 } from '../lib/StorageFrameworkEntry'
 import { Result, type OkOrError } from '../lib/utilities/result'
 import type { LocalDirectoryEntry } from './LocalDirectoryEntry'
@@ -13,8 +13,8 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
   readonly fullPath: string
   readonly name: string
   readonly lastModified: number
-  private parent: LocalDirectoryEntry
-  private fileHandle: FileSystemFileHandle
+  private readonly parent: LocalDirectoryEntry
+  private readonly fileHandle: FileSystemFileHandle
 
   constructor(fileHandle: FileSystemFileHandle, parent: LocalDirectoryEntry) {
     this.fileHandle = fileHandle
@@ -27,7 +27,7 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
   read(): Result<SFFile, SFError> {
     return new Result(async (resolve, reject) => {
       try {
-        let file = await this.fileHandle.getFile()
+        const file = await this.fileHandle.getFile()
         resolve(new SFFile(this.name, this.lastModified, [file]))
       } catch (err) {
         reject(new SFError(`Failed to read local file ${this.fullPath}.`, err))

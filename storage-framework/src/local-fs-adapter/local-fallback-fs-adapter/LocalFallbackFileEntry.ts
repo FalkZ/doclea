@@ -2,21 +2,19 @@ import type { SFError } from '../../lib/SFError'
 import { SFFile } from '../../lib/SFFile'
 import type {
   StorageFrameworkDirectoryEntry,
-  StorageFrameworkFileEntry,
+  StorageFrameworkFileEntry
 } from '../../lib/StorageFrameworkEntry'
 import { Result, type OkOrError } from '../../lib/utilities'
 import type { LocalFallbackDirectoryEntry } from './LocalFallbackDirectoryEntry'
 
-export default class LocalFallbackFileEntry
-  implements StorageFrameworkFileEntry
-{
+export class LocalFallbackFileEntry implements StorageFrameworkFileEntry {
   name: string
   readonly isDirectory: false
   readonly isFile: true
   readonly fullPath: string
   readonly lastModified: number
   private file: File
-  private parent: LocalFallbackDirectoryEntry
+  private readonly parent: LocalFallbackDirectoryEntry
 
   constructor(file: File, parent: LocalFallbackDirectoryEntry) {
     this.file = file
@@ -60,9 +58,9 @@ export default class LocalFallbackFileEntry
   }
 
   remove(): OkOrError<SFError> {
-    return new Result((resolve, reject) => {
+    return new Result(async (resolve, reject) => {
       try {
-        this.parent.removeChild(this.name)
+        await this.parent.removeChild(this.name)
         resolve()
       } catch (error) {
         reject(error)

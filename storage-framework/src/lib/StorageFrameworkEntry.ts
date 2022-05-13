@@ -15,8 +15,6 @@ export interface StorageFrameworkProvider {
    * @returns the root entry, or an error
    */
   open(url?: string): Result<StorageFrameworkEntry, SFError>
-  readonly isSignedIn: boolean
-  authenticate()
 }
 
 /**

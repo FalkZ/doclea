@@ -2,7 +2,7 @@ import { SFError } from '../../lib/SFError'
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry,
-  StorageFrameworkFileEntry,
+  StorageFrameworkFileEntry
 } from '../../lib/StorageFrameworkEntry'
 import { Result, type OkOrError } from '../../lib/utilities'
 import LocalFallbackFileEntry from './LocalFallbackFileEntry'
@@ -137,11 +137,11 @@ export class LocalFallbackDirectoryEntry
     return this.children[name]
   }
 
-  addChildFile(name: string, child: File) {
+  addChildFile(name: string, child: File): void {
     this.children[name] = new LocalFallbackFileEntry(child, this)
   }
 
-  addChildDirectory(name: string) {
+  addChildDirectory(name: string): void {
     this.children[name] = new LocalFallbackDirectoryEntry(name, [], false, this)
   }
 
@@ -149,7 +149,7 @@ export class LocalFallbackDirectoryEntry
     /**
      * TODO: refactor, I think this can be implemented a bit easier (with recursion maybe...)
      */
-    for (let child of children) {
+    for (const child of children) {
       // TODO: use same utility as solid & github (utility does not exit has to be created first)
       const path = child.webkitRelativePath.match(/[\w_-]+[\/\\]/g)
       const fileName = child.webkitRelativePath
@@ -157,10 +157,10 @@ export class LocalFallbackDirectoryEntry
         .pop()
         .replace(/[\/\\]/, '')
       if (path.length > 0) {
-        //this.name = path[0].replace(/[\/\\]/, '')
+        // this.name = path[0].replace(/[\/\\]/, '')
         let current: LocalFallbackDirectoryEntry = this
         for (let dirName of path.slice(1)) {
-          dirName = dirName.replace(/[\/\\]/, '')
+          dirName = dirName.replace(/[/\\]/, '')
           if (!current.containsChildDirectory(dirName)) {
             current.addChildDirectory(dirName)
           }

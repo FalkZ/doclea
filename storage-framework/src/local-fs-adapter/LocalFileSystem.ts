@@ -1,6 +1,9 @@
 import type { SFError } from '../lib/SFError'
-import type { StorageFrameworkEntry } from '../lib/StorageFrameworkEntry'
-import type { StorageFrameworkProvider } from '../lib/StorageFrameworkEntry'
+import type {
+  StorageFrameworkEntry,
+  StorageFrameworkProvider
+} from '../lib/StorageFrameworkEntry'
+
 import { ReactivityDirDecorator } from '../lib/wrappers/ReactivityDecorator'
 import { Result } from '../lib/utilities/result'
 import { LocalFallbackDirectoryEntry } from './local-fallback-fs-adapter/LocalFallbackDirectoryEntry'
@@ -11,7 +14,7 @@ export class LocalFileSystem implements StorageFrameworkProvider {
     return new Result(async (resolve) => {
       if (window.showDirectoryPicker) {
         const dirHandle = await window.showDirectoryPicker({
-          multiple: true,
+          multiple: true
         })
         resolve(
           new ReactivityDirDecorator(

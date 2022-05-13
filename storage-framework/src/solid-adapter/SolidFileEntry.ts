@@ -2,20 +2,22 @@ import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
 import type {
   StorageFrameworkDirectoryEntry,
-  StorageFrameworkFileEntry,
+  StorageFrameworkFileEntry
 } from '../lib/StorageFrameworkEntry'
 import type { SolidDirectoryEntry } from './SolidDirectoryEntry'
 import { saveFileInContainer, deleteFile, getFile } from '@inrupt/solid-client'
 
 import { Result, type OkOrError } from '../lib/utilities/result'
 
+type SolidFile = Awaited<ReturnType<typeof getFile>>
+
 export class SolidFileEntry implements StorageFrameworkFileEntry {
   fullPath: string
   readonly isDirectory: false
   readonly isFile: true
   name: string
-  private parent: SolidDirectoryEntry
-  private file: FileSystemFileEntry
+  private readonly parent: SolidDirectoryEntry
+  private readonly file: FileSystemFileEntry
 
   constructor(fullPath: string, name: string, parent: SolidDirectoryEntry) {
     this.fullPath = fullPath
@@ -51,6 +53,7 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
       }
     })
   }
+
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.moveFileToContainer(directory)
@@ -58,6 +61,7 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
         .catch((err) => reject(new SFError(`Failed to move file`, err)))
     })
   }
+
   rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.renameFile(name)
@@ -65,6 +69,7 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
         .catch((err) => reject(new SFError(`Failed to rename file`, err)))
     })
   }
+
   remove(): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.deleteFile()
@@ -75,13 +80,11 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
-  async renameFile(name: string) {
-    const file = await getFile(this.fullPath, { fetch: fetch })
+  async renameFile(name: string): Promise<void> {
+    const file: SolidFile = await getFile(this.fullPath, { fetch: fetch })
 
-    type file = Awaited<ReturnType<typeof getFile>>
-
-    let fileName = this.getFileName(file.internal_resourceInfo.sourceIri)
-    let newFileName = this.replaceFileNameWithNewName(fileName, name)
+    const fileName = this.getFileName(file.internal_resourceInfo.sourceIri)
+    const newFileName = this.replaceFileNameWithNewName(fileName, name)
     file.internal_resourceInfo.sourceIri =
       file.internal_resourceInfo.sourceIri.replace(fileName, '')
     const renamedFile = await saveFileInContainer(
@@ -92,22 +95,24 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     this.name = renamedFile.internal_resourceInfo.sourceIri
   }
 
-  //There is also an overwriteFile function which overwrites the file
-  //if it exists and creates the containers which are in the url but not in the pod
-  async saveFile(file: File) {
+  // There is also an overwriteFile function which overwrites the file
+  // if it exists and creates the containers which are in the url but not in the pod
+  async saveFile(file: File): Promise<void> {
     await saveFileInContainer(this.parent.fullPath, file)
   }
 
-  async deleteFile() {
+  async deleteFile(): Promise<void> {
     await deleteFile(this.fullPath, { fetch: fetch })
   }
 
-  async moveFileToContainer(directory: StorageFrameworkDirectoryEntry) {
-    const file = await getFile(this.fullPath, { fetch: fetch })
-    type file = Awaited<ReturnType<typeof getFile>>
+  async moveFileToContainer(
+    directory: StorageFrameworkDirectoryEntry
+  ): Promise<SolidFile> {
+    const file: SolidFile = await getFile(this.fullPath, { fetch: fetch })
+
     return await saveFileInContainer(directory.fullPath, file, {
       slug: this.getFileName(file.internal_resourceInfo.sourceIri),
-      fetch: fetch,
+      fetch: fetch
     })
   }
 
@@ -116,7 +121,7 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
      * TODO: use /regex/ syntax for regexes
      * create a utility function in lib that can be used for github owner and repo fields
      */
-    let match = fileName.match('(.+?)(.[^.]*$|$)')[0]
+    const match = fileName.match('(.+?)(.[^.]*$|$)')[0]
     return fileName.replace(match, newName)
   }
 
