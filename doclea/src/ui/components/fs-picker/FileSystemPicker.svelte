@@ -19,9 +19,15 @@
   export let pickedFSEntry: StorageFrameworkEntry | null = null
 
   const onMemorySelected = (provider: StorageFrameworkProvider) => () => {
-    provider.open().then((entry) => {
-      pickedFSEntry = entry
-    })
+
+    // if (provider.isSignedIn == false) {
+    //   provider.authenticate()
+    // } else {
+      provider.open()
+    // }
+    // .open().then((entry) => {
+    //   pickedFSEntry = entry
+    // })
   }
 </script>
 

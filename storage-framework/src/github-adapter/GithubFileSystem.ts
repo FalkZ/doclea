@@ -6,19 +6,79 @@ import {
 } from '../lib/StorageFrameworkEntry'
 import { Result } from '../lib/utilities'
 import { GithubDirectoryEntry } from './GithubDirectoryEntry'
+import type { GithubResponse } from './GithubTypes'
+const guid = 'github-auth-reiupkvhldwe'
+
+if (window.location.hash === '#' + guid) {
+  if (window.location.search.startsWith('?code')) {
+    console.log(
+      'received code',
+      new URLSearchParams(window.location.search).get('code')
+    )
+    const code = new URLSearchParams(window.location.search).get('code')
+
+    const params = new URLSearchParams({
+      client_id: 'b0febf46067600eed6e5',
+      client_secret: '228480a8a7eae9aed8299126211402f47c488013',
+      redirect_uri: 'http://127.0.0.1:3000#${guid}',
+      code: code
+    })
+
+    fetch('https://github.com/login/oauth/access_token?' + params, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json'
+      }
+    })
+      .then((response) => {
+        if (!response.ok) console.error('failed fetch', response)
+        return response.json()
+      })
+      .then((json) => {
+        console.log('global - the token: ', json.access_token)
+        sessionStorage.setItem(guid, json.access_token)
+      })
+  }
+}
 
 export class GithubFileSystem implements StorageFrameworkProvider {
+  isSignedIn: boolean
+  private token
+
+  constructor() {
+    this.token = sessionStorage.getItem(guid)
+    console.log('constructor() - the token: ', this.token)
+    this.isSignedIn = this.token ? true : false
+  }
+
+  authenticate() {
+    const params = new URLSearchParams({
+      client_id: 'b0febf46067600eed6e5',
+      // redirect_uri: window.location.origin,
+      // redirect_uri: window.location.href,
+      redirect_uri: `http://127.0.0.1:3000#${guid}`,
+      scope: 'repo'
+    })
+
+    window.location.href = 'https://github.com/login/oauth/authorize?' + params
+
+    console.log('never called')
+  }
+
   static readonly config = {
-    owner: 'rattle99',
-    repo: 'QtNotepad'
+    owner: 'mikko-abad',
+    repo: 'doclea'
   }
 
   octokit: Octokit
 
   open(): Result<StorageFrameworkEntry, SFError> {
-    return new Result((resolve, reject) => {
+    this.token = sessionStorage.getItem(guid)
+    console.log('open() - the token: ', this.token)
+    console.log('GitHub open!')
+    return new Result(async (resolve, reject) => {
       this.octokit = new Octokit({
-        auth: 'TODO-token', // https://github.com/settings/tokens
+        auth: this.token, // https://github.com/settings/tokens
         userAgent: 'doclea',
 
         baseUrl: 'https://api.github.com',
@@ -31,26 +91,9 @@ export class GithubFileSystem implements StorageFrameworkProvider {
         }
       })
 
-      this.readDirFromGithub()
-        .then((githubEntry) => {
-          resolve(githubEntry)
-        })
-        .catch(() => {
-          reject(new SFError('Failed to get github workspace', new Error()))
-        })
+      let workspace = new GithubDirectoryEntry(null, '', '', this.octokit)
+      workspace.getChildren()
+      resolve(workspace)
     })
   }
-
-  private async readDirFromGithub() {
-    const { data } = await this.octokit.request(
-      'GET /repos/{owner}/{repo}/contents/{path}',
-      {
-        owner: GithubFileSystem.config.owner,
-        repo: GithubFileSystem.config.repo,
-        path: ''
-      }
-    )
-    return new GithubDirectoryEntry(null, data, true, this.octokit)
-  }
 }
-

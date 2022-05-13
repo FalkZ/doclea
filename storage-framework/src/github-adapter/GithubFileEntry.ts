@@ -1,12 +1,31 @@
 import { Octokit } from '@octokit/core'
+import type { Readable } from 'src/lib/utilities/stores'
 import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
-import {
+import type {
   StorageFrameworkFileEntry,
   StorageFrameworkDirectoryEntry
 } from '../lib/StorageFrameworkEntry'
 import { Result, OkOrError } from '../lib/utilities'
 import { GithubFileSystem } from './GithubFileSystem'
+import type { ArrayResponse, SingleFile } from './GithubTypes'
+
+import { Mutex } from '../lib/utilities/mutex'
+
+// const timeout = () =>
+//   new Promise<void>((resolve) => setTimeout(() => resolve(), 2000))
+
+// const fn = (nr) => async () => {
+//   console.log(nr, 'test 1')
+//   await timeout()
+//   console.log(nr, 'test 2')
+// }
+
+// const mutex = new Mutex()
+// mutex.apply(fn(1))
+// mutex.apply(fn(2))
+
+// console.log(mutex)
 
 export class GithubFileEntry implements StorageFrameworkFileEntry {
   readonly isDirectory = false
@@ -14,51 +33,64 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
   readonly fullPath: string
   readonly name: string
   readonly content_url: string
-  private parent: StorageFrameworkDirectoryEntry
+  private readonly parent: StorageFrameworkDirectoryEntry
   octokit: Octokit
-  githubObj
+  githubEntry: SingleFile
 
-  constructor(parent, githubObj, octokit) {
+  private readonly mutex = new Mutex()
+
+  constructor(
+    parent: StorageFrameworkDirectoryEntry,
+    fullPath: string,
+    name: string,
+    octokit: Octokit
+  ) {
     this.parent = parent
-    this.name = githubObj.name
-    this.fullPath = githubObj.path
-    this.content_url = githubObj.download_url
+    this.fullPath = fullPath
+    this.name = name
     this.octokit = octokit
-    this.githubObj = githubObj
+
+    console.log(this)
+  }
+
+  watchContent(): Result<Readable<SFFile>, SFError> {
+    throw new Error('Method not implemented.')
   }
 
   read(): Result<SFFile, SFError> {
-    return new Result((resolve, reject) => {
-      fetch(this.content_url)
-        .then((response) => {
-          if (!response.ok)
-            reject(new SFError(`Failed to fetch ${this.content_url}`, null))
-          return response.text()
-        })
-        .then((text) => resolve(new SFFile(this.name, 0, [text])))
+    return new Result(async (result) => {
+      await this.getGithubFile(this.fullPath)
+      result(
+        new SFFile(this.name, 0, [
+          decodeURIComponent(escape(window.atob(this.githubEntry.content)))
+        ])
+      )
     })
   }
 
   save(file: File): OkOrError<SFError> {
     return new Result((resolve, reject) => {
-      this.saveFileInGithub(file).catch((error) =>
-        reject(new SFError('Failed to save file', error))
-      )
+      this.octokit
+        .request('PUT /repos/{owner}/{repo}/contents/{path}', {
+          owner: GithubFileSystem.config.owner,
+          repo: GithubFileSystem.config.repo,
+          path: this.fullPath,
+          message: 'doclea update',
+          content: window.btoa(
+            unescape(encodeURIComponent(file.text.toString()))
+          ),
+          sha: this.githubEntry.sha
+        })
+        .then((response) => {
+          if (response.status == 200) {
+            // this.parent.getChildren() // update parent
+            resolve()
+          } else {
+            console.log(response)
+            reject(new SFError('Failed to save file'))
+          }
+        })
     })
-  }
-
-  private async saveFileInGithub(file: File) {
-    const { data } = await this.octokit.request(
-      'PUT /repos/{owner}/{repo}/contents/{path}',
-      {
-        owner: GithubFileSystem.config.owner,
-        repo: GithubFileSystem.config.repo,
-        path: this.fullPath,
-        message: 'update content',
-        content: file.text.toString()
-      }
-    )
-    return
   }
 
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
@@ -66,39 +98,122 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
       if (this.parent) {
         resolve(this.parent)
       } else {
-        reject(
-          new SFError(`Failed to get parent of ${this.fullPath}`, new Error())
-        )
+        reject(new SFError(`Failed to get parent of ${this.fullPath}`))
       }
     })
   }
 
   remove(): OkOrError<SFError> {
     return new Result((resolve, reject) => {
-      this.deleteFileInGithub().catch((error) =>
-        reject(new SFError('Failed to save file', error))
-      )
+      this.mutex.apply(async () => {
+        try {
+          await this.getGithubFile(this.fullPath)
+          await this.removeGithubFile(this.fullPath, this.githubEntry.sha)
+
+          resolve()
+        } catch (error) {
+          reject(new SFError('Failed to remove file', error))
+        }
+      })
     })
   }
 
-  private async deleteFileInGithub() {
-    const { data } = await this.octokit.request(
-      'DELETE /repos/{owner}/{repo}/contents/{path}',
-      {
-        owner: GithubFileSystem.config.owner,
-        repo: GithubFileSystem.config.repo,
-        path: this.fullPath,
-        message: 'delete file',
-        sha: this.githubObj.sha
-      }
-    )
-  }
-
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result(async () => {
+      await this.getGithubFile(this.fullPath)
+
+      const fileName = this.fullPath.split('/').pop()
+      const newFullPathOfFile = directory.isRoot
+        ? fileName
+        : directory.fullPath + '/' + fileName
+      await this.createGithubFile(newFullPathOfFile, this.githubEntry.content)
+
+      await this.removeGithubFile(this.fullPath, this.githubEntry.sha)
+    })
   }
 
   rename(name: string): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    return new Result(async () => {
+      await this.getGithubFile(this.fullPath)
+
+      const newFileFullPath = this.parent.isRoot
+        ? name
+        : this.parent.fullPath + '/' + name
+      await this.createGithubFile(newFileFullPath, this.githubEntry.content)
+
+      await this.removeGithubFile(this.fullPath, this.githubEntry.sha)
+    })
+  }
+
+  private getGithubFile(getFileFullPath: string): Result<SingleFile, void> {
+    return new Result((resolve, reject) => {
+      this.octokit
+        .request('GET /repos/{owner}/{repo}/contents/{path}', {
+          owner: GithubFileSystem.config.owner,
+          repo: GithubFileSystem.config.repo,
+          path: getFileFullPath
+        })
+        .then(({ data }) => {
+          console.log('Succesfully read file from GitHub: ', getFileFullPath)
+          this.githubEntry = <SingleFile>data
+          resolve(this.githubEntry)
+        })
+        .catch((error) => {
+          console.log('Failed to read file from GitHub: ', getFileFullPath)
+          reject
+        })
+    })
+  }
+
+  private createGithubFile(
+    newFileFullPath: string,
+    contentInBase65: string
+  ): Result<void, void> {
+    return new Result((resolve, reject) => {
+      this.octokit
+        .request('PUT /repos/{owner}/{repo}/contents/{path}', {
+          owner: GithubFileSystem.config.owner,
+          repo: GithubFileSystem.config.repo,
+          path: newFileFullPath,
+          message: 'doclea created file',
+          content: contentInBase65
+        })
+        .then((response) => {
+          if (response.status == 201) {
+            console.log('Succesfully created file in GitHub: ', newFileFullPath)
+            resolve
+          } else {
+            console.log('Failed to create file in GitHub: ', newFileFullPath)
+            reject
+          }
+        })
+    })
+  }
+
+  private removeGithubFile(
+    removeFileFullPath: string,
+    sha: string
+  ): Result<void, void> {
+    return new Result((resolve, reject) => {
+      this.octokit
+        .request('DELETE /repos/{owner}/{repo}/contents/{path}', {
+          owner: GithubFileSystem.config.owner,
+          repo: GithubFileSystem.config.repo,
+          path: removeFileFullPath,
+          message: 'doclea removed file',
+          sha: sha
+        })
+        .then((response) => {
+          console.log(response)
+          if (response.status == 200) {
+            console.log(
+              'Succesfully removed file in GitHub: ',
+              removeFileFullPath
+            )
+          } else {
+            console.log('Failed to remove file in GitHub: ', removeFileFullPath)
+          }
+        })
+    })
   }
 }
