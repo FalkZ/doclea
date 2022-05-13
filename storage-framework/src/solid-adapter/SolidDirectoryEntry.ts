@@ -15,9 +15,9 @@ import {
   type WithResourceInfo,
   saveSolidDatasetAt
 } from '@inrupt/solid-client'
+
 import { SolidFileEntry } from './SolidFileEntry'
-import type { Readable } from 'src/lib/utilities/stores'
-import { Result, OkOrError } from '../lib/utilities/result'
+import { Result, type OkOrError } from '../lib/utilities/result'
 
 export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   readonly isDirectory: true
@@ -100,9 +100,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
       if (this.parent) {
         resolve(this.parent)
       } else {
-        reject(
-          new SFError(`Failed to get parent of ${this.fullPath}`, new Error())
-        )
+        reject(new SFError(`Failed to get parent of ${this.fullPath}`))
       }
     })
   }

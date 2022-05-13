@@ -5,8 +5,6 @@
   "type": "module",
   "scripts": {
     "build": "pnpm run build -r",
-    "test": "pnpm run test -r",
-    "dev": "pnpm run dev -r",
     "setup": "pnpm install -r"
   },
   "devDependencies": {

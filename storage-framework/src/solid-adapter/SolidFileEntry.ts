@@ -7,8 +7,7 @@ import type {
 import type { SolidDirectoryEntry } from './SolidDirectoryEntry'
 import { saveFileInContainer, deleteFile, getFile } from '@inrupt/solid-client'
 
-import type { Readable } from 'src/lib/utilities/stores'
-import { Result, OkOrError } from '../lib/utilities/result'
+import { Result, type OkOrError } from '../lib/utilities/result'
 
 export class SolidFileEntry implements StorageFrameworkFileEntry {
   fullPath: string
@@ -48,9 +47,7 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
       if (this.parent) {
         resolve(this.parent)
       } else {
-        reject(
-          new SFError(`Failed to get parent of ${this.fullPath}`, new Error())
-        )
+        reject(new SFError(`Failed to get parent of ${this.fullPath}`))
       }
     })
   }
@@ -115,11 +112,18 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
   }
 
   replaceFileNameWithNewName(fileName: string, newName: string): string {
+    /*
+     * TODO: use /regex/ syntax for regexes
+     * create a utility function in lib that can be used for github owner and repo fields
+     */
     let match = fileName.match('(.+?)(.[^.]*$|$)')[0]
     return fileName.replace(match, newName)
   }
 
   getFileName(url: string): string {
+    /*
+     * TODO: use new Url()
+     */
     return url.match('([^/]+)(?=[^/]*/?$)')[0]
   }
 }

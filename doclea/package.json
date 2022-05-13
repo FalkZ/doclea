@@ -1,6 +1,5 @@
 {
   "name": "doclea",
-  "private": true,
   "version": "0.0.0",
   "source": "src/index.html",
   "type": "module",

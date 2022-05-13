@@ -1,4 +1,4 @@
-import { States, NextState, OneOf } from './State'
+import type { States, NextState, OneOf } from './State'
 
 export abstract class AbstractState<T, E = never, A = never> {
   protected abstract run(states: States<T>, arg?: A): Promise<NextState>

@@ -1,12 +1,11 @@
-import { resolveObjectURL } from 'buffer'
-import { SFError } from '../../lib/SFError'
+import type { SFError } from '../../lib/SFError'
 import { SFFile } from '../../lib/SFFile'
-import {
+import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkFileEntry
 } from '../../lib/StorageFrameworkEntry'
-import { Result, OkOrError } from '../../lib/utilities'
-import LocalFallbackDirectoryEntry from './LocalFallbackDirectoryEntry'
+import { Result, type OkOrError } from '../../lib/utilities'
+import type { LocalFallbackDirectoryEntry } from './LocalFallbackDirectoryEntry'
 
 export default class LocalFallbackFileEntry
   implements StorageFrameworkFileEntry

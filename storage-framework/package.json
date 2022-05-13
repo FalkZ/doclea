@@ -36,6 +36,7 @@
   "devDependencies": {
     "@parcel/packager-ts": "2.5.0",
     "@parcel/transformer-typescript-types": "latest",
+    "@types/wicg-file-system-access": "^2020.9.5",
     "parcel": "latest"
   }
 }

@@ -1,6 +1,6 @@
 import View from '@ui/View.svelte'
 
-import { Controller } from './business-logic/AppStateMachine'
+import { Controller } from '@business-logic/Controller'
 
 const controller = new Controller()
 

@@ -17,7 +17,8 @@
     "isolatedModules": true,
     "paths": {
       "@src/*": ["src/*"],
-      "@ui/*": ["src/ui/*"]
+      "@ui/*": ["src/ui/*"],
+      "@business-logic/*": ["src/business-logic/*"]
     }
   },
 

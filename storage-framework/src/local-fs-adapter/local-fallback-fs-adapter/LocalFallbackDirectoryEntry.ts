@@ -1,21 +1,24 @@
 import { SFError } from '../../lib/SFError'
-import {
+import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry,
   StorageFrameworkFileEntry
 } from '../../lib/StorageFrameworkEntry'
-import { Result, OkOrError } from '../../lib/utilities'
+import { Result, type OkOrError } from '../../lib/utilities'
 import LocalFallbackFileEntry from './LocalFallbackFileEntry'
 
-export default class LocalFallbackDirectoryEntry
+/**
+ * use public or private fields
+ */
+export class LocalFallbackDirectoryEntry
   implements StorageFrameworkDirectoryEntry
 {
-  readonly isDirectory: true
-  readonly isFile: false
+  public readonly isDirectory: true
+  public readonly isFile: false
   fullPath: string
   name: string
   parent: LocalFallbackDirectoryEntry
-  private isRoot: boolean
+  public readonly isRoot: boolean
   private children
 
   constructor(
@@ -40,6 +43,11 @@ export default class LocalFallbackDirectoryEntry
     })
   }
 
+  /**
+   * TODO: try catch and reject error
+   * @param name
+   * @returns
+   */
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
     return new Result((resolve, reject) => {
       const newFile = new LocalFallbackFileEntry(new File([], name), this)
@@ -47,6 +55,11 @@ export default class LocalFallbackDirectoryEntry
     })
   }
 
+  /**
+   * TODO: try catch and reject error
+   * @param name
+   * @returns
+   */
   createDirectory(
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
@@ -71,14 +84,26 @@ export default class LocalFallbackDirectoryEntry
     })
   }
 
+  /**
+   * TODO: implement
+   * @param directory
+   */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
 
+  /**
+   * TODO: implement
+   * @param directory
+   */
   rename(name: string): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
 
+  /**
+   * TODO: resolve not used
+   * @returns
+   */
   remove(): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       try {
@@ -121,7 +146,11 @@ export default class LocalFallbackDirectoryEntry
   }
 
   private addChildren(children: File[]): void {
+    /**
+     * TODO: refactor, I think this can be implemented a bit easier (with recursion maybe...)
+     */
     for (let child of children) {
+      // TODO: use same utility as solid & github (utility does not exit has to be created first)
       const path = child.webkitRelativePath.match(/[\w_-]+[\/\\]/g)
       const fileName = child.webkitRelativePath
         .match(/[\/\\][\w\ .,:_-]+/g)

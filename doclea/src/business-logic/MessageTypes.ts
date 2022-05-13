@@ -1,3 +1,10 @@
+export enum MessageType {
+  Error = 'error',
+  Warning = 'warning',
+  Info = 'info',
+  Prompt = 'prompt'
+}
+
 type Action = () => void
 
 type Label = string

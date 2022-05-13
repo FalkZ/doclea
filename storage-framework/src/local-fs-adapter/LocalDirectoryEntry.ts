@@ -1,10 +1,10 @@
 import { SFError } from '../lib/SFError'
-import {
+import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry,
   StorageFrameworkFileEntry
 } from '../lib/StorageFrameworkEntry'
-import { Result, OkOrError } from '../lib/utilities/result'
+import { Result, type OkOrError } from '../lib/utilities/result'
 import { LocalFileEntry } from './LocalFileEntry'
 
 export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
@@ -18,11 +18,14 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
 
   constructor(
     directoryHandle: FileSystemDirectoryHandle,
-    parent: LocalDirectoryEntry,
+    parent: LocalDirectoryEntry | null,
     isRoot: boolean
   ) {
     this.directoryHandle = directoryHandle
     this.parent = parent
+    /**
+     * TODO: check if parent exists instead like in solid adapter
+     */
     this.isRoot = isRoot
     this.name = directoryHandle.name
     this.isFile = false
@@ -36,7 +39,7 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
     return new Result(async (resolve, reject) => {
       let children: StorageFrameworkEntry[] = []
       ;(async () => {
-        for await (const [key, value] of this.directoryHandle.entries()) {
+        for await (const value of this.directoryHandle.values()) {
           let child: FileSystemHandle = value
           if (child.kind === 'directory') {
             children.push(
@@ -66,6 +69,10 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
     })
   }
 
+  /**
+   * TODO: implement
+   * @param name
+   */
   createDirectory(
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
@@ -75,17 +82,22 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
       if (this.parent) resolve(this.parent)
-      else
-        reject(
-          new SFError(`Directory ${this.fullPath} has no parent.`, new Error())
-        )
+      else reject(new SFError(`Directory ${this.fullPath} has no parent.`))
     })
   }
 
+  /**
+   * TODO: implement
+   * @param directory
+   */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
 
+  /**
+   * TODO: implement
+   * @param name
+   */
   rename(name: string): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
@@ -97,7 +109,7 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
         resolve()
       } else {
         const errMsg = `Failed to remove directory ${this.fullPath}`
-        reject(new SFError(errMsg, new Error(errMsg)))
+        reject(new SFError(errMsg))
       }
     })
   }

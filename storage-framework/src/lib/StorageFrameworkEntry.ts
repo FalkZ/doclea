@@ -52,13 +52,13 @@ export interface StorageFrameworkEntry {
   /**
    * move this entry to given directory, the destination
    *
-   * @returns nothing if succeded, SFError otherwise
+   * @returns nothing if succeeded, SFError otherwise
    */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError>
   /**
    * renames this entry to the given name
    *
-   * @returns nothing if succeded, SFError otherwise
+   * @returns nothing if succeeded, SFError otherwise
    */
   rename(name: string): OkOrError<SFError>
   /**
@@ -67,7 +67,7 @@ export interface StorageFrameworkEntry {
    * removing directories is not recursive,
    * the directory must be empty before removing
    *
-   * @returns nothing if succeded, SFError otherwise
+   * @returns nothing if succeeded, SFError otherwise
    */
   remove(): OkOrError<SFError>
 }
@@ -80,6 +80,7 @@ export interface StorageFrameworkEntry {
 export interface StorageFrameworkFileEntry extends StorageFrameworkEntry {
   readonly isDirectory: false
   readonly isFile: true
+  readonly isReadonly?: true
   /**
    * Read the whole file and return the data
    * @returns the data, or SFError on error
@@ -88,21 +89,27 @@ export interface StorageFrameworkFileEntry extends StorageFrameworkEntry {
 
   /**
    * Save the whole file
-   * @returns nothing if succeded, SFError otherwise
+   * @returns nothing if succeeded, SFError otherwise
    */
   save(file: File): OkOrError<SFError>
+
+  /**
+   * Download the file
+   * @returns nothing if succeeded, SFError otherwise
+   */
+  //download(): OkOrError<SFError>
 }
 
 /**
  * Add observability to the StorageFrameworkFileEntry
  */
-export interface ObservableStorageFrameworkFileEntry extends StorageFrameworkFileEntry {
-
+export interface ObservableStorageFrameworkFileEntry
+  extends StorageFrameworkFileEntry {
   /**
    * Read the whole file content and watch out for updates
    * @returns an observable for SFFile, or SFError on error
    */
-   watchContent(): Result<Observable<SFFile>, SFError>
+  watchContent(): Result<Observable<SFFile>, SFError>
 }
 
 /**
@@ -126,13 +133,13 @@ export interface StorageFrameworkDirectoryEntry extends StorageFrameworkEntry {
   /**
    * creates a new file with the given name
    *
-   * @returns the created file entry if succeded, SFError otherwise
+   * @returns the created file entry if succeeded, SFError otherwise
    */
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError>
   /**
    * create a new directory with the given name
    *
-   * @returns the created directory entry if succeded, SFError otherwise
+   * @returns the created directory entry if succeeded, SFError otherwise
    */
   createDirectory(name: string): Result<StorageFrameworkDirectoryEntry, SFError>
 }
@@ -140,11 +147,11 @@ export interface StorageFrameworkDirectoryEntry extends StorageFrameworkEntry {
 /**
  * Add observability to the StorageFrameworkDirectoryEntry
  */
-export interface ObservableStorageFrameworkDirectoryEntry extends StorageFrameworkDirectoryEntry {
-
+export interface ObservableStorageFrameworkDirectoryEntry
+  extends StorageFrameworkDirectoryEntry {
   /**
    * retrive all children and watch out for any modifications
    * @returns an observable for children, or SFError on error
    */
-   watchChildren(): Result<Observable<StorageFrameworkEntry[]>, SFError>
+  watchChildren(): Result<Observable<StorageFrameworkEntry[]>, SFError>
 }

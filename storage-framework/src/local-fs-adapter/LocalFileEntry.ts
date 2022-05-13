@@ -1,12 +1,11 @@
-import { resolveObjectURL } from 'buffer'
 import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
-import {
+import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkFileEntry
 } from '../lib/StorageFrameworkEntry'
-import { Result, OkOrError } from '../lib/utilities/result'
-import { LocalDirectoryEntry } from './LocalDirectoryEntry'
+import { Result, type OkOrError } from '../lib/utilities/result'
+import type { LocalDirectoryEntry } from './LocalDirectoryEntry'
 
 export class LocalFileEntry implements StorageFrameworkFileEntry {
   readonly isDirectory: false
@@ -59,10 +58,18 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
+  /**
+   * TODO: implement
+   * @param directory
+   */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
 
+  /**
+   * TODO: implement
+   * @param name
+   */
   rename(name: string): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }

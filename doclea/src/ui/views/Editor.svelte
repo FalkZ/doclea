@@ -19,7 +19,7 @@
         <FileTree
           entry={$files}
           on:selected={(event) =>
-            editingState.setSelectedFile(event.detail.entry)}
+            editingState.setSelectedEntry(event.detail.entry)}
         />
       </div>
     </Pane>

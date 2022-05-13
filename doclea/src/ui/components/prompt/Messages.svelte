@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { MessageType, type Message } from './Messages'
+  import { MessageType, type Message } from '@business-logic/MessagesTypes'
   import info from 'tabler-icons-svelte/icons/InfoCircle'
   import warning from 'tabler-icons-svelte/icons/AlertTriangle'
   import error from 'tabler-icons-svelte/icons/AlertOctagon'
   import prompt from 'tabler-icons-svelte/icons/QuestionMark'
   import X from 'tabler-icons-svelte/icons/X'
-  import Button from '../basic-elements/Button.svelte'
+  import Button from '@ui/basic-elements/Button.svelte'
 
   export let messages: Message[] = [
     { type: MessageType.Error, message: 'this is an error' },

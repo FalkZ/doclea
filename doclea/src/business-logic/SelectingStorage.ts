@@ -1,25 +1,33 @@
-import {
+import type {
   State,
   States,
-  type NextState,
-  type StateMachineDefinition
+  NextState,
+  StateMachineDefinition
 } from './state-machine/State'
 
 import { AbstractState } from './state-machine/AbstractState'
-import type { AppStateMachine } from './AppStateMachine'
+import type { AppStateMachine } from './Controller'
 import {
   LocalFileSystem,
   SolidFileSystem,
   GithubFileSystem
 } from 'storage-framework'
 import { StateMachine } from './state-machine/StateMachine'
-import type { none, StorageFrameworkEntry } from 'storage-framework'
+import type { StorageFrameworkEntry } from 'storage-framework'
 import type { StorageFrameworkProvider } from 'storage-framework'
-import { Editing } from './Editing'
 import { writable, type Readable, type Writable } from 'svelte/store'
 
+/**
+ * TODO: jsdoc
+ */
 interface SelectingStorageStateMachine extends StateMachineDefinition {
+  /**
+   * TODO: jsdoc
+   */
   authenticate: State<this>
+  /**
+   * TODO: jsdoc
+   */
   open: State<this, StorageFrameworkProvider>
 }
 
@@ -43,6 +51,9 @@ export type SelectingStorageEvent =
       type: SelectingStorageEventType.Local
     }
 
+/**
+ * TODO: jsdoc: all public methods
+ */
 export class SelectingStorage extends AbstractState<
   AppStateMachine,
   SelectingStorageEvent

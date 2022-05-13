@@ -2,9 +2,17 @@
  * The error thrown by the storage framework
  */
 export class SFError extends Error {
-  private readonly reason
-  constructor(message: string, reason?: Error) {
+  private readonly reason?: Error | Error[]
+  constructor(message: string, ...reasons: Error[]) {
     super(message)
-    this.reason = reason
+    switch (reasons.length) {
+      case 0:
+        break
+      case 1:
+        this.reason = reasons[0]
+        break
+      default:
+        this.reason = reasons
+    }
   }
 }

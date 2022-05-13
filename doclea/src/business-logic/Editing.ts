@@ -1,23 +1,13 @@
-import type {
-  States,
-  NextState,
-  StateMachineDefinition,
-  State
-} from './state-machine/State'
+import type { States, NextState } from './state-machine/State'
 import { AbstractState } from './state-machine/AbstractState'
-import type { AppStateMachine } from './AppStateMachine'
-import { StateMachine } from './state-machine/StateMachine'
+
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkFileEntry,
   StorageFrameworkEntry
 } from 'storage-framework'
 import { type Readable, type Writable, writable } from 'svelte/store'
-import { set_attributes } from 'svelte/internal'
-
-interface EditingStateMachine extends StateMachineDefinition {
-  editing: State<this>
-}
+import type { AppStateMachine } from './Controller'
 
 enum EditorEventType {
   CloseEditor
@@ -25,6 +15,9 @@ enum EditorEventType {
 
 export type EditorEvent = EditorEventType.CloseEditor
 
+/**
+ * TODO: jsdoc: all public methods
+ */
 export class Editing extends AbstractState<
   AppStateMachine,
   EditorEvent,
@@ -41,41 +34,31 @@ export class Editing extends AbstractState<
     return selectingStorage
   }
 
-  private async runEditingStateMachine() {
-    const parentState = this
-    const editingStateMachine = new StateMachine<EditingStateMachine>({
-      init: ({ editing }) => {
-        return editing
-      },
-      error: ({ init }, arg: Error) => {
-        console.error('an error occurred', arg)
-        return init
-      },
-      editing: async ({ end }) => {
-        const event = await parentState.onNextEvent()
-
-        return end
-      }
-    })
-
-    await editingStateMachine.run()
-  }
-  private readonly filesStore: Writable<StorageFrameworkDirectoryEntry> =
+  private readonly filesStore: Writable<StorageFrameworkDirectoryEntry | null> =
     writable()
 
-  private readonly selectedFileStore: Writable<StorageFrameworkFileEntry> =
+  private readonly selectedFileStore: Writable<StorageFrameworkFileEntry | null> =
     writable()
 
-  get selectedFile(): Readable<StorageFrameworkFileEntry> {
+  private readonly selectedEntryStore: Writable<StorageFrameworkEntry | null> =
+    writable()
+
+  get selectedFile(): Readable<StorageFrameworkFileEntry | null> {
     return { subscribe: this.selectedFileStore.subscribe }
   }
 
-  get files(): Readable<StorageFrameworkDirectoryEntry> {
+  get selectedEntry(): Readable<StorageFrameworkFileEntry | null> {
+    return { subscribe: this.selectedEntryStore.subscribe }
+  }
+
+  get files(): Readable<StorageFrameworkDirectoryEntry | null> {
     return { subscribe: this.filesStore.subscribe }
   }
 
-  public setSelectedFile(file: StorageFrameworkFileEntry): void {
-    this.selectedFileStore.set(file)
+  public setSelectedEntry(entry: StorageFrameworkEntry): void {
+    if (entry.isFile) this.selectedFileStore.set(entry)
+
+    this.selectedEntryStore.set(entry)
   }
 
   closeEditor(): void {
