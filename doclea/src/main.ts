@@ -7,7 +7,7 @@ const controller = new Controller()
 const view = new View({
   target: document.getElementById('app'),
   props: {
-    controller
-  }
+    controller,
+  },
 })
 export default view

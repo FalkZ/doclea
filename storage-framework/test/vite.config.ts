@@ -6,13 +6,13 @@ export default defineConfig({
   resolve: {
     alias: {
       '@lib': '/src/lib',
-      '@src': '/src'
-    }
+      '@src': '/src',
+    },
   },
   //@ts-ignore
   test: {
     testTimeout: false,
     include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    environment: 'happy-dom'
-  }
+    environment: 'happy-dom',
+  },
 })

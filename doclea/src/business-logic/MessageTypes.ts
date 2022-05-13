@@ -2,7 +2,7 @@ export enum MessageType {
   Error = 'error',
   Warning = 'warning',
   Info = 'info',
-  Prompt = 'prompt'
+  Prompt = 'prompt',
 }
 
 type Action = () => void

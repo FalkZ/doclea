@@ -2,7 +2,7 @@ import type {
   State,
   States,
   NextState,
-  StateMachineDefinition
+  StateMachineDefinition,
 } from './state-machine/State'
 
 import { AbstractState } from './state-machine/AbstractState'
@@ -10,7 +10,7 @@ import type { AppStateMachine } from './Controller'
 import {
   LocalFileSystem,
   SolidFileSystem,
-  GithubFileSystem
+  GithubFileSystem,
 } from 'storage-framework'
 import { StateMachine } from './state-machine/StateMachine'
 import type { StorageFrameworkEntry } from 'storage-framework'
@@ -34,12 +34,12 @@ interface SelectingStorageStateMachine extends StateMachineDefinition {
 enum SelectingStorageEventType {
   Github,
   Solid,
-  Local
+  Local,
 }
 
 enum ButtonState {
   Active = 1,
-  Inactive = 0
+  Inactive = 0,
 }
 
 export type SelectingStorageEvent =
@@ -106,7 +106,7 @@ export class SelectingStorage extends AbstractState<
                 return error
               }
           }
-        }
+        },
       })
 
     await selectingStorageStateMachine.run()
@@ -118,7 +118,7 @@ export class SelectingStorage extends AbstractState<
   private setUrlHash() {}
 
   protected async run({
-    editing
+    editing,
   }: States<AppStateMachine>): Promise<NextState> {
     await this.runSelectingStorageStateMachine()
 

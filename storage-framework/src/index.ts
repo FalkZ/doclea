@@ -7,5 +7,5 @@ export {
   GithubFileSystem,
   LocalFileSystem,
   InMemoryFileSystem,
-  SolidFileSystem
+  SolidFileSystem,
 }

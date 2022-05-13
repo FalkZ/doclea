@@ -4,7 +4,7 @@ import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
 import type {
   StorageFrameworkFileEntry,
-  StorageFrameworkDirectoryEntry
+  StorageFrameworkDirectoryEntry,
 } from '../lib/StorageFrameworkEntry'
 import { Result, OkOrError } from '../lib/utilities'
 import { GithubFileSystem } from './GithubFileSystem'
@@ -58,7 +58,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
       await this.getGithubFile(this.fullPath)
       result(
         new SFFile(this.name, 0, [
-          decodeURIComponent(escape(window.atob(this.githubEntry.content)))
+          decodeURIComponent(escape(window.atob(this.githubEntry.content))),
         ])
       )
     })
@@ -75,7 +75,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
           content: window.btoa(
             unescape(encodeURIComponent(file.text.toString()))
           ),
-          sha: this.githubEntry.sha
+          sha: this.githubEntry.sha,
         })
         .then((response) => {
           if (response.status == 200) {
@@ -166,7 +166,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
         .request('GET /repos/{owner}/{repo}/contents/{path}', {
           owner: GithubFileSystem.config.owner,
           repo: GithubFileSystem.config.repo,
-          path: getFileFullPath
+          path: getFileFullPath,
         })
         .then(({ data }) => {
           console.log('Succesfully read file from GitHub: ', getFileFullPath)
@@ -191,7 +191,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
           repo: GithubFileSystem.config.repo,
           path: newFileFullPath,
           message: 'doclea created file',
-          content: contentInBase65
+          content: contentInBase65,
         })
         .then((response) => {
           if (response.status == 201) {
@@ -216,7 +216,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
           repo: GithubFileSystem.config.repo,
           path: removeFileFullPath,
           message: 'doclea removed file',
-          sha: sha
+          sha: sha,
         })
         .then((response) => {
           console.log(response)

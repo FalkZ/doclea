@@ -2,7 +2,7 @@ import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
 import type {
   StorageFrameworkDirectoryEntry,
-  StorageFrameworkFileEntry
+  StorageFrameworkFileEntry,
 } from '../lib/StorageFrameworkEntry'
 import type { SolidDirectoryEntry } from './SolidDirectoryEntry'
 import { saveFileInContainer, deleteFile, getFile } from '@inrupt/solid-client'
@@ -107,7 +107,7 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     type file = Awaited<ReturnType<typeof getFile>>
     return await saveFileInContainer(directory.fullPath, file, {
       slug: this.getFileName(file.internal_resourceInfo.sourceIri),
-      fetch: fetch
+      fetch: fetch,
     })
   }
 

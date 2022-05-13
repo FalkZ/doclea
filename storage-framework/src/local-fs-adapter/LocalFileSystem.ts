@@ -11,7 +11,7 @@ export class LocalFileSystem implements StorageFrameworkProvider {
     return new Result(async (resolve) => {
       if (window.showDirectoryPicker) {
         const dirHandle = await window.showDirectoryPicker({
-          multiple: true
+          multiple: true,
         })
         resolve(
           new ReactivityDirDecorator(

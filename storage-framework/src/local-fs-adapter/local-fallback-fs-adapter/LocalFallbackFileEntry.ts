@@ -2,7 +2,7 @@ import type { SFError } from '../../lib/SFError'
 import { SFFile } from '../../lib/SFFile'
 import type {
   StorageFrameworkDirectoryEntry,
-  StorageFrameworkFileEntry
+  StorageFrameworkFileEntry,
 } from '../../lib/StorageFrameworkEntry'
 import { Result, type OkOrError } from '../../lib/utilities'
 import type { LocalFallbackDirectoryEntry } from './LocalFallbackDirectoryEntry'

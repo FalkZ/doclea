@@ -1,4 +1,4 @@
-export type GithubResponse =  ArrayResponse | SingleFile | Directory
+export type GithubResponse = ArrayResponse | SingleFile | Directory
 
 export type ArrayResponse = (File | Directory)[]
 

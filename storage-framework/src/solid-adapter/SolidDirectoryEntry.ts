@@ -2,7 +2,7 @@ import { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry,
-  StorageFrameworkFileEntry
+  StorageFrameworkFileEntry,
 } from '../lib/StorageFrameworkEntry'
 
 import {
@@ -13,7 +13,7 @@ import {
   createContainerAt,
   saveFileInContainer,
   type WithResourceInfo,
-  saveSolidDatasetAt
+  saveSolidDatasetAt,
 } from '@inrupt/solid-client'
 
 import { SolidFileEntry } from './SolidFileEntry'
@@ -130,13 +130,13 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
 
   async fetch() {
     const dataset = await getSolidDataset(this.fullPath, {
-      fetch: fetch
+      fetch: fetch,
     })
 
     const all = Object.keys(dataset.graphs.default)
       .map((graph) =>
         getSolidDataset(graph, {
-          fetch: fetch
+          fetch: fetch,
         })
       )
       .map((values) => values.then((v) => getThingAll(v)))
@@ -153,7 +153,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
 
   async createContainer(name: string) {
     return await createContainerAt(this.parent.fullPath + name, {
-      fetch: fetch
+      fetch: fetch,
     })
   }
 
@@ -168,7 +168,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
 
   async renameDirectory(name: string) {
     const existingDataset = await getSolidDataset(this.fullPath, {
-      fetch: fetch
+      fetch: fetch,
     })
     const directoryName = this.getFileName(
       existingDataset.internal_resourceInfo.sourceIri
@@ -180,7 +180,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
       )
 
     await saveSolidDatasetAt(newDirectoryPath, existingDataset, {
-      fetch: fetch
+      fetch: fetch,
     })
     await deleteContainer(this.fullPath, { fetch: fetch })
     this.fullPath = newDirectoryPath
@@ -189,14 +189,14 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   async moveToDirectory(directory: StorageFrameworkDirectoryEntry) {
     if (directory instanceof SolidDirectoryEntry) {
       const existingDataset = await getSolidDataset(this.fullPath, {
-        fetch: fetch
+        fetch: fetch,
       })
       const directoryName = this.getFileName(
         existingDataset.internal_resourceInfo.sourceIri
       )
       const moveToDirectory = directory.fullPath + directoryName
       await saveSolidDatasetAt(moveToDirectory, existingDataset, {
-        fetch: fetch
+        fetch: fetch,
       })
       directory.fullPath = moveToDirectory
       const children = await this.getChildren()

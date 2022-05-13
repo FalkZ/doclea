@@ -3,7 +3,7 @@ import {
   Tldraw,
   TldrawApp,
   TDDocument,
-  type TDExportTypes
+  type TDExportTypes,
 } from '@tldraw/tldraw'
 import ReactDOM from 'react-dom'
 import { getDocumentFromImageUri } from './getDocumentFromImageUri'
@@ -35,7 +35,7 @@ const Component = ({ resolveApi, tdDocument }) => {
       onMount: handleMount,
       onSaveProjectAs: console.log,
       showMenu: false,
-      showPages: false
+      showPages: false,
     },
     null
   )

@@ -13,7 +13,7 @@ export interface Result<T, E> {
 
 /**
  * A Result is a promise, where return value and error value are defined
- * 
+ *
  * An Operation that return T if it succeeds or E if it fails
  */
 /*
@@ -36,7 +36,7 @@ export const Result: ResultConstructor = class Result<T> extends Promise<T> {}
 
 /**
  * Represents the special case of a Result where the return type is void
- * 
+ *
  * An Operation the either succeeds without return value, or fails with type E
  */
 export type OkOrError<E extends Error> = Result<void, E>

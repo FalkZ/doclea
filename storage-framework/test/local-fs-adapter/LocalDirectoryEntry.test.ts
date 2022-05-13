@@ -25,7 +25,7 @@ describe('LocalDirectoryEntry', () => {
           new MockFileSystemFileHandle(
             testFileName2,
             new File(['content of test file 2'], testFileName2)
-          )
+          ),
         ])
       )
     )
@@ -51,13 +51,13 @@ describe('LocalDirectoryEntry', () => {
   it('returns its relative path', async () => {
     const segment3 = new MockFileSystemDirectoryHandle('pathSegment3', [])
     const segment2 = new MockFileSystemDirectoryHandle('pathSegment2', [
-      segment3
+      segment3,
     ])
     const segment1 = new MockFileSystemDirectoryHandle('pathSegment1', [
-      segment2
+      segment2,
     ])
     const rootHandle = new MockFileSystemDirectoryHandle('rootHandle', [
-      segment1
+      segment1,
     ])
     const root = new LocalDirectoryEntry(rootHandle, null, true)
     let children = await root.getChildren()

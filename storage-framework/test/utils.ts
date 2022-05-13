@@ -6,8 +6,8 @@ const startVite = async () => {
   const server = await createServer({
     configFile: 'vite.config.ts',
     server: {
-      port: 1337
-    }
+      port: 1337,
+    },
   })
   await server.listen()
 

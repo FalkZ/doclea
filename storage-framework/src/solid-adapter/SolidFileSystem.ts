@@ -1,14 +1,14 @@
 import { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkEntry,
-  StorageFrameworkProvider
+  StorageFrameworkProvider,
 } from '../lib/StorageFrameworkEntry'
 
 import {
   handleIncomingRedirect,
   login,
   fetch,
-  getDefaultSession
+  getDefaultSession,
 } from '@inrupt/solid-client-authn-browser'
 
 import { getSolidDataset, getThingAll, type Thing } from '@inrupt/solid-client'
@@ -45,13 +45,13 @@ export class SolidFileSystem implements StorageFrameworkProvider {
     }
 
     const dataset = await getSolidDataset(urlPod, {
-      fetch: fetch
+      fetch: fetch,
     })
 
     const all = Object.keys(dataset.graphs.default)
       .map((graph) =>
         getSolidDataset(graph, {
-          fetch: fetch
+          fetch: fetch,
         })
       )
       .map((values) => values.then((v) => getThingAll(v)))
@@ -64,14 +64,14 @@ export class SolidFileSystem implements StorageFrameworkProvider {
 
   async authenticate() {
     await handleIncomingRedirect({
-      restorePreviousSession: true
+      restorePreviousSession: true,
     })
 
     if (!getDefaultSession().info.isLoggedIn) {
       await login({
         redirectUrl: window.location.href,
         oidcIssuer: 'https://broker.pod.inrupt.com',
-        clientName: 'Doclea'
+        clientName: 'Doclea',
       })
     }
   }

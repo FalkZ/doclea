@@ -8,8 +8,8 @@ export default defineConfig({
     alias: {
       '@src': '/src',
       '@ui': '/src/ui',
-      '@business-logic': '/src/business-logic'
-    }
+      '@business-logic': '/src/business-logic',
+    },
   },
-  plugins: [svelte()]
+  plugins: [svelte()],
 })

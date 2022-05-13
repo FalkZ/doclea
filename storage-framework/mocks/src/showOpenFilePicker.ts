@@ -23,7 +23,7 @@ globalThis.showDirectoryPicker = showDirectoryPickerFactory(
       new MockFileSystemFileHandle(
         'test.md',
         new File(['content of file'], 'test.md')
-      )
+      ),
     ])
   )
 )

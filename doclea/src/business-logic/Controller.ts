@@ -47,7 +47,7 @@ export class Controller {
       return init
     },
     editing: new Editing(),
-    selectingStorage: new SelectingStorage()
+    selectingStorage: new SelectingStorage(),
   })
 
   constructor() {

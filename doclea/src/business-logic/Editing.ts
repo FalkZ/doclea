@@ -4,13 +4,13 @@ import { AbstractState } from './state-machine/AbstractState'
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkFileEntry,
-  StorageFrameworkEntry
+  StorageFrameworkEntry,
 } from 'storage-framework'
 import { type Readable, type Writable, writable } from 'svelte/store'
 import type { AppStateMachine } from './Controller'
 
 enum EditorEventType {
-  CloseEditor
+  CloseEditor,
 }
 
 export type EditorEvent = EditorEventType.CloseEditor

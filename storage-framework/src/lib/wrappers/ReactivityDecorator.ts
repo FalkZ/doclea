@@ -5,7 +5,7 @@ import type {
   ObservableStorageFrameworkFileEntry,
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry,
-  StorageFrameworkFileEntry
+  StorageFrameworkFileEntry,
 } from '../StorageFrameworkEntry'
 import { Result, type OkOrError } from '../utilities'
 import { writable, type Readable, type Writable } from '../utilities/stores'
@@ -116,7 +116,7 @@ export class ReactivityDirDecorator
     if (this.children == null) {
       return this.wrappedEntry.getChildren().then((children) => {
         this.children = writable(children.map(this.decorateEntry))
-        console.log("has children ", children)
+        console.log('has children ', children)
         return this.children
       })
     } else {
@@ -179,7 +179,7 @@ export class ReactivityDirDecorator
   }
 
   notifyChildListeners(): void {
-    this.children.update(c => c)
+    this.children.update((c) => c)
   }
 
   decorateEntry(entry: StorageFrameworkEntry): ReactivityDecorator<any> {

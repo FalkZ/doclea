@@ -3,7 +3,7 @@ import { InMemoryDirectory } from './InMemoryDirectory'
 import type { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkEntry,
-  StorageFrameworkProvider
+  StorageFrameworkProvider,
 } from '../lib/StorageFrameworkEntry'
 import { ReactivityDirDecorator } from '../lib/wrappers/ReactivityDecorator'
 

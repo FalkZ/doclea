@@ -1,6 +1,6 @@
 {
-    "dependencies": {
-        "@types/wicg-file-system-access": "^2020.9.5",
-        "File": "^0.10.2"
-    }
+  "dependencies": {
+    "@types/wicg-file-system-access": "^2020.9.5",
+    "File": "^0.10.2"
+  }
 }

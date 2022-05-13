@@ -2,7 +2,7 @@ import { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry,
-  StorageFrameworkFileEntry
+  StorageFrameworkFileEntry,
 } from '../lib/StorageFrameworkEntry'
 import { Result, type OkOrError } from '../lib/utilities/result'
 import { LocalFileEntry } from './LocalFileEntry'

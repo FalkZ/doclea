@@ -29,7 +29,7 @@ export abstract class AbstractState<T, E = never, A = never> {
 
   private createCustomEvent(event: E): CustomEvent {
     return new CustomEvent('state', {
-      detail: event
+      detail: event,
     })
   }
 

@@ -7,30 +7,30 @@ module.exports = {
       'error',
       {
         selector: 'default',
-        format: ['camelCase']
+        format: ['camelCase'],
       },
       {
         selector: 'variable',
-        format: ['camelCase', 'UPPER_CASE']
+        format: ['camelCase', 'UPPER_CASE'],
       },
       {
         selector: 'parameter',
         format: ['camelCase'],
-        leadingUnderscore: 'allow'
+        leadingUnderscore: 'allow',
       },
       {
         selector: 'memberLike',
         modifiers: ['private'],
-        format: ['camelCase']
+        format: ['camelCase'],
       },
       {
         selector: 'typeLike',
-        format: ['PascalCase']
+        format: ['PascalCase'],
       },
       {
         selector: 'enumMember',
-        format: ['PascalCase']
-      }
-    ]
-  }
+        format: ['PascalCase'],
+      },
+    ],
+  },
 }

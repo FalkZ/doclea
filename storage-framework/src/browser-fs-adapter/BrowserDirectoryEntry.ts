@@ -41,7 +41,9 @@ export default class BrowserDirectoryEntry
           resolve(
             results.map((entry) => {
               if (entry.isDirectory)
-                return new BrowserDirectoryEntry(<FileSystemDirectoryEntry>entry)
+                return new BrowserDirectoryEntry(
+                  <FileSystemDirectoryEntry>entry
+                )
               else return new BrowserFileEntry(<FileSystemFileEntry>entry)
             })
           )
@@ -149,7 +151,10 @@ export default class BrowserDirectoryEntry
         () => resolve(),
         (err) =>
           reject(
-            new SFError(`Failed to remove directory ${this.fullPath}. Note that only empty directories can be removed.`, err)
+            new SFError(
+              `Failed to remove directory ${this.fullPath}. Note that only empty directories can be removed.`,
+              err
+            )
           )
       )
     })

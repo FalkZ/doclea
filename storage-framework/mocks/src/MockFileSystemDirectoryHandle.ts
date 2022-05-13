@@ -80,16 +80,16 @@ export class MockFileSystemDirectoryHandle
         if (curr < this.to) {
           return Promise.resolve({
             done: false,
-            value: [this.from, this.ob[curr]]
+            value: [this.from, this.ob[curr]],
           })
         } else {
           return Promise.resolve({
             done: true,
-            value: undefined
+            value: undefined,
           })
         }
       },
-      [Symbol.asyncIterator]: () => it
+      [Symbol.asyncIterator]: () => it,
     }
     return it
   }

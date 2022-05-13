@@ -4,7 +4,7 @@ import { SFError } from '../lib/SFError'
 import {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry,
-  StorageFrameworkFileEntry
+  StorageFrameworkFileEntry,
 } from '../lib/StorageFrameworkEntry'
 import { Result, OkOrError } from '../lib/utilities'
 import { GithubFileEntry } from './GithubFileEntry'
@@ -58,7 +58,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
           repo: GithubFileSystem.config.repo,
           path: this.fullPath + '/' + name,
           message: 'my commit message',
-          content: 'bXkgbmV3IGZpbGUgY29udGVudHM='
+          content: 'bXkgbmV3IGZpbGUgY29udGVudHM=',
         })
         .then((response) => {
           console.log(response)
@@ -152,7 +152,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
         .request('GET /repos/{owner}/{repo}/contents/{path}', {
           owner: GithubFileSystem.config.owner,
           repo: GithubFileSystem.config.repo,
-          path: this.fullPath
+          path: this.fullPath,
         })
         .then(({ data }) => {
           console.log('Succesfully read directory from GitHub: ', this.fullPath)
@@ -173,7 +173,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
           repo: GithubFileSystem.config.repo,
           path: newFileFullPath,
           message: 'doclea created file',
-          content: contentInBase65
+          content: contentInBase65,
         })
         .then((response) => {
           if (response.status == 201) {

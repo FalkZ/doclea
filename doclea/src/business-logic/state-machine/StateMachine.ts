@@ -9,7 +9,7 @@ export class StateMachine<T extends StateMachineDefinition> {
 
   get states(): Readable<OneOf<States<T>>> {
     return {
-      subscribe: (cb) => this.statesObservable.subscribe(cb)
+      subscribe: (cb) => this.statesObservable.subscribe(cb),
     }
   }
 
