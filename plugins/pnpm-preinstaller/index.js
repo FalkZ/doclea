@@ -1,4 +1,4 @@
-module.exports = {
+const config = {
   onPreBuild: async ({ utils: { build, run, status } }) => {
     try {
       if (process.env.CI) {
@@ -15,3 +15,5 @@ module.exports = {
     }
   }
 }
+
+export default config
