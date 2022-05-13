@@ -7,8 +7,9 @@ import type { Message } from './MessageTypes'
 import type { StateMachineDefinition, State } from './state-machine/State'
 
 import type { SelectingStorageEvent } from './SelectingStorage'
-import type { StorageFrameworkEntry } from '../../../storage-framework'
+import type { Readable, StorageFrameworkEntry } from 'storage-framework'
 import { Logger } from './Logger'
+import { subscribe } from 'svelte/internal'
 
 /**
  * Defines the two states SelectingStorage and Editing
@@ -76,12 +77,25 @@ export class Controller {
   /**
    * Messages that get displayed as a banner for the user
    */
-  get messages(): Readable<Message[]> {}
+  get messages(): Readable<Message[]> { 
+    return { subscribe: this.messageStore.subscribe }
+  }
 
   /**
    * Adds message to messageStore and removes it after messageTimeMs
    */
-  public showMessage(message: Message) {}
+  public showMessage(message: Message) {
+    this.messageStore.update((messages) => {
+      messages.push(message)
+      return messages
+    })
+    setTimeout(() => {
+      this.messageStore.update((messages) => {
+        messages.shift()
+        return messages
+      })
+    }, this.messageTimeMs);
+  }
 
   /**
    * Toogles mode to dark mode if it is not already set
