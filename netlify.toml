@@ -1,2 +1,5 @@
+[[plugins]]
+     package = "./plugins/pnpm-preinstaller"
+     
 [build.environment]
-  NPM_FLAGS="--prefix=/dev/null"
+        NPM_FLAGS="--prefix=/dev/null"
