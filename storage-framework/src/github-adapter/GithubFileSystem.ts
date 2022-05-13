@@ -1,5 +1,5 @@
 import { Octokit } from '@octokit/core'
-import { ReactivityDirDecorator } from 'src/lib/wrappers/ReactivityDecorator'
+import { ReactivityDirDecorator } from '../lib/wrappers/ReactivityDecorator'
 import { Result } from '../lib/utilities'
 import { GithubDirectoryEntry } from './GithubDirectoryEntry'
 import type { SFError } from '../lib/SFError'

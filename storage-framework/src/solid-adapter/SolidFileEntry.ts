@@ -4,11 +4,11 @@ import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkFileEntry
 } from '../lib/StorageFrameworkEntry'
-import { Result, type OkOrError } from '../lib/utilities'
 import type { SolidDirectoryEntry } from './SolidDirectoryEntry'
 import { saveFileInContainer, deleteFile, getFile } from '@inrupt/solid-client'
 
 import type { Readable } from 'src/lib/utilities/stores'
+import { Result, OkOrError } from '../lib/utilities/result'
 
 export class SolidFileEntry implements StorageFrameworkFileEntry {
   fullPath: string

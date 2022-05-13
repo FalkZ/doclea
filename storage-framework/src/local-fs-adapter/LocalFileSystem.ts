@@ -2,7 +2,7 @@ import type { SFError } from '../lib/SFError'
 import type {  StorageFrameworkEntry } from '../lib/StorageFrameworkEntry'
 import type {StorageFrameworkProvider} from '../lib/StorageFrameworkEntry'
 import { ReactivityDirDecorator } from '../lib/wrappers/ReactivityDecorator'
-import { Result } from '../lib/utilities'
+import { Result } from '../lib/utilities/result'
 import LocalFallbackDirectoryEntry from './local-fallback-fs-adapter/LocalFallbackDirectoryEntry'
 import { LocalDirectoryEntry } from './LocalDirectoryEntry'
 

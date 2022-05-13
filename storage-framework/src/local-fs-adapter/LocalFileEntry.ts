@@ -5,7 +5,7 @@ import {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkFileEntry
 } from '../lib/StorageFrameworkEntry'
-import { Result, OkOrError } from '../lib/utilities'
+import { Result, OkOrError } from '../lib/utilities/result'
 import { LocalDirectoryEntry } from './LocalDirectoryEntry'
 
 export class LocalFileEntry implements StorageFrameworkFileEntry {

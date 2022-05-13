@@ -4,7 +4,6 @@ import type {
   StorageFrameworkEntry,
   StorageFrameworkFileEntry
 } from '../lib/StorageFrameworkEntry'
-import { Result, type OkOrError } from '../lib/utilities'
 
 import {
   getSolidDataset,
@@ -18,6 +17,7 @@ import {
 } from '@inrupt/solid-client'
 import { SolidFileEntry } from './SolidFileEntry'
 import type { Readable } from 'src/lib/utilities/stores'
+import { Result, OkOrError } from '../lib/utilities/result'
 
 export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   readonly isDirectory: true

@@ -13,9 +13,9 @@ import {
 
 import { getSolidDataset, getThingAll, type Thing } from '@inrupt/solid-client'
 
-import { Result } from '../lib/utilities'
+import { Result } from '../lib/utilities/result'
 import { SolidDirectoryEntry } from './SolidDirectoryEntry'
-import { ReactivityDirDecorator } from 'src/lib/wrappers/ReactivityDecorator'
+import { ReactivityDirDecorator } from '../lib/wrappers/ReactivityDecorator'
 
 export type SolidSubject = Thing
 
