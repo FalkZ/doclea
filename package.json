@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build-all": "npx pnpm run build -r",
+    "build-all": "cd storage-framework && npm run build && cd ../doclea && npm run build",
     "setup": "pnpm install -r"
   },
   "devDependencies": {
