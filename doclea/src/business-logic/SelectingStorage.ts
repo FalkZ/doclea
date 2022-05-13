@@ -81,30 +81,20 @@ export class SelectingStorage extends AbstractState<
           const event = await parentState.onNextEvent()
           switch (event.type) {
             case SelectingStorageEventType.Github:
-              try {
                 fs = new GithubFileSystem()
                 //(<GithubFileSystem>fs).isLoggedIn
-                //await (<GithubFileSystem>fs).authenticate()
+                await (<GithubFileSystem>fs).authenticate()
                 return open
-              } catch (err) {
-                return error
-              }
+
             case SelectingStorageEventType.Solid:
-              try {
                 fs = new SolidFileSystem()
 
-                //await fs.authenticate()
+                await fs.authenticate()
                 return open
-              } catch (err) {
-                return error
-              }
+
             case SelectingStorageEventType.Local:
-              try {
                 fs = new LocalFileSystem()
                 return open
-              } catch (err) {
-                return error
-              }
           }
         },
       })
