@@ -15,6 +15,7 @@ import { getSolidDataset, getThingAll, type Thing } from '@inrupt/solid-client'
 
 import { Result } from '../lib/utilities'
 import { SolidDirectoryEntry } from './SolidDirectoryEntry'
+import { ReactivityDirDecorator } from 'src/lib/wrappers/ReactivityDecorator'
 
 export type SolidSubject = Thing
 
@@ -25,7 +26,7 @@ export class SolidFileSystem implements StorageFrameworkProvider {
   open(urlPod: string): Result<StorageFrameworkEntry, SFError> {
     return new Result((resolve, reject) => {
       this.loginAndFetch(urlPod)
-        .then((root) => resolve(new SolidDirectoryEntry(root.url, null)))
+        .then((root) => resolve(new ReactivityDirDecorator(null, new SolidDirectoryEntry(root.url, null))))
         .catch((e) => reject(new SFError('Failed to ...', e)))
     })
   }

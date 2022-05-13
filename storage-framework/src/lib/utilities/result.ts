@@ -1,10 +1,14 @@
 export type none = undefined | null
 
-interface ResultLike<T, E> {
-  then: <T2 = T, E2 = E>(
-    onfulfilled?: ((value: T) => T2 | ResultLike<T2, E> | this) | none,
-    onrejected?: ((reason: E) => E2 | ResultLike<T, E2> | this) | none
-  ) => this
+export interface Result<T, E> {
+  then<T2 = T, E2 = E>(
+    onfulfilled?: ((value: T) => T2 | Result<T2, E> | this) | none,
+    onrejected?: ((reason: E) => E2 | Result<T, E2> | this) | none
+  ): Result<T2, E2>
+
+  catch<E2 = E>(
+    onrejected?: ((reason: E) => E2 | Result<T, E2> | this) | none
+  ): Result<T, E2>
 }
 
 /**
@@ -12,17 +16,18 @@ interface ResultLike<T, E> {
  * 
  * An Operation that return T if it succeeds or E if it fails
  */
+/*
 export interface Result<T, E> extends ResultLike<T, E> {
-  catch: <E2 = E>(
+  catch<E2 = E>(
     onrejected?: ((reason: E) => E2 | Result<T, E2> | this) | none
-  ) => this
-}
+  ): Result<T, E | E2>
+} */
 
 interface ResultConstructor extends PromiseConstructor {
   new <T, E>(
     executor: (
-      resolve: (value: T | ResultLike<T, E>) => void,
-      reject: (reason: E) => void
+      resolve: (value: T | Result<T, E>) => void,
+      reject: (reason: E | Result<T, E>) => void
     ) => void
   ): Result<T, E>
 }

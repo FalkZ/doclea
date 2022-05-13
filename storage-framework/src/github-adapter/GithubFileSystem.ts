@@ -1,12 +1,12 @@
 import { Octokit } from '@octokit/core'
-import { SFError } from '../lib/SFError'
-import {
+import { ReactivityDirDecorator } from 'src/lib/wrappers/ReactivityDecorator'
+import { Result } from '../lib/utilities'
+import { GithubDirectoryEntry } from './GithubDirectoryEntry'
+import type { SFError } from '../lib/SFError'
+import type {
   StorageFrameworkProvider,
   StorageFrameworkEntry
 } from '../lib/StorageFrameworkEntry'
-import { Result } from '../lib/utilities'
-import { GithubDirectoryEntry } from './GithubDirectoryEntry'
-import type { GithubResponse } from './GithubTypes'
 const guid = 'github-auth-reiupkvhldwe'
 
 if (window.location.hash === '#' + guid) {
@@ -93,7 +93,7 @@ export class GithubFileSystem implements StorageFrameworkProvider {
 
       let workspace = new GithubDirectoryEntry(null, '', '', this.octokit)
       workspace.getChildren()
-      resolve(workspace)
+      resolve(new ReactivityDirDecorator(null, workspace))
     })
   }
 }

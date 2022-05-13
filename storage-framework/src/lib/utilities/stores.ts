@@ -3,11 +3,9 @@
 // inlined from 'svelte/internal':
 // import { run_all, subscribe, noop, safe_not_equal, is_function, get_store_value } from 'svelte/internal';
 
-export function noop() {}
+export const noop = () => {};
 
-export function safe_not_equal(a, b) {
-	return a != a ? b == b : a !== b || ((a && typeof a === 'object') || typeof a === 'function');
-}
+export const safe_not_equal = (a, b) => a != a ? b == b : a !== b || ((a && typeof a === 'object') || typeof a === 'function');
 
 // ##################################################
 
@@ -34,6 +32,11 @@ export interface Readable<T> {
 	 * @param invalidate cleanup callback
 	 */
 	subscribe(this: void, run: Subscriber<T>, invalidate?: Invalidator<T>): Unsubscriber;
+
+	/**
+	 * Get the current value
+	 */
+	get(this: void): T;
 }
 
 /** Writable interface for both updating and subscribing. */
@@ -61,22 +64,21 @@ const subscriber_queue = [];
  * @param value initial value
  * @param {StartStopNotifier}start start and stop notifications for subscriptions
  */
-export function readable<T>(value?: T, start?: StartStopNotifier<T>): Readable<T> {
-	return {
-		subscribe: writable(value, start).subscribe
-	};
-}
+export const readable = <T>(value?: T, start?: StartStopNotifier<T>): Readable<T> => ({
+		subscribe: writable(value, start).subscribe,
+		get: () => value
+	});
 
 /**
  * Create a `Writable` store that allows both updating and reading by subscription.
  * @param {*=}value initial value
  * @param {StartStopNotifier=}start start and stop notifications for subscriptions
  */
-export function writable<T>(value?: T, start: StartStopNotifier<T> = noop): Writable<T> {
+export const writable = <T>(value?: T, start: StartStopNotifier<T> = noop): Writable<T> => {
 	let stop: Unsubscriber;
 	const subscribers: Set<SubscribeInvalidateTuple<T>> = new Set();
 
-	function set(new_value: T): void {
+	const set = (new_value: T): void => {
 		if (safe_not_equal(value, new_value)) {
 			value = new_value;
 			if (stop) { // store is ready
@@ -93,13 +95,13 @@ export function writable<T>(value?: T, start: StartStopNotifier<T> = noop): Writ
 				}
 			}
 		}
-	}
+	};
 
-	function update(fn: Updater<T>): void {
+	const update = (fn: Updater<T>): void => {
 		set(fn(value));
-	}
+	};
 
-	function subscribe(run: Subscriber<T>, invalidate: Invalidator<T> = noop): Unsubscriber {
+	const subscribe = (run: Subscriber<T>, invalidate: Invalidator<T> = noop): Unsubscriber => {
 		const subscriber: SubscribeInvalidateTuple<T> = [run, invalidate];
 		subscribers.add(subscriber);
 		if (subscribers.size === 1) {
@@ -114,7 +116,9 @@ export function writable<T>(value?: T, start: StartStopNotifier<T> = noop): Writ
 				stop = null;
 			}
 		};
-	}
+	};
 
-	return { set, update, subscribe };
-}
+	const get = (): T => value
+
+	return { get, set, update, subscribe };
+};

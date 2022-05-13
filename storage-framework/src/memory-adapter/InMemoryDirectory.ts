@@ -5,7 +5,6 @@ import type {
   StorageFrameworkFileEntry,
 } from '../lib/StorageFrameworkEntry'
 import { Result } from '../lib/utilities'
-import { writable, Readable, Writable } from '../lib/utilities/stores'
 import { InMemoryFile } from './InMemoryFile'
 import { InMemoryFSEntry } from './InMemoryFSEntry'
 
@@ -14,11 +13,6 @@ export class InMemoryDirectory
   implements StorageFrameworkDirectoryEntry
 {
   private children: InMemoryFSEntry[] = []
-  private readonly observable: Writable<InMemoryFSEntry[]> = writable()
-
-  constructor(parent: InMemoryDirectory | null, name: string) {
-    super(parent, name)
-  }
 
   get isDirectory(): true {
     return true
@@ -32,25 +26,12 @@ export class InMemoryDirectory
     return new Result((resolve, reject) => {
       // verify node is attached to the root node
       const error = this.verifyNodeIsAttachedToRoot()
-      if (error) {
+      if (error !== null) {
         reject(error)
         return
       }
 
       resolve([...this.children])
-    })
-  }
-
-  watchChildren(): Result<Readable<StorageFrameworkEntry[]>, SFError> {
-    return new Result((resolve, reject) => {
-      // verify node is attached to the root node
-      const error = this.verifyNodeIsAttachedToRoot()
-      if (error != null) {
-        reject(error)
-        return
-      }
-
-      resolve(this.observable)
     })
   }
 
@@ -67,13 +48,9 @@ export class InMemoryDirectory
   // ================================================================================
   // additional methods
 
-  notifyWatchListeners() {
-    this.observable.set([...this.children])
-  }
-
   getChildByName(name: string): InMemoryFSEntry | null {
     for (const child of this.children) {
-      if (child.name == name) return child
+      if (child.name === name) return child
     }
     return null
   }
@@ -112,13 +89,11 @@ export class InMemoryDirectory
       }
 
       this.children.push(child)
-      this.notifyWatchListeners()
       resolve(child)
     })
   }
 
-  removeChild(child: InMemoryFSEntry) {
-    this.children = this.children.filter((n) => n != child)
-    this.notifyWatchListeners()
+  removeChild(child: InMemoryFSEntry): void {
+    this.children = this.children.filter((n) => n !== child)
   }
 }

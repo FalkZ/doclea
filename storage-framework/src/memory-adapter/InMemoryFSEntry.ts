@@ -3,7 +3,7 @@ import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry,
 } from '../lib/StorageFrameworkEntry'
-import { OkOrError, Result } from '../lib/utilities'
+import { Result, type OkOrError } from '../lib/utilities'
 import { InMemoryDirectory } from './InMemoryDirectory'
 
 export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
@@ -19,7 +19,7 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
   }
 
   get fullPath(): string {
-    if (!this.parent) return '/'
+    if (this.parent === null) return '/'
     if (this.isDirectory) return this.parent.fullPath + this.name + '/'
     else return this.parent.fullPath + this.name
   }
@@ -50,7 +50,7 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
   rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       const error = this.verifyNodeIsAttachedToRoot()
-      if (error) {
+      if (error !== null) {
         reject(error)
         return
       }
@@ -60,7 +60,7 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
         return
       }
 
-      if (this.parent.getChildByName(name)) {
+      if (this.parent.getChildByName(name) !== null) {
         reject(
           new SFError(
             `can't rename node ${this.fullPath}, name '${name}' is already used`
@@ -68,7 +68,6 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
         )
       } else {
         this.name = name
-        this.parent.notifyWatchListeners()
         resolve()
       }
     })
@@ -77,7 +76,7 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
   remove(): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       const error = this.verifyNodeIsAttachedToRoot()
-      if (error) {
+      if (error !== null) {
         reject(error)
         return
       }
@@ -99,7 +98,7 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
       {
         // verify current node is attached to the root node
         const error = this.verifyNodeIsAttachedToRoot()
-        if (error) {
+        if (error !== null) {
           reject(error)
           return
         }
@@ -129,8 +128,6 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
         .appendChild(this)
         .then((_) => {
           this.parent.removeChild(this)
-          this.parent.notifyWatchListeners()
-          directoryNode.notifyWatchListeners()
           resolve()
         })
         .catch((e) => reject(e))
