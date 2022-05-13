@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "pnpm run build -r",
+    "build": "npx pnpm run build -r",
     "setup": "pnpm install -r"
   },
   "devDependencies": {
