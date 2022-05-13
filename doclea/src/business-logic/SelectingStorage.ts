@@ -30,8 +30,8 @@ enum SelectingStorageEventType {
 }
 
 enum ButtonState {
-  Active,
-  Inactive
+  Active = 1,
+  Inactive = 0
 }
 
 export type SelectingStorageEvent =
@@ -47,15 +47,10 @@ export class SelectingStorage extends AbstractState<
   AppStateMachine,
   SelectingStorageEvent
 > {
-  private endState;
-  constructor(endState: AbstractState<AppStateMachine, SelectingStorageEvent>) {
-    super()
-    this.endState = endState
-  }
+  private rootEntry: StorageFrameworkEntry 
   private async runSelectingStorageStateMachine() {
     const parentState = this
     let fs: StorageFrameworkProvider
-    let rootEntry: StorageFrameworkEntry // todo move to global store? editing state needs access to rootdir
     const selectingStorageStateMachine =
       new StateMachine<SelectingStorageStateMachine>({
         init: ({ authenticate }) => {
@@ -66,18 +61,13 @@ export class SelectingStorage extends AbstractState<
           return init
         },
         open: async ({ end, error }) => {
-          if (fs) {
+       
             // TODO: set url hash
-            try {
-              rootEntry = await fs.open()
+              this.rootEntry = await fs.open()
               return end
-            } catch (err) {
-              return error
-            }
-          } else return error
         },
         authenticate: async ({ open, error }) => {
-          parentState.openButtonStateStore.update(() => ButtonState.Active)
+          parentState.openButtonStateStore.set(b)
           const event = await parentState.onNextEvent()
           switch (event.type) {
             case SelectingStorageEventType.Github:
@@ -92,6 +82,7 @@ export class SelectingStorage extends AbstractState<
             case SelectingStorageEventType.Solid:
               try {
                 fs = new SolidFileSystem()
+                
                 //await fs.authenticate()
                 return open
               } catch (err) {
@@ -116,15 +107,17 @@ export class SelectingStorage extends AbstractState<
    */
   private setUrlHash() {}
 
-  protected async run(states: States<AppStateMachine>): Promise<NextState> {
+
+  protected async run({ editing }: States<AppStateMachine>): Promise<NextState> {
     await this.runSelectingStorageStateMachine()
-    return this.endState
+
+    return editing.arg(this.rootEntry)
   }
 
   private readonly openButtonStateStore: Writable<ButtonState> =
     writable(ButtonState.Inactive)
 
-  get openButtonState(): Readable<ButtonState> {
+  get isOpenButtonActive(): Readable<boolean> {
     return { subscribe: this.openButtonStateStore.subscribe}
   }
 

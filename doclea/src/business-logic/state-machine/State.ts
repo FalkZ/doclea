@@ -32,9 +32,9 @@ export interface DefinableStates {
   end: never
 }
 
-export type State<Self, Args = never> =
+export type State<Self, Args = never, Event = never> =
   | Functional<Self, Args>
-  | AbstractState<Self, Args>
+  | AbstractState<Self, Event, Args>
 
 export interface StateMachineDefinition {
   init: State<this, never>

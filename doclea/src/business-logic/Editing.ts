@@ -2,7 +2,7 @@ import type { States, NextState, StateMachineDefinition, State } from './state-m
 import { AbstractState } from './state-machine/AbstractState'
 import type { AppStateMachine } from './AppStateMachine'
 import { StateMachine } from './state-machine/StateMachine';
-import type { StorageFrameworkDirectoryEntry, StorageFrameworkFileEntry } from 'storage-framework';
+import type { StorageFrameworkDirectoryEntry, StorageFrameworkFileEntry, StorageFrameworkEntry } from 'storage-framework';
 import { type Readable, type Writable, writable } from 'svelte/store';
 import { set_attributes } from 'svelte/internal';
 
@@ -16,13 +16,16 @@ enum EditorEventType {
 
 export type EditorEvent = EditorEventType.CloseEditor
 
-export class Editing extends AbstractState<AppStateMachine, EditorEvent> {
-  protected async run(states: States<AppStateMachine>): Promise<NextState> {
+export class Editing extends AbstractState<AppStateMachine, EditorEvent, StorageFrameworkEntry> {
+  protected async run({ selectingStorage }: States<AppStateMachine>, rootEntry: StorageFrameworkEntry): Promise<NextState> {
 
-    await this.runEditingStateMachine()
+    console.log(rootEntry)
+    const event = await this.onNextEvent()
 
-    return new Promise(resolve => resolve(states.end))
+    return selectingStorage
   }
+
+
   private async runEditingStateMachine() {
     const parentState = this
     const editingStateMachine = new StateMachine<EditingStateMachine>({
@@ -58,26 +61,6 @@ export class Editing extends AbstractState<AppStateMachine, EditorEvent> {
 
   public setSelectedFile(file: StorageFrameworkFileEntry): void {
     this.selectedFileStore.set(file)
-  }
-
-  public openFileTree(root: StorageFrameworkDirectoryEntry): void {
-    //todo
-  }
-
-  public closeFileTree(): void {
-    //todo
-  }
-
-  public saveFile(): void {
-    //todo
-  }
-
-  public exportFiles(): void {
-    //todo
-  }
-
-  public toggleDarkMode(): void {
-    //todo
   }
 
   closeEditor(): void {
