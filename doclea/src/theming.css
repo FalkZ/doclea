@@ -1,5 +1,8 @@
 @media (prefers-color-scheme: dark) {
   :root {
+    --ui-color-error: hsl(2, 81%, 48%);
+    --ui-color-warn: hsl(34, 100%, 53%);
+    --ui-color-info: hsl(213, 72%, 52%);
     --ui-background-400: hsl(220, 16%, 22%);
     --ui-background-500: hsl(221, 16%, 19%);
     --ui-background-600: hsl(222, 15%, 17%);
@@ -7,11 +10,13 @@
     --ui-foreground-300: hsl(219, 28%, 78%);
     --ui-foreground-400: hsl(219, 28%, 88%);
     --ui-foreground-500: hsl(218, 27%, 94%);
-    --ui-accent-400: hsl(213, 32%, 52%);
   }
 }
 @media (prefers-color-scheme: light) {
   :root {
+    --ui-color-error: #eb403b;
+    --ui-color-warn: #ffae42;
+    --ui-color-info: hsl(213, 52%, 62%);
     --ui-background-400: white;
     --ui-background-500: #f5f7f9;
     --ui-background-600: #eceff4;
@@ -19,15 +24,17 @@
     --ui-foreground-300: hsl(220, 16%, 46%);
     --ui-foreground-400: hsl(220, 16%, 36%);
     --ui-foreground-500: hsl(220, 16%, 22%);
-    --ui-accent-400: #5e81ac;
   }
 }
 
 :root {
+  --ui-padding-200: 3px;
   --ui-padding-300: 6px;
   --ui-padding-400: 12px;
   --ui-padding-500: 24px;
   --ui-radius-400: 3px;
+  --ui-accent-400: hsl(213, 32%, 52%);
+  --ui-accent-500: hsl(213, 52%, 62%);
 
   --ui-box-shadow: rgba(59, 66, 82, 0.14) 0px 1px 1px 0px,
     rgba(59, 66, 82, 0.12) 0px 2px 1px 0px,

@@ -22,12 +22,19 @@
     border-radius: var(--ui-radius-400);
     padding: var(--ui-padding-400);
     display: block;
-    margin: 1em;
+    margin: var(--ui-padding-400);
     font-weight: bold;
     cursor: pointer;
   }
 
   .inline {
     display: inline-block;
+  }
+
+  .small {
+    display: inline-block;
+    padding: var(--ui-padding-300);
+    margin: 0;
+    margin-left: var(--ui-padding-400);
   }
 </style>

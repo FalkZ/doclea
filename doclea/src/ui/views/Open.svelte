@@ -4,7 +4,7 @@
   import Input from './../components/basic-elements/Input.svelte'
   import Folder from 'tabler-icons-svelte/icons/Folder.svelte'
   import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
-  import Cloud from 'tabler-icons-svelte/icons/Cloud.svelte'
+  import Hexagon from 'tabler-icons-svelte/icons/Hexagon'
   import X from 'tabler-icons-svelte/icons/X.svelte'
   import type { SelectingStorage } from 'src/business-logic/SelectingStorage'
 
@@ -29,7 +29,7 @@
         inline={true}
         on:click={() => selectingStorageState.openSolid(value)}
         active={$activeOpenButton}
-        className={['left']}><Cloud /> Solid</Button
+        className={['left']}><Hexagon /> Solid</Button
       >
       or
       <Button inline={true} className={['right']}><BrandGithub /> GitHub</Button
@@ -37,9 +37,11 @@
     </p>
   </div>
   <hr />
-  or <Button inline={true}
+  or <Button
+    inline={true}
     on:click={() => selectingStorageState.openLocal()}
-    active={$activeOpenButton}><Folder /> Open Local Folder</Button>
+    active={$activeOpenButton}><Folder /> open local folder</Button
+  >
 </div>
 
 <style>
