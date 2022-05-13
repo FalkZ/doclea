@@ -2,7 +2,7 @@
   "prettier.configPath": "./node_modules/eslint-config-ijw/.prettierrc",
   "eslint.validate": ["svelte"],
 
-  "eslint.enable": true,
+  "eslint.enable": false,
   "eslint.packageManager": "pnpm",
 
   "[javascript]": {
@@ -24,6 +24,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    // "source.fixAll.eslint": true
   }
 }

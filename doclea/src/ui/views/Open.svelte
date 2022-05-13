@@ -6,8 +6,13 @@
   import BrandGithub from 'tabler-icons-svelte/icons/BrandGithub.svelte'
   import Cloud from 'tabler-icons-svelte/icons/Cloud.svelte'
   import X from 'tabler-icons-svelte/icons/X.svelte'
+  import type { SelectingStorage } from 'src/business-logic/SelectingStorage'
 
-  console.log(svg)
+  export let selectingStorageState: SelectingStorage
+
+  const { activeOpenButton } = selectingStorageState
+
+  let value
 </script>
 
 <div class="backdrop" />
@@ -17,17 +22,24 @@
   <h1>{@html svg}oclea</h1>
   <p>select a storage location</p>
   <div>
-    <Input placeholder="https://github.com/..." />
+    <Input placeholder="https://github.com/..." bind:value />
 
     <p>
-      <Button inline={true} className={['left']}><Cloud /> Solid</Button>
+      <Button
+        inline={true}
+        on:click={() => selectingStorageState.openSolid(value)}
+        active={$activeOpenButton}
+        className={['left']}><Cloud /> Solid</Button
+      >
       or
       <Button inline={true} className={['right']}><BrandGithub /> GitHub</Button
       >
     </p>
   </div>
   <hr />
-  or <Button inline={true}><Folder /> Open Local Folder</Button>
+  or <Button inline={true}
+    on:click={() => selectingStorageState.openLocal()}
+    active={$activeOpenButton}><Folder /> Open Local Folder</Button>
 </div>
 
 <style>
