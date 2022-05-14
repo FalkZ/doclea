@@ -90,6 +90,7 @@ export class SelectingStorage extends AbstractState<
           } else this.rootEntry = await fs.open()
           return end
         },
+
         /**
          * Is triggered after init state and handles authentication for the selected storageFramework
          * @returns {StateMachine} Returns state open
@@ -100,10 +101,16 @@ export class SelectingStorage extends AbstractState<
             this.url = this.fileSystemUrl.toString()
             switch (this.fileSystemUrl.hostname) {
               case 'github.com':
-                fs = new GithubFileSystem()
+                fs = new GithubFileSystem(
+                  'b0febf46067600eed6e5',
+                  '228480a8a7eae9aed8299126211402f47c488013',
+                  'mikko-abad',
+                  'doclea'
+                )
                 if (!(<GithubFileSystem>fs).isSignedIn) {
                   await (<GithubFileSystem>fs).authenticate()
                 }
+
                 return open
               default:
                 fs = new SolidFileSystem()
