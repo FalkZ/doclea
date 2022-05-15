@@ -7,19 +7,20 @@ import type { Message } from './MessageTypes'
 import type { StateMachineDefinition, State } from './state-machine/State'
 
 import type { SelectingStorageEvent } from './SelectingStorage'
-import type { StorageFrameworkEntry } from 'storage-framework'
+import type { StorageFrameworkEntry } from '../../../storage-framework'
 import { Logger } from './Logger'
 
 /**
- * TODO: jsdoc
+ * Defines the two states SelectingStorage and Editing
  */
 export interface AppStateMachine extends StateMachineDefinition {
+
   /**
-   * TODO: jsdoc
+   * Editing State init
    */
   editing: State<this, StorageFrameworkEntry>
   /**
-   * TODO: jsdoc
+   * SelectingStorage State init
    */
   selectingStorage: State<this, never, SelectingStorageEvent>
 }
@@ -28,25 +29,43 @@ export interface AppStateMachine extends StateMachineDefinition {
  * Every action that is taken in the editor should be defined and executed here (except for internal actions of the milkdown editor)
  * All the editor state is stored in this class
  * 
-
- * TODO: jsdoc: all public methods
  * TODO: use Logger class for all states
  */
 export class Controller {
   private readonly messageTimeMs = 2000
   private readonly logger = new Logger()
-
   private readonly messageStore: Writable<Message[]> = writable([])
+
+  /**
+   * Implementation of appStateMachine
+   */
   public appStateMachine = new StateMachine<AppStateMachine>({
+    
+    /**
+     * Is entry point for appStateMachine
+     * @returns {StateMachine} Returns state selectingStorage
+     */
     init: ({ selectingStorage }) => {
       // wait for button
       return selectingStorage
     },
+    /**
+     * Is triggered every time an error occures
+     * @returns {StateMachine} Returns to entry point state init
+     */
     error: ({ init }, arg: Error) => {
       this.logger.error('an error occurred', arg)
       return init
     },
+    /**
+    * Is triggered when appStateMachine moves to Editing state (after successfully selecting storage)
+    * @returns {StateMachine} Returns class Editing
+    */
     editing: new Editing(),
+    /**
+    * Is triggered after init
+    * @returns {StateMachine} Returns class SelectingStorage
+    */
     selectingStorage: new SelectingStorage(),
   })
 
@@ -64,5 +83,8 @@ export class Controller {
    */
   public showMessage(message: Message) {}
 
+  /**
+   * Toogles mode to dark mode if it is not already set
+   */
   public toggleDarkMode(): void {}
 }

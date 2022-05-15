@@ -7,14 +7,14 @@
   import type {
     StorageFrameworkEntry,
     StorageFrameworkProvider,
-  } from 'storage-framework'
+  } from '../../../../../storage-framework'
 
   import {
     InMemoryFileSystem,
     GithubFileSystem,
     SolidFileSystem,
     LocalFileSystem,
-  } from 'storage-framework'
+  } from '../../../../../storage-framework'
 
   export let pickedFSEntry: StorageFrameworkEntry | null = null
 

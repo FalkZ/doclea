@@ -5,7 +5,7 @@ import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkFileEntry,
   StorageFrameworkEntry,
-} from 'storage-framework'
+} from '../../../storage-framework'
 import { type Readable, type Writable, writable } from 'svelte/store'
 import type { AppStateMachine } from './Controller'
 
@@ -16,7 +16,7 @@ enum EditorEventType {
 export type EditorEvent = EditorEventType.CloseEditor
 
 /**
- * TODO: jsdoc: all public methods
+ * Contains all methods of the editing state
  */
 export class Editing extends AbstractState<
   AppStateMachine,
@@ -43,24 +43,42 @@ export class Editing extends AbstractState<
   private readonly selectedEntryStore: Writable<StorageFrameworkEntry | null> =
     writable()
 
+  /**
+    * Gets the selected file by the user
+    * @returns {StorageFrameworkFileEntry} Returns selectedFileStore
+    */
   get selectedFile(): Readable<StorageFrameworkFileEntry | null> {
     return { subscribe: this.selectedFileStore.subscribe }
   }
 
+  /**
+    * Gets the selected entry by the user
+    * @returns {StorageFrameworkFileEntry} Returns selectedEntryStore
+    */
   get selectedEntry(): Readable<StorageFrameworkFileEntry | null> {
     return { subscribe: this.selectedEntryStore.subscribe }
   }
 
+  /**
+    * Gets the files of the selected directory entry by the user
+    * @returns {StorageFrameworkDirectoryEntry} Returns filesStore
+    */
   get files(): Readable<StorageFrameworkDirectoryEntry | null> {
     return { subscribe: this.filesStore.subscribe }
   }
 
+  /**
+    * Sets the selected entry by the user
+    */
   public setSelectedEntry(entry: StorageFrameworkEntry): void {
     if (entry.isFile) this.selectedFileStore.set(entry)
 
     this.selectedEntryStore.set(entry)
   }
 
+  /**
+    * Closes the editor with a dispach method
+    */
   closeEditor(): void {
     this.dispatchEvent(EditorEventType.CloseEditor)
   }
