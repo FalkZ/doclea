@@ -65,6 +65,7 @@ export class SelectingStorage extends AbstractState<
          * @returns {StateMachine} Returns state authenticate
          */
         init: ({ authenticate }) => {
+          this.removeUrlHash()
           return authenticate
         },
         /**
@@ -127,15 +128,13 @@ export class SelectingStorage extends AbstractState<
    * Sets url hash to e.g. #https://github.com/...
    */
   private setUrlHash() {
-    const docURL = new URL(location.href);
-    docURL.hash = `#${this.url}`;
-    location.href = docURL.href;
+    const docURL = new URL(location.href)
+    docURL.hash = `#${this.url}`
+    location.href = docURL.href
   }
 
   private removeUrlHash() {
-    const docURL = new URL(location.href);
-    docURL.hash = '';
-    location.href = docURL.href;
+    history.replaceState(null, null, ' ')
   }
 
   protected async run({
