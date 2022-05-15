@@ -19,10 +19,19 @@ import { ReactivityDirDecorator } from '../lib/wrappers/ReactivityDecorator'
 
 export type SolidSubject = Thing
 
+/**
+ * Contains all methods for SolidFileSystem
+ */
 export class SolidFileSystem implements StorageFrameworkProvider {
   isSignedIn: boolean
   sessionId: string
 
+  /**
+  * Opens solid entry
+  * @param {string} urlPod
+  * @returns {StorageFrameworkEntry} on success
+  * @returns {SFError} on error
+  */
   open(urlPod: string): Result<StorageFrameworkEntry, SFError> {
     return new Result((resolve, reject) => {
       this.loginAndFetch(urlPod)
@@ -39,10 +48,11 @@ export class SolidFileSystem implements StorageFrameworkProvider {
   }
 
   /**
-   * TODO: correct return type
-   * @param urlPod
-   * @returns
-   */
+  * TODO: correct return type
+  * TODO only root fetch
+  * Runs login and fetch
+  * @param {string} urlPod
+  */
   // TODO only root fetch
   async loginAndFetch(urlPod: string): Promise<void> {
     if (!this.sessionId) {
@@ -67,6 +77,9 @@ export class SolidFileSystem implements StorageFrameworkProvider {
     return dataFlatten[0]
   }
 
+  /**
+  * Runs authentication process of solid
+  */
   async authenticate(): Promise<void> {
     await handleIncomingRedirect({
       restorePreviousSession: true
@@ -81,6 +94,11 @@ export class SolidFileSystem implements StorageFrameworkProvider {
     }
   }
 
+  /**
+  * Gets filename
+  * @param {string} url
+  * @returns {string}
+  */
   getFileName(url: string): string {
     return url.match('([^/]+)(?=[^/]*/?$)')[0]
   }

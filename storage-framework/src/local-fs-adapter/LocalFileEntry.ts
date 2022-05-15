@@ -7,6 +7,9 @@ import type {
 import { Result, type OkOrError } from '../lib/utilities/result'
 import type { LocalDirectoryEntry } from './LocalDirectoryEntry'
 
+/**
+ * Contains all methods for LocalFileEntry
+ */
 export class LocalFileEntry implements StorageFrameworkFileEntry {
   readonly isDirectory: false
   readonly isFile: true
@@ -24,6 +27,11 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
     this.isFile = true
   }
 
+  /**
+  * Reads file
+  * @returns {SFFile} on success
+  * @returns {SFError} on error
+  */
   read(): Result<SFFile, SFError> {
     return new Result(async (resolve, reject) => {
       try {
@@ -35,6 +43,11 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
+  /**
+  * Saves file
+  * @param {File} file
+  * @returns {SFError} on error
+  */
   save(file: File): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       try {
@@ -48,6 +61,11 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
+  /**
+  * Gets parent of file
+  * @returns {StorageFrameworkDirectoryEntry} on success
+  * @returns {SFError} on error
+  */
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
       if (this.parent) resolve(this.parent)
@@ -59,21 +77,29 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-   * TODO: implement
-   * @param directory
-   */
+  * TODO: implement
+  * Moves file
+  * @param {StorageFrameworkDirectoryEntry} directory
+  * @returns {SFError} on error
+  */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
 
   /**
-   * TODO: implement
-   * @param name
-   */
+  * TODO: implement
+  * Renames file
+  * @param {string} name
+  * @returns {SFError} on error
+  */
   rename(name: string): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
 
+  /**
+  * Removes file
+  * @returns {SFError} on error
+  */
   remove(): OkOrError<SFError> {
     return this.parent.removeEntry(this.name)
   }

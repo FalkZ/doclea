@@ -12,6 +12,9 @@ import type { ArrayResponse, SingleFile } from './GithubTypes'
 
 import { Mutex } from '../lib/utilities/mutex'
 
+/**
+ * Contains all methods for GithubFileEntry
+ */
 export class GithubFileEntry implements StorageFrameworkFileEntry {
   readonly isDirectory = false
   readonly isFile = true
@@ -38,6 +41,11 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     console.log(this)
   }
 
+  /**
+  * Reads file
+  * @returns {SFFile} on success
+  * @returns {SFError} on error
+  */
   read(): Result<SFFile, SFError> {
     return new Result(async (result) => {
       await this.getGithubFile(this.fullPath)
@@ -49,6 +57,11 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
+  /**
+  * Saves file
+  * @param {File} file
+  * @returns {SFError} on error
+  */
   save(file: File): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.octokit
@@ -74,6 +87,11 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
+  /**
+  * Gets parent of file
+  * @returns {StorageFrameworkDirectoryEntry} on success
+  * @returns {SFError} on error
+  */
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
       if (this.parent) {
@@ -84,6 +102,10 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
+  /**
+  * Removes file
+  * @returns {SFError} on error
+  */
   remove(): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       await this.mutex.apply(async () => {
@@ -99,6 +121,11 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
+  /**
+  * Moves file
+  * @param {StorageFrameworkDirectoryEntry} directory
+  * @returns {SFError} on error
+  */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       await this.mutex.apply(async () => {
@@ -124,6 +151,11 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
+  /**
+  * Renames file
+  * @param {string} name
+  * @returns {SFError} on error
+  */
   rename(name: string): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       await this.mutex.apply(async () => {
@@ -144,7 +176,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
       })
     })
   }
-
+  
   private getGithubFile(getFileFullPath: string): Result<SingleFile, void> {
     return new Result((resolve, reject) => {
       this.octokit

@@ -10,6 +10,9 @@ import { LocalFallbackFileEntry } from './LocalFallbackFileEntry'
 /**
  * use public or private fields
  */
+/**
+ * Contains all methods for LocalFallbackDirectoryEntry
+ */
 export class LocalFallbackDirectoryEntry
   implements StorageFrameworkDirectoryEntry
 {
@@ -37,6 +40,7 @@ export class LocalFallbackDirectoryEntry
     this.addChildren(children)
   }
 
+
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
     return new Result((resolve, reject) => {
       resolve(Object.values(this.children))
@@ -44,10 +48,12 @@ export class LocalFallbackDirectoryEntry
   }
 
   /**
-   * TODO: try catch and reject error
-   * @param name
-   * @returns
-   */
+  * TODO: try catch and reject error
+  * Creates file in entry
+  * @param {string} name
+  * @returns {StorageFrameworkFileEntry} on success
+  * @returns {SFError} on error
+  */
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
     return new Result((resolve, reject) => {
       const newFile = new LocalFallbackFileEntry(new File([], name), this)
@@ -56,10 +62,11 @@ export class LocalFallbackDirectoryEntry
   }
 
   /**
-   * TODO: try catch and reject error
-   * @param name
-   * @returns
-   */
+  * TODO: try catch and reject error
+  * @param {string} name
+  * @returns {StorageFrameworkDirectoryEntry} on success
+  * @returns {SFError} on error
+  */
   createDirectory(
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
@@ -74,6 +81,11 @@ export class LocalFallbackDirectoryEntry
     })
   }
 
+  /**
+  * Gets parent of directory entry
+  * @returns {StorageFrameworkDirectoryEntry} on success
+  * @returns {SFError} on error
+  */
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
       if (this.parent) resolve(this.parent)
@@ -85,25 +97,30 @@ export class LocalFallbackDirectoryEntry
   }
 
   /**
-   * TODO: implement
-   * @param directory
-   */
+  * TODO: implement
+  * Moves directory
+  * @param {StorageFrameworkDirectoryEntry} directory
+  * @returns {SFError} on error
+  */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
 
   /**
-   * TODO: implement
-   * @param directory
-   */
+  * TODO: implement
+  * Renames directory
+  * @param {string} name
+  * @returns {SFError} on error
+  */
   rename(name: string): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
 
   /**
-   * TODO: resolve not used
-   * @returns
-   */
+  * TODO: resolve not used
+  * Removes directory
+  * @returns {SFError} on error
+  */
   remove(): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       try {
@@ -114,6 +131,11 @@ export class LocalFallbackDirectoryEntry
     })
   }
 
+  /**
+  * Removes child 
+  * @param {string} name
+  * @returns {SFError} on error
+  */
   removeChild(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       if (this.children[name]) {
@@ -126,6 +148,11 @@ export class LocalFallbackDirectoryEntry
     })
   }
 
+  /**
+  * Checks if entry contains child directory
+  * @param {string} name
+  * @returns {boolean}
+  */
   containsChildDirectory(name: string): boolean {
     return (
       Object.keys(this.children).includes(name) &&
@@ -133,14 +160,28 @@ export class LocalFallbackDirectoryEntry
     )
   }
 
+  /**
+  * Gets child directory
+  * @param {string} name
+  * @returns {LocalFallbackDirectoryEntry}
+  */
   getChildDirectory(name: string): LocalFallbackDirectoryEntry {
     return this.children[name]
   }
 
+  /**
+  * Add child file
+  * @param {string} name
+  * @param {File} child
+  */
   addChildFile(name: string, child: File): void {
     this.children[name] = new LocalFallbackFileEntry(child, this)
   }
 
+  /**
+  * Add child directory
+  * @param {string} name
+  */
   addChildDirectory(name: string): void {
     this.children[name] = new LocalFallbackDirectoryEntry(name, [], false, this)
   }

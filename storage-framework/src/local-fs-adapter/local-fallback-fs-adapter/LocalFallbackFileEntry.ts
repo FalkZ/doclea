@@ -7,6 +7,9 @@ import type {
 import { Result, type OkOrError } from '../../lib/utilities'
 import type { LocalFallbackDirectoryEntry } from './LocalFallbackDirectoryEntry'
 
+/**
+ * Contains all methods for LocalFallbackFileEntry
+ */
 export class LocalFallbackFileEntry implements StorageFrameworkFileEntry {
   name: string
   readonly isDirectory: false
@@ -26,6 +29,11 @@ export class LocalFallbackFileEntry implements StorageFrameworkFileEntry {
     this.parent = parent
   }
 
+  /**
+  * Reads file
+  * @returns {SFFile} on success
+  * @returns {SFError} on error
+  */
   read(): Result<SFFile, SFError> {
     return new Result((resolve, reject) => {
       if (this.file)
@@ -33,6 +41,11 @@ export class LocalFallbackFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
+  /**
+  * Saves file
+  * @param {File} file
+  * @returns {SFError} on error
+  */
   save(file: File): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.file = file
@@ -40,16 +53,31 @@ export class LocalFallbackFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
+  /**
+  * Gets parent of file
+  * @returns {StorageFrameworkDirectoryEntry} on success
+  * @returns {SFError} on error
+  */
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
       resolve(this.parent)
     })
   }
 
+  /**
+  * Moves file
+  * @param {StorageFrameworkDirectoryEntry} directory
+  * @returns {SFError} on error
+  */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
 
+  /**
+  * Renames file
+  * @param {string} name
+  * @returns {SFError} on error
+  */
   rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.name = name
@@ -57,6 +85,10 @@ export class LocalFallbackFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
+  /**
+  * Removes file
+  * @returns {SFError} on error
+  */
   remove(): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       try {

@@ -41,6 +41,9 @@ if (window.location.hash === '#' + guid) {
   }
 }
 
+/**
+ * Contains all methods for GithubFileSystem
+ */
 export class GithubFileSystem implements StorageFrameworkProvider {
   isSignedIn: boolean
   private token
@@ -56,6 +59,9 @@ export class GithubFileSystem implements StorageFrameworkProvider {
     this.isSignedIn = !!this.token
   }
 
+  /**
+  * Runs authentication process of github
+  */
   authenticate() {
     const params = new URLSearchParams({
       client_id: 'b0febf46067600eed6e5',
@@ -77,6 +83,11 @@ export class GithubFileSystem implements StorageFrameworkProvider {
 
   octokit: Octokit
 
+  /**
+  * Opens github entry
+  * @returns {StorageFrameworkEntry} on success
+  * @returns {SFError} on error
+  */
   open(): Result<StorageFrameworkEntry, SFError> {
     this.token = sessionStorage.getItem(guid)
     console.log('open() - the token: ', this.token)

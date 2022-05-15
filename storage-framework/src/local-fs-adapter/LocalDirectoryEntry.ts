@@ -7,6 +7,9 @@ import type {
 import { Result, type OkOrError } from '../lib/utilities/result'
 import { LocalFileEntry } from './LocalFileEntry'
 
+/**
+ * Contains all methods for LocalDirectoryEntry
+ */
 export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
   readonly isDirectory: true
   readonly isFile: false
@@ -35,6 +38,11 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
       : this.parent.fullPath + '/' + this.name
   }
 
+  /**
+  * Gets children of directory entry
+  * @returns {StorageFrameworkEntry[]} on success
+  * @returns {SFError} on error
+  */
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
     return new Result(async (resolve, reject) => {
       const children: StorageFrameworkEntry[] = []
@@ -57,6 +65,12 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
     })
   }
 
+  /**
+  * Creates file in entry
+  * @param {string} name
+  * @returns {StorageFrameworkFileEntry} on success
+  * @returns {SFError} on error
+  */
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
     return new Result(async (resolve, reject) => {
       try {
@@ -70,14 +84,22 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
 
   /**
    * TODO: implement
-   * @param name
-   */
+  * Creates directory in entry
+  * @param {string} name
+  * @returns {StorageFrameworkDirectoryEntry} on success
+  * @returns {SFError} on error
+  */
   createDirectory(
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
     throw new Error('Method not implemented.')
   }
 
+  /**
+  * Gets parent of directory entry
+  * @returns {StorageFrameworkDirectoryEntry} on success
+  * @returns {SFError} on error
+  */
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
       if (this.parent) resolve(this.parent)
@@ -87,20 +109,28 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
 
   /**
    * TODO: implement
-   * @param directory
+   * Moves directory
+   * @param {StorageFrameworkDirectoryEntry} directory
+   * @returns {SFError} on error
    */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
 
   /**
-   * TODO: implement
-   * @param name
-   */
+  * TODO: implement
+  * Renames directory
+  * @param {string} name
+  * @returns {SFError} on error
+  */
   rename(name: string): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
 
+  /**
+  * Removes directory
+  * @returns {SFError} on error
+  */
   remove(): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       if (this.parent) {
@@ -113,6 +143,10 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
     })
   }
 
+  /**
+  * Removes entry
+  * @returns {SFError} on error
+  */
   removeEntry(name: string): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       try {

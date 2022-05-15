@@ -11,6 +11,9 @@ import { GithubFileEntry } from './GithubFileEntry'
 import { GithubFileSystem } from './GithubFileSystem'
 import type { ArrayResponse, Directory, GithubResponse } from './GithubTypes'
 
+/**
+ * Contains all methods for GithubDirectoryEntry
+ */
 export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
   readonly isDirectory = true
   readonly isFile = false
@@ -37,6 +40,11 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
     console.log(this)
   }
 
+  /**
+  * Gets children of directory entry
+  * @returns {StorageFrameworkEntry[]} on success
+  * @returns {SFError} on error
+  */
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
     return new Result(async (resolve, reject) => {
       await this.getGithubDir()
@@ -50,6 +58,12 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
     })
   }
 
+  /**
+  * Creates file in entry
+  * @param {string} name
+  * @returns {StorageFrameworkFileEntry} on success
+  * @returns {SFError} on error
+  */
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
     return new Result(async (resolve, reject) => {
       await this.octokit
@@ -77,6 +91,12 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
     })
   }
 
+  /**
+  * Creates directory in entry
+  * @param {string} name
+  * @returns {StorageFrameworkDirectoryEntry} on success
+  * @returns {SFError} on error
+  */
   createDirectory(
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
@@ -87,10 +107,20 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
     })
   }
 
+  /**
+  * Gets parent of directory entry
+  * @returns {StorageFrameworkDirectoryEntry} on success
+  * @returns {SFError} on error
+  */
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result(() => this.parent)
   }
 
+  /**
+  * Moves directory
+  * @param {StorageFrameworkDirectoryEntry} directory
+  * @returns {SFError} on error
+  */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.getChildren()
@@ -106,6 +136,11 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
     })
   }
 
+  /**
+  * Renames directory
+  * @param {string} name
+  * @returns {SFError} on error
+  */
   rename(name: string): OkOrError<SFError> {
     return new Result(async () => {
       const storageElements = await this.getChildren()
@@ -134,6 +169,10 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
     })
   }
 
+  /**
+  * Removes directory
+  * @returns {SFError} on error
+  */
   remove(): OkOrError<SFError> {
     return new Result(async () => {
       const storageElements = await this.getChildren()
