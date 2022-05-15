@@ -5,7 +5,7 @@ import { GithubDirectoryEntry } from './GithubDirectoryEntry'
 import type { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkProvider,
-  StorageFrameworkEntry
+  ObservableStorageFrameworkDirectoryEntry
 } from '../lib/StorageFrameworkEntry'
 const guid = 'github-auth-reiupkvhldwe'
 
@@ -77,7 +77,7 @@ export class GithubFileSystem implements StorageFrameworkProvider {
 
   octokit: Octokit
 
-  open(): Result<StorageFrameworkEntry, SFError> {
+  open(): Result<ObservableStorageFrameworkDirectoryEntry, SFError> {
     this.token = sessionStorage.getItem(guid)
     console.log('open() - the token: ', this.token)
     console.log('GitHub open!')

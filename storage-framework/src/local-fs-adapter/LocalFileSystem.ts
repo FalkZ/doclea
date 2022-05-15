@@ -1,6 +1,6 @@
 import type { SFError } from '../lib/SFError'
 import type {
-  StorageFrameworkEntry,
+  ObservableStorageFrameworkDirectoryEntry,
   StorageFrameworkProvider
 } from '../lib/StorageFrameworkEntry'
 
@@ -10,7 +10,7 @@ import { LocalFallbackDirectoryEntry } from './local-fallback-fs-adapter/LocalFa
 import { LocalDirectoryEntry } from './LocalDirectoryEntry'
 
 export class LocalFileSystem implements StorageFrameworkProvider {
-  open(): Result<StorageFrameworkEntry, SFError> {
+  open(): Result<ObservableStorageFrameworkDirectoryEntry, SFError> {
     return new Result(async (resolve) => {
       if (window.showDirectoryPicker) {
         const dirHandle = await window.showDirectoryPicker({

@@ -10,22 +10,33 @@ import type {
 import { Result, type OkOrError } from '../utilities'
 import { writable, type Readable, type Writable } from '../utilities/stores'
 
+/**
+ * The ReactivityDecorator implements functionality to extend
+ * subtypes of StorageFrameworkEntry to their corresponding observable siblings.
+ * 
+ * Requirements:
+ * - singleton instances: In order to provide all clients with the same observable instances,
+ *   the instances must exist as singletons. 
+ *   e.g. querying a directory for the children multiple times returns the same children instances
+ * - caching: to guarantee singleton instances caching is used to always return the same instances
+ *   TODO: this may lead to a memory leak, as the instances are never freed
+ */
 abstract class ReactivityDecorator<E extends StorageFrameworkEntry>
   implements StorageFrameworkEntry
 {
-  parent: ReactivityDirDecorator | null
-  wrappedEntry: E
+  protected parent: ReactivityDirDecorator | null
+  protected wrappedEntry: E
 
   constructor(parent: ReactivityDirDecorator | null, wrappedEntry: E) {
     this.parent = parent
     this.wrappedEntry = wrappedEntry
   }
 
-  get fullPath(): string {
+  public get fullPath(): string {
     return this.wrappedEntry.fullPath
   }
 
-  get name(): string {
+  public get name(): string {
     return this.wrappedEntry.name
   }
 
@@ -66,7 +77,7 @@ export class ReactivityFileDecorator
   extends ReactivityDecorator<StorageFrameworkFileEntry>
   implements ObservableStorageFrameworkFileEntry
 {
-  data: Writable<SFFile> | null
+  private data: Writable<SFFile> | null
 
   watchContent(): Result<Readable<SFFile>, SFError> {
     if (this.data == null) {
@@ -90,7 +101,12 @@ export class ReactivityFileDecorator
 
   save(file: File): OkOrError<SFError> {
     return this.wrappedEntry.save(file).then(() => {
-      void duplicateFile(file).then((duplicate) => this.data.set(duplicate))
+      void duplicateFile(file).then((duplicate) => {
+        if(this.data == null)
+          this.data = writable(duplicate)
+        else
+          this.data.set(duplicate)
+      })
     })
   }
 

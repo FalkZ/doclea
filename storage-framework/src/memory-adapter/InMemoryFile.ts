@@ -5,6 +5,7 @@ import { InMemoryFSEntry } from './InMemoryFSEntry'
 
 import type { SFError } from '../lib/SFError'
 import type { StorageFrameworkFileEntry } from '../lib/StorageFrameworkEntry'
+import type { InMemoryDirectory } from './InMemoryDirectory'
 
 export class InMemoryFile
   extends InMemoryFSEntry
@@ -12,15 +13,22 @@ export class InMemoryFile
 {
   private data = new ArrayBuffer(0)
 
-  get isDirectory(): false {
+  // disable is required because parent must not be null for InMemoryFiles
+  // what is not true for InMemoryDirectories
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+  constructor(parent: InMemoryDirectory, name: string) {
+    super(parent, name)
+  }
+
+  public get isDirectory(): false {
     return false
   }
 
-  get isFile(): true {
+  public get isFile(): true {
     return true
   }
 
-  read(): Result<SFFile, SFError> {
+  public read(): Result<SFFile, SFError> {
     return new Result((resolve, reject) => {
       const error = this.verifyNodeIsAttachedToRoot()
       if (error !== null) {
@@ -32,7 +40,7 @@ export class InMemoryFile
     })
   }
 
-  save(file: File): OkOrError<SFError> {
+  public save(file: File): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       const error = this.verifyNodeIsAttachedToRoot()
       if (error !== null) {

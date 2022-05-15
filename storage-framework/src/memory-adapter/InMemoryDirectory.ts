@@ -14,15 +14,15 @@ export class InMemoryDirectory
 {
   private children: InMemoryFSEntry[] = []
 
-  get isDirectory(): true {
+  public get isDirectory(): true {
     return true
   }
 
-  get isFile(): false {
+  public get isFile(): false {
     return false
   }
 
-  getChildren(): Result<StorageFrameworkEntry[], SFError> {
+  public getChildren(): Result<StorageFrameworkEntry[], SFError> {
     return new Result((resolve, reject) => {
       // verify node is attached to the root node
       const error = this.verifyNodeIsAttachedToRoot()
@@ -35,11 +35,11 @@ export class InMemoryDirectory
     })
   }
 
-  createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
+  public createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
     return this.appendChild(new InMemoryFile(this, name))
   }
 
-  createDirectory(
+  public createDirectory(
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
     return this.appendChild(new InMemoryDirectory(this, name))
@@ -48,14 +48,14 @@ export class InMemoryDirectory
   // ================================================================================
   // additional methods
 
-  getChildByName(name: string): InMemoryFSEntry | null {
+  public getChildByName(name: string): InMemoryFSEntry | null {
     for (const child of this.children) {
       if (child.name === name) return child
     }
     return null
   }
 
-  hasChildWithName(name: string): SFError | null {
+  public hasChildWithName(name: string): SFError | null {
     if (this.getChildByName(name) != null)
       return new SFError(
         `${this.fullPath} already has an entry with name ${name}`
@@ -64,11 +64,11 @@ export class InMemoryDirectory
     return null
   }
 
-  hasAnyChild(): boolean {
+  public hasAnyChild(): boolean {
     return this.children.length > 0
   }
 
-  appendChild<T extends InMemoryFSEntry>(child: T): Result<T, SFError> {
+  public appendChild<T extends InMemoryFSEntry>(child: T): Result<T, SFError> {
     return new Result((resolve, reject) => {
       {
         // verify node is attached to the root node
@@ -93,7 +93,7 @@ export class InMemoryDirectory
     })
   }
 
-  removeChild(child: InMemoryFSEntry): void {
+  public removeChild(child: InMemoryFSEntry): void {
     this.children = this.children.filter((n) => n !== child)
   }
 }

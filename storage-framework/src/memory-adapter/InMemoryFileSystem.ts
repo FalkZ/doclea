@@ -2,13 +2,13 @@ import { Result } from '../lib/utilities'
 import { InMemoryDirectory } from './InMemoryDirectory'
 import type { SFError } from '../lib/SFError'
 import type {
-  StorageFrameworkEntry,
+  ObservableStorageFrameworkDirectoryEntry,
   StorageFrameworkProvider,
 } from '../lib/StorageFrameworkEntry'
 import { ReactivityDirDecorator } from '../lib/wrappers/ReactivityDecorator'
 
 export class InMemoryFileSystem implements StorageFrameworkProvider {
-  open(): Result<StorageFrameworkEntry, SFError> {
+  open(): Result<ObservableStorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve) => {
       const root = new InMemoryDirectory(null, null)
       void initSamples(root).then((_) =>

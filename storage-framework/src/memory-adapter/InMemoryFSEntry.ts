@@ -8,27 +8,31 @@ import { InMemoryDirectory } from './InMemoryDirectory'
 
 export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
   protected parent: InMemoryDirectory | null
-  name: string
+  private entryName: string
 
   abstract readonly isDirectory: boolean
   abstract readonly isFile: boolean
 
-  constructor(parent: InMemoryDirectory, name: string) {
+  constructor(parent: InMemoryDirectory | null, name: string) {
     this.parent = parent
-    this.name = this.parent == null ? '' : name
+    this.entryName = this.parent == null ? '' : name
   }
 
-  get fullPath(): string {
+  public get fullPath(): string {
     if (this.parent === null) return '/'
     if (this.isDirectory) return this.parent.fullPath + this.name + '/'
     else return this.parent.fullPath + this.name
   }
 
-  get isRoot(): boolean {
+  public get isRoot(): boolean {
     return this.parent == null && this.isDirectory
   }
 
-  isNodeAttachedToRoot(): boolean {
+  public get name(): string {
+    return this.entryName
+  }
+
+  protected isNodeAttachedToRoot(): boolean {
     if (this.isRoot) return true
 
     if (!this.parent.isNodeAttachedToRoot()) return false
@@ -36,18 +40,18 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
     return this.parent.getChildByName(this.name) === this
   }
 
-  verifyNodeIsAttachedToRoot(): SFError | null {
+  protected verifyNodeIsAttachedToRoot(): SFError | null {
     if (this.isNodeAttachedToRoot()) return null
     return new SFError(
       'this node is not attached to the root entry: ' + this.fullPath
     )
   }
 
-  getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
+  public getParent(): Result<StorageFrameworkDirectoryEntry | null, SFError> {
     return new Result((resolve) => resolve(this.parent))
   }
 
-  rename(name: string): OkOrError<SFError> {
+  public rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       const error = this.verifyNodeIsAttachedToRoot()
       if (error !== null) {
@@ -67,13 +71,13 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
           )
         )
       } else {
-        this.name = name
+        this.entryName = name
         resolve()
       }
     })
   }
 
-  remove(): OkOrError<SFError> {
+  public remove(): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       const error = this.verifyNodeIsAttachedToRoot()
       if (error !== null) {
@@ -88,12 +92,17 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
         return
       }
 
+      if(this.isRoot) {
+        reject(new SFError("can't remove the root node"))
+        return
+      }
+
       this.parent.removeChild(this)
       resolve()
     })
   }
 
-  moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
+  public moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       {
         // verify current node is attached to the root node
@@ -111,7 +120,7 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
       }
 
       // currently moving to a different filesystem is not supported
-      // check one: verify directory is also an InMemoryDirectory
+      // verify that directory is also an InMemoryDirectory
       if (!(directory instanceof InMemoryDirectory)) {
         reject(
           new SFError(
@@ -120,11 +129,11 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
         )
         return
       }
+      
+      // TODO: verify directory belongs to the same file system instance
 
       // try moving the node
-      const directoryNode: InMemoryDirectory = directory
-
-      directoryNode
+      directory
         .appendChild(this)
         .then((_) => {
           this.parent.removeChild(this)
