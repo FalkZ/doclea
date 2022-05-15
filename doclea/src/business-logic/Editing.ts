@@ -10,10 +10,10 @@ import { type Readable, type Writable, writable } from 'svelte/store'
 import type { AppStateMachine } from './Controller'
 
 enum EditorEventType {
-  OpenStorageSelection,
+  CloseEditor,
 }
 
-export type EditorEvent = EditorEventType.OpenStorageSelection
+export type EditorEvent = EditorEventType.CloseEditor
 
 /**
  * Contains all methods of the editing state
@@ -55,7 +55,7 @@ export class Editing extends AbstractState<
     * Gets the selected entry by the user
     * @returns {StorageFrameworkFileEntry} Returns selectedEntryStore
     */
-  get selectedEntry(): Readable<StorageFrameworkFileEntry | null> {
+  get selectedEntry(): Readable<StorageFrameworkEntry | null> {
     return { subscribe: this.selectedEntryStore.subscribe }
   }
 

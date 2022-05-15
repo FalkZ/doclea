@@ -54,6 +54,7 @@ export class SelectingStorage extends AbstractState<
   SelectingStorageEvent
 > {
   private rootEntry: StorageFrameworkEntry
+  private url: string
   private async runSelectingStorageStateMachine() {
     const parentState = this
     let fs: StorageFrameworkProvider
@@ -78,16 +79,19 @@ export class SelectingStorage extends AbstractState<
          * Is triggered when authenticate has successfully finished
          * @returns {StateMachine} Returns state end (which moves over to editing state)
          */
-        open: async ({ end, error }) => {
-          // TODO: set url hash
-          this.rootEntry = await fs.open()
+        open: async ({ end }) => {
+          if (this.url) {
+            this.setUrlHash() 
+            this.rootEntry = await fs.open(this.url)
+          }
+          else this.rootEntry = await fs.open()
           return end
         },
         /**
          * Is triggered after init state and handles authentication for the selected storageFramework
          * @returns {StateMachine} Returns state open
          */
-        authenticate: async ({ open, error }) => {
+        authenticate: async ({ open }) => {
           parentState.openButtonStateStore.set(true)
           const event = await parentState.onNextEvent()
           switch (event.type) {
@@ -101,8 +105,12 @@ export class SelectingStorage extends AbstractState<
 
             case SelectingStorageEventType.Solid:
                 fs = new SolidFileSystem()
+                this.url = event.url
 
-                await (<SolidFileSystem>fs).authenticate()
+                // if (!(<SolidFileSystem>fs).isSignedIn) {
+                //  await (<SolidFileSystem>fs).authenticate()
+                // }
+                
                 return open
 
             case SelectingStorageEventType.Local:
@@ -118,7 +126,11 @@ export class SelectingStorage extends AbstractState<
   /**
    * Sets url hash to e.g. #https://github.com/...
    */
-  private setUrlHash() {}
+  private setUrlHash() {
+    const docURL = new URL(location.href);
+    docURL.hash = `#${this.url}`;
+    location.href = docURL.href;
+  }
 
   protected async run({
     editing,
