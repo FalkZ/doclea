@@ -1,9 +1,7 @@
 import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
-import type {
-  StorageFrameworkDirectoryEntry,
-  StorageFrameworkFileEntry
-} from '../lib/StorageFrameworkEntry'
+import type { StorageFrameworkDirectoryEntry } from '../lib/StorageFrameworkEntry'
+import { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
 import type { SolidDirectoryEntry } from './SolidDirectoryEntry'
 import { saveFileInContainer, deleteFile, getFile } from '@inrupt/solid-client'
 

@@ -71,7 +71,13 @@
     style={getIndentationLevelStyle(indentionLevel)}
     on:click={onSelectClick}
   >
-    <span><File /> {entry.name}</span>
+    <span
+      ><File />
+      {entry.name}
+      {#if entry.wasModified}
+        <span class="mod">•</span>
+      {/if}
+    </span>
   </div>
 {:else}
   <div
@@ -115,6 +121,10 @@
     padding: var(--ui-padding-400);
     font-weight: bold;
     /* background-color: rgba(0.7, 0.7, 0.7, 0.4); */
+  }
+
+  .mod {
+    color: var(--ui-color-primary);
   }
 
   .entry {

@@ -1,9 +1,9 @@
 import { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkDirectoryEntry,
-  StorageFrameworkFileEntry,
-  StorageFrameworkEntry,
+  StorageFrameworkEntry
 } from '../lib/StorageFrameworkEntry'
+import { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
 import { Result } from '../lib/utilities'
 import type { OkOrError } from '../lib/utilities'
 import { BrowserFileEntry } from './BrowserFileEntry'

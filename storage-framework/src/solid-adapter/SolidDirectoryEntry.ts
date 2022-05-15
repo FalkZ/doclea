@@ -1,9 +1,9 @@
 import { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkDirectoryEntry,
-  StorageFrameworkEntry,
-  StorageFrameworkFileEntry
+  StorageFrameworkEntry
 } from '../lib/StorageFrameworkEntry'
+import { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
 
 import {
   getSolidDataset,

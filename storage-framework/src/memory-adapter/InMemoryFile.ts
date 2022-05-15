@@ -4,7 +4,7 @@ import { Result, type OkOrError } from '../lib/utilities'
 import { InMemoryFSEntry } from './InMemoryFSEntry'
 
 import type { SFError } from '../lib/SFError'
-import type { StorageFrameworkFileEntry } from '../lib/StorageFrameworkEntry'
+import { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
 
 export class InMemoryFile
   extends InMemoryFSEntry

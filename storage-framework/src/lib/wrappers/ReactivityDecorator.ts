@@ -2,11 +2,13 @@ import type { SFError } from '../SFError'
 import { duplicateFile, type SFFile } from '../SFFile'
 import type {
   ObservableStorageFrameworkDirectoryEntry,
-  ObservableStorageFrameworkFileEntry,
   StorageFrameworkDirectoryEntry,
-  StorageFrameworkEntry,
-  StorageFrameworkFileEntry,
+  StorageFrameworkEntry
 } from '../StorageFrameworkEntry'
+import {
+  ObservableStorageFrameworkFileEntry,
+  StorageFrameworkFileEntry
+} from '../StorageFrameworkFileEntry'
 import { Result, type OkOrError } from '../utilities'
 import { writable, type Readable, type Writable } from '../utilities/stores'
 
@@ -88,10 +90,26 @@ export class ReactivityFileDecorator
     return this.watchContent().then((o) => o.get())
   }
 
-  save(file: File): OkOrError<SFError> {
-    return this.wrappedEntry.save(file).then(() => {
+  update(file: File): OkOrError<SFError> {
+    return this.wrappedEntry.update(file).then(() => {
       void duplicateFile(file).then((duplicate) => this.data.set(duplicate))
     })
+  }
+
+  save(): OkOrError<SFError> {
+    return this.wrappedEntry.save()
+  }
+
+  download(): OkOrError<SFError> {
+    return this.wrappedEntry.download()
+  }
+
+  get isReadonly(): false {
+    return this.wrappedEntry.isReadonly
+  }
+
+  get wasModified(): boolean {
+    return this.wrappedEntry.wasModified
   }
 
   get isDirectory(): false {

@@ -2,10 +2,8 @@ import { Octokit } from '@octokit/core'
 import type { Readable } from 'src/lib/utilities/stores'
 import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
-import type {
-  StorageFrameworkFileEntry,
-  StorageFrameworkDirectoryEntry
-} from '../lib/StorageFrameworkEntry'
+import type { StorageFrameworkDirectoryEntry } from '../lib/StorageFrameworkEntry'
+import { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
 import { Result, OkOrError } from '../lib/utilities'
 import { GithubFileSystem } from './GithubFileSystem'
 import type { ArrayResponse, SingleFile } from './GithubTypes'

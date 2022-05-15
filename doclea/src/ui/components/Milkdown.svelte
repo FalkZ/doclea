@@ -24,7 +24,26 @@
 
   export let selectedFile: StorageFrameworkFileEntry
 
-  let output = ''
+  const buttons = selectedFile.isReadonly
+    ? [
+        {
+          type: 'button',
+          icon: 'download',
+          key: '',
+        },
+      ]
+    : [
+        {
+          type: 'button',
+          icon: 'save',
+          key: '',
+        },
+        {
+          type: 'button',
+          icon: 'download',
+          key: '',
+        },
+      ]
 
   const editor = (dom) => {
     Editor.make()
@@ -37,7 +56,7 @@
 
         ctx.get(listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
           console.log(markdown)
-          output = markdown
+          selectedFile.update(markdown)
         })
       })
       .use(nord)
@@ -58,13 +77,7 @@
       .use(
         menu({
           config: [
-            [
-              {
-                type: 'button',
-                icon: 'save',
-                key: '',
-              },
-            ],
+            buttons,
             ...defaultConfig,
             [
               {
@@ -78,9 +91,15 @@
       )
       .create()
       .then(() => {
-        document.querySelector('[title="save"]').onclick = () => {
-          console.log('start saving')
-          selectedFile.save(new File([output], 'test.md'))
+        if (!selectedFile.isReadonly)
+          document.querySelector('[title="save"]').onclick = () => {
+            console.log('start saving')
+            selectedFile.save()
+          }
+
+        document.querySelector('[title="download"]').onclick = () => {
+          console.log('start download')
+          selectedFile.download()
         }
       })
   }
