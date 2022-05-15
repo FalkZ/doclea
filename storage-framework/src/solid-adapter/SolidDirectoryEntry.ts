@@ -13,11 +13,14 @@ import {
   createContainerAt,
   saveFileInContainer,
   type WithResourceInfo,
-  saveSolidDatasetAt
+  saveSolidDatasetAt,
+  type SolidDataset,
+  type WithServerResourceInfo
 } from '@inrupt/solid-client'
 
 import { SolidFileEntry } from './SolidFileEntry'
 import { Result, type OkOrError } from '../lib/utilities/result'
+import { getFileName } from '../lib/utilities/apiUtils'
 
 /**
  * Contains all methods for SolidDirectoryEntry
@@ -32,7 +35,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
 
   constructor(fullPath: string, parent: SolidDirectoryEntry | null) {
     this.fullPath = fullPath
-    this.name = this.getFileName(fullPath)
+    this.name = getFileName(fullPath)
     this.parent = parent
     this.isRoot = parent === null
   }
@@ -53,7 +56,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
               } else {
                 return new SolidFileEntry(
                   subject.url,
-                  this.getFileName(subject.url),
+                  getFileName(subject.url),
                   this
                 )
               }
@@ -77,7 +80,7 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
           resolve(
             new SolidFileEntry(
               newFile.internal_resourceInfo.sourceIri,
-              this.getFileName(newFile.internal_resourceInfo.sourceIri),
+              getFileName(newFile.internal_resourceInfo.sourceIri),
               this
             )
           )
@@ -196,18 +199,21 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
     await deleteContainer(this.fullPath, { fetch: fetch })
   }
 
-  /**
-   * TODO: add correct return type
-   * Creates container
-   * @param {string} name
-   */
-  async createContainer(name: string): Promise<any> {
-    return await createContainerAt(this.parent.fullPath + name, {
-      fetch: fetch
-    })
+  private async createContainer(
+    name: string
+  ): Promise<SolidDataset & WithServerResourceInfo> {
+    if (this.parent == null) {
+      return await createContainerAt(this.fullPath + name, { fetch: fetch })
+    } else {
+      return await createContainerAt(this.parent.fullPath + name, {
+        fetch: fetch
+      })
+    }
   }
 
-  async createEmptyFile(name: string): Promise<Blob & WithResourceInfo> {
+  private async createEmptyFile(
+    name: string
+  ): Promise<Blob & WithResourceInfo> {
     const newFile = await saveFileInContainer(
       this.fullPath,
       new Blob([''], { type: 'plain/text' }),
@@ -216,15 +222,11 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
     return newFile
   }
 
-  /**
-   * renames directory
-   * @param {string} name
-   */
-  async renameDirectory(name: string): Promise<void> {
+  private async renameDirectory(name: string): Promise<void> {
     const existingDataset = await getSolidDataset(this.fullPath, {
       fetch: fetch
     })
-    const directoryName = this.getFileName(
+    const directoryName = getFileName(
       existingDataset.internal_resourceInfo.sourceIri
     )
     const newDirectoryPath =
@@ -240,18 +242,14 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
     this.fullPath = newDirectoryPath
   }
 
-  /**
-   * Moves to directory
-   * @param {StorageFrameworkDirectoryEntry} directory
-   */
-  async moveToDirectory(
+  private async moveToDirectory(
     directory: StorageFrameworkDirectoryEntry
   ): Promise<void> {
     if (directory instanceof SolidDirectoryEntry) {
       const existingDataset = await getSolidDataset(this.fullPath, {
         fetch: fetch
       })
-      const directoryName = this.getFileName(
+      const directoryName = getFileName(
         existingDataset.internal_resourceInfo.sourceIri
       )
       const moveToDirectory = directory.fullPath + directoryName
@@ -263,14 +261,5 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
       children.forEach((child) => child.moveTo(directory))
     }
     await this.deleteSolidDataset()
-  }
-
-  /**
-   * Gets filename
-   * @param {string} url
-   * @returns {string}
-   */
-  getFileName(url: string): string {
-    return url.match('([^/]+)(?=[^/]*/?$)')[0]
   }
 }

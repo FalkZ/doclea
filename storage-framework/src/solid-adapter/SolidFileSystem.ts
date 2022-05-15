@@ -11,7 +11,13 @@ import {
   getDefaultSession
 } from '@inrupt/solid-client-authn-browser'
 
-import { getSolidDataset, getThingAll, type Thing } from '@inrupt/solid-client'
+import {
+  getSolidDataset,
+  getThingAll,
+  type SolidDataset,
+  type Thing,
+  type WithServerResourceInfo
+} from '@inrupt/solid-client'
 
 import { Result } from '../lib/utilities/result'
 import { SolidDirectoryEntry } from './SolidDirectoryEntry'
@@ -49,12 +55,12 @@ export class SolidFileSystem implements StorageFrameworkProvider {
 
   /**
    * TODO: correct return type
-   * TODO only root fetch
-   * Runs login and fetch
-   * @param {string} urlPod
+   * @param urlPod
+   * @returns
    */
-  // TODO only root fetch
-  async loginAndFetch(urlPod: string): Promise<any> {
+  async loginAndFetch(
+    urlPod: string
+  ): Promise<SolidDataset & WithServerResourceInfo> {
     if (!this.sessionId) {
       await this.authenticate()
     }
@@ -92,14 +98,5 @@ export class SolidFileSystem implements StorageFrameworkProvider {
         clientName: 'Doclea'
       })
     }
-  }
-
-  /**
-   * Gets filename
-   * @param {string} url
-   * @returns {string}
-   */
-  getFileName(url: string): string {
-    return url.match('([^/]+)(?=[^/]*/?$)')[0]
   }
 }

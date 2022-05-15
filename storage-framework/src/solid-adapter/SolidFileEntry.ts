@@ -6,6 +6,10 @@ import type { SolidDirectoryEntry } from './SolidDirectoryEntry'
 import { saveFileInContainer, deleteFile, getFile } from '@inrupt/solid-client'
 
 import { Result, type OkOrError } from '../lib/utilities/result'
+import {
+  getFileName,
+  replaceFileNameWithNewName
+} from '../lib/utilities/apiUtils'
 
 type SolidFile = Awaited<ReturnType<typeof getFile>>
 
@@ -13,7 +17,7 @@ type SolidFile = Awaited<ReturnType<typeof getFile>>
  * Contains all methods for SolidFileEntry
  */
 export class SolidFileEntry implements StorageFrameworkFileEntry {
-  fullPath: string
+  readonly fullPath: string
   readonly isDirectory: false
   readonly isFile: true
   name: string
@@ -37,7 +41,7 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     return new Result((resolve, reject) => {
       this.file.file(
         (file) => {
-          resolve(new SFFile(this.name, 0, [file]))
+          resolve(new SFFile(this.name, file.lastModified, [file]))
         },
         (err) => reject(new SFError('Failed to read file', err))
       )
@@ -112,15 +116,11 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
-  /**
-   * Renames files
-   * @param {string} name
-   */
-  async renameFile(name: string): Promise<void> {
+  private async renameFile(name: string): Promise<void> {
     const file: SolidFile = await getFile(this.fullPath, { fetch: fetch })
 
-    const fileName = this.getFileName(file.internal_resourceInfo.sourceIri)
-    const newFileName = this.replaceFileNameWithNewName(fileName, name)
+    const fileName = getFileName(file.internal_resourceInfo.sourceIri)
+    const newFileName = replaceFileNameWithNewName(fileName, name)
     file.internal_resourceInfo.sourceIri =
       file.internal_resourceInfo.sourceIri.replace(fileName, '')
     const renamedFile = await saveFileInContainer(
@@ -159,7 +159,7 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     const file: SolidFile = await getFile(this.fullPath, { fetch: fetch })
 
     return await saveFileInContainer(directory.fullPath, file, {
-      slug: this.getFileName(file.internal_resourceInfo.sourceIri),
+      slug: getFileName(file.internal_resourceInfo.sourceIri),
       fetch: fetch
     })
   }
