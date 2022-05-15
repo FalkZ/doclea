@@ -37,11 +37,6 @@ enum SelectingStorageEventType {
   Local,
 }
 
-enum ButtonState {
-  Active = 1,
-  Inactive = 0,
-}
-
 export type SelectingStorageEvent =
   | {
       type: SelectingStorageEventType.Github | SelectingStorageEventType.Solid
@@ -93,19 +88,21 @@ export class SelectingStorage extends AbstractState<
          * @returns {StateMachine} Returns state open
          */
         authenticate: async ({ open, error }) => {
-          //parentState.openButtonStateStore.set(b)
+          parentState.openButtonStateStore.set(true)
           const event = await parentState.onNextEvent()
           switch (event.type) {
             case SelectingStorageEventType.Github:
                 fs = new GithubFileSystem()
-                //(<GithubFileSystem>fs).isLoggedIn
-                await (<GithubFileSystem>fs).authenticate()
+                if (!(<GithubFileSystem>fs).isSignedIn) {
+                  await (<GithubFileSystem>fs).authenticate()
+                }
+              
                 return open
 
             case SelectingStorageEventType.Solid:
                 fs = new SolidFileSystem()
 
-                await fs.authenticate()
+                await (<SolidFileSystem>fs).authenticate()
                 return open
 
             case SelectingStorageEventType.Local:
@@ -131,8 +128,8 @@ export class SelectingStorage extends AbstractState<
     return editing.arg(this.rootEntry)
   }
 
-  private readonly openButtonStateStore: Writable<ButtonState> = writable(
-    ButtonState.Inactive
+  private readonly openButtonStateStore: Writable<boolean> = writable(
+    false
   )
 
   /**

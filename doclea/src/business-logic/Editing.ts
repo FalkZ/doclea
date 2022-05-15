@@ -10,10 +10,10 @@ import { type Readable, type Writable, writable } from 'svelte/store'
 import type { AppStateMachine } from './Controller'
 
 enum EditorEventType {
-  CloseEditor,
+  OpenStorageSelection,
 }
 
-export type EditorEvent = EditorEventType.CloseEditor
+export type EditorEvent = EditorEventType.OpenStorageSelection
 
 /**
  * Contains all methods of the editing state
@@ -25,7 +25,7 @@ export class Editing extends AbstractState<
 > {
   protected async run(
     { selectingStorage }: States<AppStateMachine>,
-    rootEntry: StorageFrameworkEntry
+    rootEntry: StorageFrameworkDirectoryEntry
   ): Promise<NextState> {
     console.log('added files', rootEntry)
     this.filesStore.set(rootEntry)
@@ -71,7 +71,7 @@ export class Editing extends AbstractState<
     * Sets the selected entry by the user
     */
   public setSelectedEntry(entry: StorageFrameworkEntry): void {
-    if (entry.isFile) this.selectedFileStore.set(entry)
+    if (entry.isFile) this.selectedFileStore.set(<StorageFrameworkFileEntry>entry)
 
     this.selectedEntryStore.set(entry)
   }
