@@ -16,11 +16,7 @@
   <Splitpanes class="default-theme" style="height: 100%; width: 100vw">
     <Pane size="20">
       <div id="filetree">
-        <FileTree
-          entry={$files}
-          on:selected={(event) =>
-            editingState.setSelectedEntry(event.detail.entry)}
-        />
+        <FileTree state={editingState} entry={$files} />
       </div>
     </Pane>
     <Pane>

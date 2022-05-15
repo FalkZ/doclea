@@ -26,17 +26,17 @@
 
   let output = ''
 
+  $: console.log('file to edit has chaned: ', selectedFile)
+
   const editor = (dom) => {
     Editor.make()
       .config(async (ctx) => {
-        const defaultValue = await (await selectedFile.read()).text()
+        const fileContent = await (await selectedFile.read()).text()
         ctx.set(rootCtx, dom)
 
-        console.log(defaultValue)
-        ctx.set(defaultValueCtx, defaultValue)
+        ctx.set(defaultValueCtx, fileContent)
 
         ctx.get(listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
-          console.log(markdown)
           output = markdown
         })
       })
@@ -80,7 +80,7 @@
       .then(() => {
         document.querySelector('[title="save"]').onclick = () => {
           console.log('start saving')
-          selectedFile.save(new File([output], 'test.md'))
+          selectedFile.save(new File([output], selectedFile.name))
         }
       })
   }

@@ -4,13 +4,13 @@ import { AbstractState } from './state-machine/AbstractState'
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkFileEntry,
-  StorageFrameworkEntry,
+  StorageFrameworkEntry
 } from 'storage-framework'
 import { type Readable, type Writable, writable } from 'svelte/store'
 import type { AppStateMachine } from './Controller'
 
 enum EditorEventType {
-  CloseEditor,
+  CloseEditor
 }
 
 export type EditorEvent = EditorEventType.CloseEditor
@@ -47,7 +47,7 @@ export class Editing extends AbstractState<
     return { subscribe: this.selectedFileStore.subscribe }
   }
 
-  get selectedEntry(): Readable<StorageFrameworkFileEntry | null> {
+  get selectedEntry(): Readable<StorageFrameworkEntry | null> {
     return { subscribe: this.selectedEntryStore.subscribe }
   }
 
@@ -56,7 +56,8 @@ export class Editing extends AbstractState<
   }
 
   public setSelectedEntry(entry: StorageFrameworkEntry): void {
-    if (entry.isFile) this.selectedFileStore.set(entry)
+    console.log('set selected entry = ', entry)
+    if (entry.isFile) this.selectedFileStore.set(entry as StorageFrameworkFileEntry)
 
     this.selectedEntryStore.set(entry)
   }

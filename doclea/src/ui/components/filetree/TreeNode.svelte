@@ -1,62 +1,57 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
-
+  import type { Editing } from '@src/business-logic/Editing'
   import type {
+    ObservableStorageFrameworkDirectoryEntry,
     StorageFrameworkDirectoryEntry,
     StorageFrameworkEntry,
-  } from 'storage-framework/src/lib/StorageFrameworkEntry'
-  import type { SelectedEventDetail } from './SelectedEventDetail'
+  } from 'storage-framework'
+  import { onDestroy } from 'svelte'
+
+  import type { Unsubscriber } from 'svelte/store'
+
   import ChevronRight from 'tabler-icons-svelte/icons/ChevronRight'
   import File from 'tabler-icons-svelte/icons/File'
 
-  const dispatch = createEventDispatcher()
+  export let state: Editing
 
   export let entry: StorageFrameworkEntry
   export let showAsRootNode: boolean = false
+  export let showChildren = false
   export let indentionLevel = 0
 
   const getIndentationLevelStyle = (indentionLevel: number) =>
     `--indention-level: calc(${indentionLevel} * var(--ui-padding-500))`
 
-  let isSelected = false
-  let showChildren = true
   let children: StorageFrameworkEntry[] = []
 
-  $: {
-    if (entry.isDirectory) {
-      const dirEntry: StorageFrameworkDirectoryEntry = <
-        StorageFrameworkDirectoryEntry
-      >entry
-      dirEntry.getChildren().then((childs) => {
+  const { selectedEntry } = state
+  $: isSelected = $selectedEntry === entry
+
+  let childrenUnsubscriber: Unsubscriber | null = null
+
+  const setupChildren = (): void => {
+    const dirEntry = entry as ObservableStorageFrameworkDirectoryEntry
+
+    dirEntry.watchChildren().then((observable) => {
+      if (childrenUnsubscriber) childrenUnsubscriber()
+      childrenUnsubscriber = observable.subscribe((childs) => {
         children = childs
       })
-      dirEntry.watchChildren().then((observable) => {
-        observable.subscribe((childs) => {
-          children = childs
-        })
-      })
-    }
+    })
   }
+
+  $: {
+    if (showChildren && childrenUnsubscriber == null) setupChildren()
+  }
+
+  onDestroy(() => {
+    if (childrenUnsubscriber) childrenUnsubscriber()
+  })
 
   const onSelectClick = (event: Event) => {
     event.stopPropagation()
 
-    isSelected = true
-    const detail: SelectedEventDetail = {
-      entry: entry,
-      onDeselect: () => {
-        isSelected = false
-      },
-    }
-    dispatch('selected', detail)
-  }
-
-  const onContextMenu = (event: Event) => {
-    event.stopPropagation()
-
-    // TODO: context menu
-    if (entry.isDirectory)
-      (<StorageFrameworkDirectoryEntry>entry).createFile('test')
+    state.setSelectedEntry(entry)
   }
 
   const onArrowClicked = (event: Event) => {
@@ -74,11 +69,7 @@
     <span><File /> {entry.name}</span>
   </div>
 {:else}
-  <div
-    class="entry {isSelected ? 'selected' : ''}"
-    on:click={onSelectClick}
-    on:contextmenu|preventDefault={onContextMenu}
-  >
+  <div class="entry {isSelected ? 'selected' : ''}" on:click={onSelectClick}>
     {#if showAsRootNode}
       <div class:root={showAsRootNode}>
         <b class="" style={getIndentationLevelStyle(indentionLevel)}
@@ -89,7 +80,6 @@
       <div class="title" style={getIndentationLevelStyle(indentionLevel)}>
         <span
           on:click={onArrowClicked}
-          on:contextmenu|preventDefault={onContextMenu}
           class="arrow"
           class:arrowDown={showChildren}><ChevronRight /></span
         >
@@ -102,7 +92,7 @@
           <svelte:self
             entry={child}
             indentionLevel={indentionLevel + 1}
-            on:selected
+            {state}
           />
         {/each}
       </div>
