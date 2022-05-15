@@ -24,11 +24,11 @@ interface SelectingStorageStateMachine extends StateMachineDefinition {
   /**
    * authenticate state init
    */
-  authenticate: State<this>
+  authenticate: State<this, never, StorageFrameworkProvider>
   /**
    * open state init
    */
-  open: State<this, StorageFrameworkProvider>
+  open: State<this, never, StorageFrameworkProvider>
 }
 
 enum SelectingStorageEventType {
@@ -96,7 +96,7 @@ export class SelectingStorage extends AbstractState<
           const event = await parentState.onNextEvent()
           switch (event.type) {
             case SelectingStorageEventType.Github:
-                fs = new GithubFileSystem()
+                //fs = new GithubFileSystem()
                 if (!(<GithubFileSystem>fs).isSignedIn) {
                   await (<GithubFileSystem>fs).authenticate()
                 }
@@ -108,8 +108,8 @@ export class SelectingStorage extends AbstractState<
                 this.url = event.url
 
                 // if (!(<SolidFileSystem>fs).isSignedIn) {
-                //  await (<SolidFileSystem>fs).authenticate()
-                // }
+                //   await (<SolidFileSystem>fs).authenticate()
+                //  }
                 
                 return open
 
@@ -132,11 +132,16 @@ export class SelectingStorage extends AbstractState<
     location.href = docURL.href;
   }
 
+  private removeUrlHash() {
+    const docURL = new URL(location.href);
+    docURL.hash = '';
+    location.href = docURL.href;
+  }
+
   protected async run({
     editing,
   }: States<AppStateMachine>): Promise<NextState> {
     await this.runSelectingStorageStateMachine()
-
     return editing.arg(this.rootEntry)
   }
 

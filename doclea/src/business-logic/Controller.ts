@@ -1,5 +1,5 @@
 import { StateMachine } from './state-machine/StateMachine'
-import { Editing } from './Editing'
+import { Editing, EditorEvent } from './Editing'
 import { SelectingStorage } from './SelectingStorage'
 import { writable, type Writable } from 'svelte/store'
 import type { Message } from './MessageTypes'
@@ -19,7 +19,7 @@ export interface AppStateMachine extends StateMachineDefinition {
   /**
    * Editing State init
    */
-  editing: State<this, StorageFrameworkEntry>
+  editing: State<this, StorageFrameworkEntry, EditorEvent>
   /**
    * SelectingStorage State init
    */
