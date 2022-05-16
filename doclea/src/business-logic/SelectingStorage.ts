@@ -2,7 +2,7 @@ import type {
   State,
   States,
   NextState,
-  StateMachineDefinition,
+  StateMachineDefinition
 } from './state-machine/State'
 
 import { AbstractState } from './state-machine/AbstractState'
@@ -10,7 +10,7 @@ import type { AppStateMachine } from './Controller'
 import {
   LocalFileSystem,
   SolidFileSystem,
-  GithubFileSystem,
+  GithubFileSystem
 } from '../../../storage-framework'
 import { StateMachine } from './state-machine/StateMachine'
 import type { StorageFrameworkEntry } from '../../../storage-framework'
@@ -34,7 +34,7 @@ interface SelectingStorageStateMachine extends StateMachineDefinition {
 enum SelectingStorageEventType {
   Github,
   Solid,
-  Local,
+  Local
 }
 
 export type SelectingStorageEvent =
@@ -55,6 +55,11 @@ export class SelectingStorage extends AbstractState<
 > {
   private rootEntry: StorageFrameworkEntry
   private url: string
+  private get fileSystemUrl(): URL | null {
+    const url = window.location.hash.replace('#', '')
+    return url ? new URL(url) : null
+  }
+
   private async runSelectingStorageStateMachine() {
     const parentState = this
     let fs: StorageFrameworkProvider
@@ -82,10 +87,8 @@ export class SelectingStorage extends AbstractState<
          */
         open: async ({ end }) => {
           if (this.url) {
-            this.setUrlHash() 
             this.rootEntry = await fs.open(this.url)
-          }
-          else this.rootEntry = await fs.open()
+          } else this.rootEntry = await fs.open()
           return end
         },
         /**
@@ -94,31 +97,52 @@ export class SelectingStorage extends AbstractState<
          */
         authenticate: async ({ open }) => {
           parentState.openButtonStateStore.set(true)
-          const event = await parentState.onNextEvent()
-          switch (event.type) {
-            case SelectingStorageEventType.Github:
-                //fs = new GithubFileSystem()
+          if (this.fileSystemUrl) {
+            this.url = this.fileSystemUrl.toString()
+            switch (this.fileSystemUrl.hostname) {
+              case 'github.com':
+                fs = new GithubFileSystem()
                 if (!(<GithubFileSystem>fs).isSignedIn) {
                   await (<GithubFileSystem>fs).authenticate()
                 }
-              
+                return open
+              default:
+                fs = new SolidFileSystem()
+                if (!fs.isSignedIn) {
+                  await fs.authenticate()
+                }
+                return open
+            }
+          } else {
+            const event = await parentState.onNextEvent()
+            switch (event.type) {
+              case SelectingStorageEventType.Github:
+                //fs = new GithubFileSystem()
+                this.url = event.url
+                this.setUrlHash()
+                if (!(<GithubFileSystem>fs).isSignedIn) {
+                  await (<GithubFileSystem>fs).authenticate()
+                }
+
                 return open
 
-            case SelectingStorageEventType.Solid:
+              case SelectingStorageEventType.Solid:
                 fs = new SolidFileSystem()
                 this.url = event.url
+                this.setUrlHash()
 
                 // if (!(<SolidFileSystem>fs).isSignedIn) {
                 //   await (<SolidFileSystem>fs).authenticate()
                 //  }
-                
+
                 return open
 
-            case SelectingStorageEventType.Local:
+              case SelectingStorageEventType.Local:
                 fs = new LocalFileSystem()
                 return open
+            }
           }
-        },
+        }
       })
 
     await selectingStorageStateMachine.run()
@@ -138,15 +162,13 @@ export class SelectingStorage extends AbstractState<
   }
 
   protected async run({
-    editing,
+    editing
   }: States<AppStateMachine>): Promise<NextState> {
     await this.runSelectingStorageStateMachine()
     return editing.arg(this.rootEntry)
   }
 
-  private readonly openButtonStateStore: Writable<boolean> = writable(
-    false
-  )
+  private readonly openButtonStateStore: Writable<boolean> = writable(false)
 
   /**
    * Gets if the OpenButton is active or not
