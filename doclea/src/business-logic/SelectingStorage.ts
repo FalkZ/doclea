@@ -11,10 +11,10 @@ import {
   LocalFileSystem,
   SolidFileSystem,
   GithubFileSystem
-} from '../../../storage-framework'
+} from 'storage-framework'
 import { StateMachine } from './state-machine/StateMachine'
-import type { StorageFrameworkEntry } from '../../../storage-framework'
-import type { StorageFrameworkProvider } from '../../../storage-framework'
+import type { StorageFrameworkEntry } from 'storage-framework'
+import type { StorageFrameworkProvider } from 'storage-framework'
 import { writable, type Readable, type Writable } from 'svelte/store'
 
 /**
@@ -35,6 +35,11 @@ enum SelectingStorageEventType {
   Github,
   Solid,
   Local
+}
+
+enum ButtonState {
+  Active = 1,
+  Inactive = 0
 }
 
 export type SelectingStorageEvent =

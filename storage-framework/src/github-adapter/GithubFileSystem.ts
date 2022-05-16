@@ -67,7 +67,7 @@ export class GithubFileSystem implements StorageFrameworkProvider {
 
     this.token = sessionStorage.getItem(guid)
     console.log('constructor() - the token: ', this.token)
-    this.isSignedIn = !!this.token
+    this.isSignedIn = !this.token
   }
 
   /**

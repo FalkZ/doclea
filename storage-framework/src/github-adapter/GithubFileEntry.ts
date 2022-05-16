@@ -214,10 +214,10 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
            */
           if (response.status == 201) {
             console.log('Succesfully created file in GitHub: ', newFileFullPath)
-            resolve
+            resolve()
           } else {
             console.log('Failed to create file in GitHub: ', newFileFullPath)
-            reject
+            reject()
           }
         })
     })
