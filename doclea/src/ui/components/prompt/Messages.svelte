@@ -6,6 +6,7 @@
   import prompt from 'tabler-icons-svelte/icons/QuestionMark'
   import X from 'tabler-icons-svelte/icons/X'
   import Button from '@ui/basic-elements/Button.svelte'
+  import Input from '@ui/basic-elements/Input.svelte'
 
   export let messages: Message[] = [
     { type: MessageType.Error, message: 'this is an error' },
@@ -19,6 +20,9 @@
         no: () => console.log('clicked b'),
       },
     },
+    {
+      type: MessageType.Query
+    }
   ]
 
   const icons = { info, warning, error, prompt }
@@ -36,6 +40,11 @@
             on:click={fn}>{key}</Button
           >
         {/each}
+      {:else if message.type === MessageType.Query}
+        <Input placeholder={message.placeholder} />
+        <Button className={['inline', 'small', 'primary']}
+        on:click={message.submit}>Ok</Button>
+        <X />
       {:else}
         <X />
       {/if}

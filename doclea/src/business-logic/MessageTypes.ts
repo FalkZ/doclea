@@ -3,6 +3,7 @@ export enum MessageType {
   Warning = 'warning',
   Info = 'info',
   Prompt = 'prompt',
+  Query = 'query'
 }
 
 type Action = () => void
@@ -20,4 +21,12 @@ interface BasicMessage {
   message: string
 }
 
-export type Message = BasicMessage | MessagePrompt
+interface QueryMessage {
+  type: MessageType.Query
+  question: string
+  placeholder: string
+  validator?(value: string): boolean
+  submit?(value: string): void
+}
+
+export type Message = BasicMessage | MessagePrompt | QueryMessage
