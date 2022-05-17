@@ -7,3 +7,9 @@
 * Dokument bearbeiten
 
 * Kollaboration
+
+*Text*
+
+**
+
+* [ ] TODO Screenshots von Resultat einfügen und entsprechend erläutern
