@@ -96,9 +96,4 @@ export class Controller {
       })
     }, this.messageTimeMs);
   }
-
-  /**
-   * Toogles mode to dark mode if it is not already set
-   */
-  public toggleDarkMode(): void {}
 }

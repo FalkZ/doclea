@@ -70,7 +70,6 @@ export class SelectingStorage extends AbstractState<
          * @returns {StateMachine} Returns state authenticate
          */
         init: ({ authenticate }) => {
-          this.removeUrlHash()
           return authenticate
         },
         /**
@@ -79,7 +78,7 @@ export class SelectingStorage extends AbstractState<
          */
         error: ({ init, end }, arg: Error) => {
           console.error('an error occurred', arg)
-          return end
+          return init
         },
         /**
          * Is triggered when authenticate has successfully finished
@@ -117,7 +116,7 @@ export class SelectingStorage extends AbstractState<
             const event = await parentState.onNextEvent()
             switch (event.type) {
               case SelectingStorageEventType.Github:
-                //fs = new GithubFileSystem()
+                fs = new GithubFileSystem()
                 this.url = event.url
                 this.setUrlHash()
                 if (!(<GithubFileSystem>fs).isSignedIn) {
@@ -131,9 +130,9 @@ export class SelectingStorage extends AbstractState<
                 this.url = event.url
                 this.setUrlHash()
 
-                // if (!(<SolidFileSystem>fs).isSignedIn) {
-                //   await (<SolidFileSystem>fs).authenticate()
-                //  }
+                if (!(<SolidFileSystem>fs).isSignedIn) {
+                   await (<SolidFileSystem>fs).authenticate()
+                  }
 
                 return open
 
@@ -155,10 +154,6 @@ export class SelectingStorage extends AbstractState<
     const docURL = new URL(location.href)
     docURL.hash = `#${this.url}`
     location.href = docURL.href
-  }
-
-  private removeUrlHash() {
-    history.replaceState(null, null, ' ')
   }
 
   protected async run({
