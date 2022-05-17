@@ -188,9 +188,8 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
           resolve(this.githubEntry)
         })
         .catch((error) => {
-          // TODO: reject error
           console.log('Failed to read file from GitHub: ', getFileFullPath)
-          reject
+          reject(error)
         })
     })
   }
@@ -209,9 +208,6 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
           content: contentInBase65
         })
         .then((response) => {
-          /**
-           * TODO: resolve & reject
-           */
           if (response.status == 201) {
             console.log('Succesfully created file in GitHub: ', newFileFullPath)
             resolve()
@@ -243,8 +239,10 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
               'Succesfully removed file in GitHub: ',
               removeFileFullPath
             )
+            resolve()
           } else {
             console.log('Failed to remove file in GitHub: ', removeFileFullPath)
+            reject()
           }
         })
     })

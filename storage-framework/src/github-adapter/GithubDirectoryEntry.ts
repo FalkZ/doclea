@@ -66,7 +66,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
    * @returns {SFError} on error
    */
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
-    return new Result(async (resolve, reject) => {
+    return new Result(async (resolve) => {
       const pathOfDir = this.isRoot ? name : this.fullPath + '/' + name
       await this.createGithubFile(pathOfDir + '/' + name, 'Cg==')
       resolve(new GithubFileEntry(this, pathOfDir, name, this.octokit))
@@ -82,7 +82,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
   createDirectory(
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
-    return new Result(async (resolve, reject) => {
+    return new Result(async (resolve) => {
       const pathOfDir = this.isRoot ? name : this.parent.fullPath + '/' + name
       await this.createGithubFile(pathOfDir + '/' + 'README.md', 'Cg==')
       resolve(new GithubDirectoryEntry(this, pathOfDir, name, this.octokit))
