@@ -1,6 +1,7 @@
 import { Octokit } from '@octokit/core'
 import { ReactivityDirDecorator } from '../lib/wrappers/ReactivityDecorator'
 import { Result } from '../lib/utilities'
+import { parseUrl } from '../lib/utilities/url'
 import { GithubDirectoryEntry } from './GithubDirectoryEntry'
 import type { SFError } from '../lib/SFError'
 import type {
@@ -9,6 +10,8 @@ import type {
 } from '../lib/StorageFrameworkEntry'
 
 const guid = 'github-auth-reiupkvhldwe'
+const github_client_id = 'github-client_id'
+const github_client_secret = 'github-client_secret'
 
 if (window.location.hash === '#' + guid) {
   if (window.location.search.startsWith('?code')) {
@@ -49,21 +52,11 @@ export class GithubFileSystem implements StorageFrameworkProvider {
   public readonly isSignedIn: boolean
   private token
 
-  public static client_id: string
-  public static client_secret: string
   public static owner: string
   public static repo: string
-
-  constructor(
-    client_id: string,
-    client_secret: string,
-    owner: string,
-    repo: string
-  ) {
-    GithubFileSystem.client_id = client_id
-    GithubFileSystem.client_secret = client_secret
-    GithubFileSystem.owner = owner
-    GithubFileSystem.repo = repo
+  constructor(client_id: string, client_secret: string) {
+    sessionStorage.setItem(github_client_id, client_id)
+    sessionStorage.setItem(github_client_secret, client_secret)
 
     this.token = sessionStorage.getItem(guid)
     console.log('constructor() - the token: ', this.token)
@@ -89,10 +82,16 @@ export class GithubFileSystem implements StorageFrameworkProvider {
 
   /**
    * Opens github entry
+   * @param {string} url to github repo
    * @returns {StorageFrameworkEntry} on success
    * @returns {SFError} on error
    */
-  open(): Result<StorageFrameworkEntry, SFError> {
+  open(githubUrl: string): Result<StorageFrameworkEntry, SFError> {
+    let githubPathFragments = parseUrl(githubUrl).pathFragments
+    let fragmentSize = githubPathFragments.length
+    GithubFileSystem.repo = githubPathFragments[fragmentSize - 1]
+    GithubFileSystem.owner = githubPathFragments[fragmentSize - 2]
+
     this.token = sessionStorage.getItem(guid)
     console.log('open() - the token: ', this.token)
     console.log('GitHub open!')
@@ -126,9 +125,12 @@ if (window.location.hash === '#' + guid) {
     )
     const code = new URLSearchParams(window.location.search).get('code')
 
+    const client_id = sessionStorage.getItem(github_client_id)
+    const client_secret = sessionStorage.getItem(github_client_secret)
+
     const params = new URLSearchParams({
-      client_id: GithubFileSystem.client_id,
-      client_secret: GithubFileSystem.client_secret,
+      client_id: client_id,
+      client_secret: client_secret,
       redirect_uri: `http://127.0.0.1:3000#${guid}`,
       code: <string>code
     })
