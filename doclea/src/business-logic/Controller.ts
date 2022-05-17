@@ -15,7 +15,6 @@ import { subscribe } from 'svelte/internal'
  * Defines the two states SelectingStorage and Editing
  */
 export interface AppStateMachine extends StateMachineDefinition {
-
   /**
    * Editing State init
    */
@@ -29,7 +28,7 @@ export interface AppStateMachine extends StateMachineDefinition {
 /**
  * Every action that is taken in the editor should be defined and executed here (except for internal actions of the milkdown editor)
  * All the editor state is stored in this class
- * 
+ *
  * TODO: use Logger class for all states
  */
 export class Controller {
@@ -41,7 +40,6 @@ export class Controller {
    * Implementation of appStateMachine
    */
   public appStateMachine = new StateMachine<AppStateMachine>({
-    
     /**
      * Is entry point for appStateMachine
      * @returns {StateMachine} Returns state selectingStorage
@@ -59,15 +57,15 @@ export class Controller {
       return init
     },
     /**
-    * Is triggered when appStateMachine moves to Editing state (after successfully selecting storage)
-    * @returns {StateMachine} Returns class Editing
-    */
+     * Is triggered when appStateMachine moves to Editing state (after successfully selecting storage)
+     * @returns {StateMachine} Returns class Editing
+     */
     editing: new Editing(),
     /**
-    * Is triggered after init
-    * @returns {StateMachine} Returns class SelectingStorage
-    */
-    selectingStorage: new SelectingStorage(),
+     * Is triggered after init
+     * @returns {StateMachine} Returns class SelectingStorage
+     */
+    selectingStorage: new SelectingStorage()
   })
 
   constructor() {
@@ -77,7 +75,7 @@ export class Controller {
   /**
    * Messages that get displayed as a banner for the user
    */
-  get messages(): Readable<Message[]> { 
+  get messages(): Readable<Message[]> {
     return { subscribe: this.messageStore.subscribe }
   }
 
@@ -94,6 +92,6 @@ export class Controller {
         messages.shift()
         return messages
       })
-    }, this.messageTimeMs);
+    }, this.messageTimeMs)
   }
 }

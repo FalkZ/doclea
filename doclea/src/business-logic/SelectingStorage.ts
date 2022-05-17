@@ -129,10 +129,9 @@ export class SelectingStorage extends AbstractState<
                 fs = new SolidFileSystem()
                 this.url = event.url
                 this.setUrlHash()
-
                 if (!(<SolidFileSystem>fs).isSignedIn) {
-                   await (<SolidFileSystem>fs).authenticate()
-                  }
+                  await (<SolidFileSystem>fs).authenticate()
+                }
 
                 return open
 
