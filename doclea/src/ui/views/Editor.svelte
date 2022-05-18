@@ -26,7 +26,9 @@
     <Pane>
       <div>
         {#if $selectedFile}
+          {#key $selectedFile}
           <Milkdown selectedFile={$selectedFile} />
+          {/key}
         {:else}
           select a file to start editing
         {/if}
