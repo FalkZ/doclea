@@ -3,9 +3,9 @@ import type { Readable } from 'src/lib/utilities/stores'
 import { SFError } from '../lib/SFError'
 import {
   StorageFrameworkDirectoryEntry,
-  StorageFrameworkEntry,
-  StorageFrameworkFileEntry
+  StorageFrameworkEntry
 } from '../lib/StorageFrameworkEntry'
+import { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
 import { Result, OkOrError } from '../lib/utilities'
 import { GithubFileEntry } from './GithubFileEntry'
 import { GithubFileSystem } from './GithubFileSystem'

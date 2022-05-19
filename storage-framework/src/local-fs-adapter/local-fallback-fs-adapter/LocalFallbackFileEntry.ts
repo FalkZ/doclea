@@ -1,10 +1,9 @@
-import type { SFError } from '../../lib/SFError'
+import { SFError } from '../../lib/SFError'
 import { SFFile } from '../../lib/SFFile'
-import type {
-  StorageFrameworkDirectoryEntry,
-  StorageFrameworkFileEntry
-} from '../../lib/StorageFrameworkEntry'
+import type { StorageFrameworkDirectoryEntry } from '../../lib/StorageFrameworkEntry'
+import type { StorageFrameworkReadonlyFileEntry } from '../../lib/StorageFrameworkFileEntry'
 import { Result, type OkOrError } from '../../lib/utilities'
+import { downloadFile } from '../../lib/utilities/downloadFile'
 import type { LocalFallbackDirectoryEntry } from './LocalFallbackDirectoryEntry'
 
 /**
@@ -15,14 +14,19 @@ export class LocalFallbackFileEntry implements StorageFrameworkFileEntry {
   readonly isDirectory: false
   readonly isFile: true
   readonly fullPath: string
-  readonly lastModified: number
   private file: File
   private readonly parent: LocalFallbackDirectoryEntry
 
+  get name(): string {
+    return this.file.name
+  }
+
+  get lastModified(): number {
+    return this.file.lastModified
+  }
+
   constructor(file: File, parent: LocalFallbackDirectoryEntry) {
     this.file = file
-    this.name = file.name
-    this.lastModified = file.lastModified
     this.fullPath = '/' + file.webkitRelativePath
     this.isDirectory = false
     this.isFile = true
@@ -30,34 +34,40 @@ export class LocalFallbackFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Reads file
-  * @returns {SFFile} on success
-  * @returns {SFError} on error
-  */
+   * Reads file
+   * @returns {SFFile} on success
+   * @returns {SFError} on error
+   */
   read(): Result<SFFile, SFError> {
     return new Result((resolve, reject) => {
-      if (this.file)
-        resolve(new SFFile(this.name, this.lastModified, [this.file]))
+      if (typeof file === 'string') {
+        this.file = new SFFile(this.name, this.lastModified, [file])
+        this.wasModified = true
+      } else if (file instanceof File) {
+        this.file = file
+        resolve()
+      } else {
+        reject(new SFError('file must be instanceof File or typeof string'))
+      }
     })
   }
 
   /**
-  * Saves file
-  * @param {File} file
-  * @returns {SFError} on error
-  */
+   * Saves file
+   * @param {File} file
+   * @returns {SFError} on error
+   */
   save(file: File): OkOrError<SFError> {
     return new Result((resolve, reject) => {
-      this.file = file
-      resolve()
+      resolve(this.file)
     })
   }
 
   /**
-  * Gets parent of file
-  * @returns {StorageFrameworkDirectoryEntry} on success
-  * @returns {SFError} on error
-  */
+   * Gets parent of file
+   * @returns {StorageFrameworkDirectoryEntry} on success
+   * @returns {SFError} on error
+   */
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
       resolve(this.parent)
@@ -65,30 +75,31 @@ export class LocalFallbackFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Moves file
-  * @param {StorageFrameworkDirectoryEntry} directory
-  * @returns {SFError} on error
-  */
+   * Moves file
+   * @param {StorageFrameworkDirectoryEntry} directory
+   * @returns {SFError} on error
+   */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
 
   /**
-  * Renames file
-  * @param {string} name
-  * @returns {SFError} on error
-  */
+   * Renames file
+   * @param {string} name
+   * @returns {SFError} on error
+   */
   rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
-      this.name = name
+      this.file = new SFFile(name, this.lastModified, [this.file])
+      this.wasModified = true
       resolve()
     })
   }
 
   /**
-  * Removes file
-  * @returns {SFError} on error
-  */
+   * Removes file
+   * @returns {SFError} on error
+   */
   remove(): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       try {

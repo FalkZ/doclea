@@ -1,7 +1,7 @@
 import type { Result, OkOrError } from './utilities/result'
 import type { SFError } from './SFError'
-import type { SFFile } from './SFFile'
 import type { Readable as Observable } from './utilities/stores'
+import { StorageFrameworkFileEntry } from './StorageFrameworkFileEntry'
 
 /**
  * Provider for the root entry of a file system.
@@ -68,46 +68,6 @@ export interface StorageFrameworkEntry {
    * @returns nothing if succeeded, SFError otherwise
    */
   remove(): OkOrError<SFError>
-}
-
-/**
- * Representation of a file entry in the storage framework
- *
- * Reading and writing is done as a whole, read() returns the whole file and save() saves the whole file
- */
-export interface StorageFrameworkFileEntry extends StorageFrameworkEntry {
-  readonly isDirectory: false
-  readonly isFile: true
-  readonly isReadonly?: true
-  /**
-   * Read the whole file and return the data
-   * @returns the data, or SFError on error
-   */
-  read(): Result<SFFile, SFError>
-
-  /**
-   * Save the whole file
-   * @returns nothing if succeeded, SFError otherwise
-   */
-  save(file: File): OkOrError<SFError>
-
-  /**
-   * Download the file
-   * @returns nothing if succeeded, SFError otherwise
-   */
-  //download(): OkOrError<SFError>
-}
-
-/**
- * Add observability to the StorageFrameworkFileEntry
- */
-export interface ObservableStorageFrameworkFileEntry
-  extends StorageFrameworkFileEntry {
-  /**
-   * Read the whole file content and watch out for updates
-   * @returns an observable for SFFile, or SFError on error
-   */
-  watchContent(): Result<Observable<SFFile>, SFError>
 }
 
 /**
