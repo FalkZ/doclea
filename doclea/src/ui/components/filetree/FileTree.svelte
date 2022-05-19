@@ -26,5 +26,5 @@
   }
 </script>
 
-<ActionBar selectedEntry={selectedEntry} />
+<ActionBar selectedEntry={selectedEntry} on:close />
 <TreeNode {entry} showAsRootNode={true} on:selected={onEntrySelected} />
