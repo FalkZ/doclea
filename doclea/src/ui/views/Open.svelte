@@ -10,7 +10,7 @@
 
   export let selectingStorageState: SelectingStorage
 
-  const { activeOpenButton } = selectingStorageState
+  const { isOpenButtonActive } = selectingStorageState
 
   let value
 </script>
@@ -28,7 +28,7 @@
       <Button
         inline={true}
         on:click={() => selectingStorageState.openSolid(value)}
-        active={$activeOpenButton}
+        active={$isOpenButtonActive}
         className={['left']}><Hexagon /> Solid</Button
       >
       or
@@ -40,7 +40,7 @@
   or <Button
     inline={true}
     on:click={() => selectingStorageState.openLocal()}
-    active={$activeOpenButton}><Folder /> open local folder</Button
+    active={$isOpenButtonActive}><Folder /> open local folder</Button
   >
 </div>
 

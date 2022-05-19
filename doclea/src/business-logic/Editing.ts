@@ -25,7 +25,7 @@ export class Editing extends AbstractState<
 > {
   protected async run(
     { selectingStorage }: States<AppStateMachine>,
-    rootEntry: StorageFrameworkEntry
+    rootEntry: StorageFrameworkDirectoryEntry
   ): Promise<NextState> {
     console.log('added files', rootEntry)
     this.filesStore.set(rootEntry)
@@ -55,7 +55,7 @@ export class Editing extends AbstractState<
     * Gets the selected entry by the user
     * @returns {StorageFrameworkFileEntry} Returns selectedEntryStore
     */
-  get selectedEntry(): Readable<StorageFrameworkFileEntry | null> {
+  get selectedEntry(): Readable<StorageFrameworkEntry | null> {
     return { subscribe: this.selectedEntryStore.subscribe }
   }
 
@@ -71,7 +71,7 @@ export class Editing extends AbstractState<
     * Sets the selected entry by the user
     */
   public setSelectedEntry(entry: StorageFrameworkEntry): void {
-    if (entry.isFile) this.selectedFileStore.set(entry)
+    if (entry.isFile) this.selectedFileStore.set(<StorageFrameworkFileEntry>entry)
 
     this.selectedEntryStore.set(entry)
   }

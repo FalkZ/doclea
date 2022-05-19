@@ -8,11 +8,13 @@
   import FolderPlus from 'tabler-icons-svelte/icons/FolderPlus'
   import FilePlus from 'tabler-icons-svelte/icons/FilePlus'
   import Trash from 'tabler-icons-svelte/icons/Trash'
+  import { createEventDispatcher } from 'svelte'
 
   export let selectedEntry: StorageFrameworkEntry | null = null
 
   const canCreate = selectedEntry?.isDirectory
   const canRemove = selectedEntry != null
+  const dispatch = createEventDispatcher()
 
   const createFolder = () => {
     ;(selectedEntry as StorageFrameworkDirectoryEntry).createDirectory(
@@ -30,7 +32,13 @@
 </script>
 
 <div id="actionbar">
-  <span id="open" disabled={!canCreate}>{@html logo} OPEN</span>
+  <span
+    id="open"
+    disabled={!canCreate}
+    on:click={(ev) => {
+      dispatch('close')
+    }}>{@html logo} OPEN</span
+  >
   {#if selectedEntry != null}
     <span
       id="create-file"

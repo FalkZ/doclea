@@ -18,6 +18,8 @@
       <div id="filetree">
         <FileTree
           entry={$files}
+          on:close={(event) =>
+            editingState.closeEditor()}
           on:selected={(event) =>
             editingState.setSelectedEntry(event.detail.entry)}
         />
