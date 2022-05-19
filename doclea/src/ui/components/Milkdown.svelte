@@ -1,5 +1,12 @@
 <script lang="ts">
-  import { Editor, rootCtx, defaultValueCtx } from '@milkdown/core'
+  import {
+    Editor,
+    rootCtx,
+    defaultValueCtx,
+    editorViewCtx,
+    parserCtx,
+  } from '@milkdown/core'
+
   import { clipboard } from '@milkdown/plugin-clipboard'
   import { cursor } from '@milkdown/plugin-cursor'
   import { diagram } from '@milkdown/plugin-diagram'
@@ -21,8 +28,11 @@
 
   import { tldraw } from 'milkdown-plugin-tldraw'
   import type { StorageFrameworkFileEntry } from 'storage-framework/src/lib/StorageFrameworkEntry'
+  import { Slice } from '@milkdown/prose'
 
   export let selectedFile: StorageFrameworkFileEntry
+
+  let output
 
   const buttons = selectedFile.isReadonly
     ? [
@@ -45,18 +55,37 @@
         },
       ]
 
+  const updateEditorValue = async (selectedFile, ctx) => {
+    console.log({ selectedFile, ctx })
+    if (ctx === null) return
+    const defaultValue = await (await selectedFile.read()).text()
+
+    const view = ctx.get(editorViewCtx)
+    const parser = ctx.get(parserCtx)
+    const doc = parser(defaultValue)
+    if (!doc) return
+    const state = view.state
+    view.dispatch(
+      state.tr.replace(0, state.doc.content.size, new Slice(doc.content, 0, 0))
+    )
+  }
+  let milkdownContext = null
+
+  $: updateEditorValue(selectedFile, milkdownContext)
+
   const editor = (dom) => {
     Editor.make()
       .config(async (ctx) => {
-        const defaultValue = await (await selectedFile.read()).text()
+        milkdownContext = ctx
         ctx.set(rootCtx, dom)
 
-        console.log(defaultValue)
+        const defaultValue = await (await selectedFile.read()).text()
+
         ctx.set(defaultValueCtx, defaultValue)
 
         ctx.get(listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
-          console.log(markdown)
-          selectedFile.update(markdown)
+          output = markdown
+          //selectedFile.update(markdown)
         })
       })
       .use(nord)
@@ -94,7 +123,7 @@
         if (!selectedFile.isReadonly)
           document.querySelector('[title="save"]').onclick = () => {
             console.log('start saving')
-            selectedFile.save()
+            selectedFile.save(new File([output], 'test.md'))
           }
 
         document.querySelector('[title="download"]').onclick = () => {

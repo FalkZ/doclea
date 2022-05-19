@@ -1,17 +1,11 @@
 import * as React from 'react'
-import {
-  Tldraw,
-  TldrawApp,
-  TDDocument,
-  type TDExportTypes,
-} from '@tldraw/tldraw'
+import { Tldraw, TldrawApp, TDDocument, TDExportTypes } from '@tldraw/tldraw'
 import ReactDOM from 'react-dom'
 import { getDocumentFromImageUri } from './getDocumentFromImageUri'
 
 import { dataURLtoFile, serializeDocument, toImageURL } from './convertions'
 
-const placeholder = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg"
+const placeholder = `<svg
     width="800mm" height="600mm"
     viewBox="-400 -300 800 600">
 </svg>`
@@ -35,7 +29,7 @@ const Component = ({ resolveApi, tdDocument }) => {
       onMount: handleMount,
       onSaveProjectAs: console.log,
       showMenu: false,
-      showPages: false,
+      showPages: false
     },
     null
   )
@@ -114,26 +108,26 @@ export class TldrawView {
 
   async destroy() {
     // export svg
-    let svg: string = await new Promise(async (resolve) => {
-      // @ts-expect-error
-      this.api.callbacks.onExport = (all) => {
-        resolve(all.serialized)
-      }
-      await this.api
-        .exportAllShapesAs(TDExportTypes.SVG)
-        .catch(() => resolve(placeholder))
-    })
+    this.api.selectAll()
+    let svg: string = await this.api
+      .getSvg()
+      .then((s) => s.outerHTML)
+      .catch(() => placeholder)
 
     // add serialized document
     svg = svg.replace(
       '<svg ',
-      `<svg data-tldraw="${serializeDocument(this.api.document)}" `
+      `<?xml version="1.0" encoding="UTF-8"?>
+      <svg xmlns="http://www.w3.org/2000/svg" data-tldraw="${serializeDocument(
+        this.api.document
+      )}" `
     )
 
     const src = toImageURL(svg)
 
     this.destroyTLDraw()
     this.allowEventBubble()
+    console.log(src)
 
     return src
   }

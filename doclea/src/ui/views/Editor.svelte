@@ -18,8 +18,7 @@
       <div id="filetree">
         <FileTree
           entry={$files}
-          on:close={(event) =>
-            editingState.closeEditor()}
+          on:close={(event) => editingState.closeEditor()}
           on:selected={(event) =>
             editingState.setSelectedEntry(event.detail.entry)}
         />
@@ -28,9 +27,7 @@
     <Pane>
       <div>
         {#if $selectedFile}
-          {#key $selectedFile}
           <Milkdown selectedFile={$selectedFile} />
-          {/key}
         {:else}
           select a file to start editing
         {/if}
@@ -43,6 +40,9 @@
   main {
     height: 100vh;
     width: 100vw;
+  }
+  div {
+    position: relative;
   }
   :global(.icon-tabler) {
     height: 2em;
