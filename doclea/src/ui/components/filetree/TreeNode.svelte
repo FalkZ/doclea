@@ -71,13 +71,11 @@
     style={getIndentationLevelStyle(indentionLevel)}
     on:click={onSelectClick}
   >
-    <span
-      ><File />
-      {entry.name}
-      {#if entry.wasModified}
-        <span class="mod">•</span>
-      {/if}
-    </span>
+    <File />
+    {entry.name}
+    {#if entry.wasModified}
+      <span class="mod">•</span>
+    {/if}
   </div>
 {:else}
   <div
@@ -130,6 +128,7 @@
   .entry {
     cursor: pointer;
     font-weight: bold;
+    white-space: nowrap;
   }
 
   .selected {

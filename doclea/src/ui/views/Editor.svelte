@@ -16,12 +16,14 @@
   <Splitpanes class="default-theme" style="height: 100%; width: 100vw">
     <Pane size="20">
       <div id="filetree">
-        <FileTree
-          entry={$files}
-          on:close={(event) => editingState.closeEditor()}
-          on:selected={(event) =>
-            editingState.setSelectedEntry(event.detail.entry)}
-        />
+        <div id="te">
+          <FileTree
+            entry={$files}
+            on:close={(event) => editingState.closeEditor()}
+            on:selected={(event) =>
+              editingState.setSelectedEntry(event.detail.entry)}
+          />
+        </div>
       </div>
     </Pane>
     <Pane>
@@ -44,6 +46,9 @@
   div {
     position: relative;
   }
+  #te {
+    display: table;
+  }
   :global(.icon-tabler) {
     height: 2em;
     margin-top: -0.5em;
@@ -57,6 +62,9 @@
     box-sizing: border-box;
     height: 100vh;
     background: var(--ui-background-500);
+  }
+  #filetree {
+    overflow: scroll;
   }
 
   :global(html) {
