@@ -27,11 +27,11 @@ export class SolidFileSystem implements StorageFrameworkProvider {
   sessionId: string
 
   /**
-  * Opens solid entry
-  * @param {string} urlPod
-  * @returns {StorageFrameworkEntry} on success
-  * @returns {SFError} on error
-  */
+   * Opens solid entry
+   * @param {string} urlPod
+   * @returns {StorageFrameworkEntry} on success
+   * @returns {SFError} on error
+   */
   open(urlPod: string): Result<StorageFrameworkEntry, SFError> {
     return new Result((resolve, reject) => {
       this.loginAndFetch(urlPod)
@@ -48,13 +48,13 @@ export class SolidFileSystem implements StorageFrameworkProvider {
   }
 
   /**
-  * TODO: correct return type
-  * TODO only root fetch
-  * Runs login and fetch
-  * @param {string} urlPod
-  */
+   * TODO: correct return type
+   * TODO only root fetch
+   * Runs login and fetch
+   * @param {string} urlPod
+   */
   // TODO only root fetch
-  async loginAndFetch(urlPod: string): Promise<void> {
+  async loginAndFetch(urlPod: string): Promise<any> {
     if (!this.sessionId) {
       await this.authenticate()
     }
@@ -78,8 +78,8 @@ export class SolidFileSystem implements StorageFrameworkProvider {
   }
 
   /**
-  * Runs authentication process of solid
-  */
+   * Runs authentication process of solid
+   */
   async authenticate(): Promise<void> {
     await handleIncomingRedirect({
       restorePreviousSession: true
@@ -95,10 +95,10 @@ export class SolidFileSystem implements StorageFrameworkProvider {
   }
 
   /**
-  * Gets filename
-  * @param {string} url
-  * @returns {string}
-  */
+   * Gets filename
+   * @param {string} url
+   * @returns {string}
+   */
   getFileName(url: string): string {
     return url.match('([^/]+)(?=[^/]*/?$)')[0]
   }

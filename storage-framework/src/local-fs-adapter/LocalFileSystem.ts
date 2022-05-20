@@ -29,8 +29,8 @@ export class LocalFileSystem implements StorageFrameworkProvider {
         el.setAttribute('multiple', 'true')
         el.click()
 
-        el.onchange = (ev) => {
-          const dirName = ev.target.files.length
+        el.onchange = (ev: any) => {
+          const dirName = ev.target?.files?.length
             ? '/' + ev.target.files[0].webkitRelativePath.split('/')[0]
             : ''
           resolve(

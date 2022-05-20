@@ -17,24 +17,12 @@ export interface StorageFrameworkReadonlyFileEntry
   /**
    * flag if file was renamed or changed and not yet saved
    */
-  readonly wasModified: boolean
+  // readonly wasModified: boolean
   /**
    * Read the whole file and return the data
    * @returns the data, or SFError on error
    */
   read(): Result<SFFile, SFError>
-
-  /**
-   * Updates the file entry
-   * @returns nothing if succeeded, SFError otherwise
-   */
-  update(file: File | string): OkOrError<SFError>
-
-  /**
-   * Download the file
-   * @returns nothing if succeeded, SFError otherwise
-   */
-  download(): OkOrError<SFError>
 }
 
 export interface StorageFrameworkWriteableFileEntry
@@ -45,7 +33,7 @@ export interface StorageFrameworkWriteableFileEntry
    * Saves the file to the file system
    * @returns nothing if succeeded, SFError otherwise
    */
-  save(): OkOrError<SFError>
+  save(file: File): OkOrError<SFError>
 }
 
 export type StorageFrameworkFileEntry = StorageFrameworkWriteableFileEntry

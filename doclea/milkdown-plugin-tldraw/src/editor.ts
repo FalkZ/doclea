@@ -5,9 +5,7 @@ import { getDocumentFromImageUri } from './getDocumentFromImageUri'
 
 import { dataURLtoFile, serializeDocument, toImageURL } from './convertions'
 
-const placeholder = `<svg
-    width="800mm" height="600mm"
-    viewBox="-400 -300 800 600">
+const placeholder = `<svg viewBox="-400 -300 800 600">
 </svg>`
 const prefersDarkMode = Boolean(
   window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -111,7 +109,9 @@ export class TldrawView {
     this.api.selectAll()
     let svg: string = await this.api
       .getSvg()
-      .then((s) => s.outerHTML)
+      .then((s) =>
+        s.outerHTML.replace('style="background-color: rgb(255, 255, 255);"', '')
+      )
       .catch(() => placeholder)
 
     // add serialized document

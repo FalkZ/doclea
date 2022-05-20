@@ -30,18 +30,18 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   isRoot: boolean
   private parent: SolidDirectoryEntry | null
 
-  constructor(fullPath: string, parent: SolidDirectoryEntry) {
+  constructor(fullPath: string, parent: SolidDirectoryEntry | null) {
     this.fullPath = fullPath
     this.name = this.getFileName(fullPath)
     this.parent = parent
-    this.isRoot = parent == null
+    this.isRoot = parent === null
   }
 
   /**
-  * Gets children of directory entry
-  * @returns {StorageFrameworkEntry[]} on success
-  * @returns {SFError} on error
-  */
+   * Gets children of directory entry
+   * @returns {StorageFrameworkEntry[]} on success
+   * @returns {SFError} on error
+   */
   getChildren(): Result<StorageFrameworkEntry[], SFError> {
     return new Result((resolve, reject) => {
       this.fetch()
@@ -65,11 +65,11 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   /**
-  * Creates file in entry
-  * @param {string} name
-  * @returns {StorageFrameworkFileEntry} on success
-  * @returns {SFError} on error
-  */
+   * Creates file in entry
+   * @param {string} name
+   * @returns {StorageFrameworkFileEntry} on success
+   * @returns {SFError} on error
+   */
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
     return new Result((resolve, reject) => {
       this.createEmptyFile(name)
@@ -89,11 +89,11 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   /**
-  * Creates directory in entry
-  * @param {string} name
-  * @returns {StorageFrameworkDirectoryEntry} on success
-  * @returns {SFError} on error
-  */
+   * Creates directory in entry
+   * @param {string} name
+   * @returns {StorageFrameworkDirectoryEntry} on success
+   * @returns {SFError} on error
+   */
   createDirectory(
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
@@ -119,10 +119,10 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   /**
-  * Gets parent of directory entry
-  * @returns {StorageFrameworkDirectoryEntry} on success
-  * @returns {SFError} on error
-  */
+   * Gets parent of directory entry
+   * @returns {StorageFrameworkDirectoryEntry} on success
+   * @returns {SFError} on error
+   */
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
       if (this.parent) {
@@ -134,10 +134,10 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   /**
-  * Moves directory
-  * @param {StorageFrameworkDirectoryEntry} directory
-  * @returns {SFError} on error
-  */
+   * Moves directory
+   * @param {StorageFrameworkDirectoryEntry} directory
+   * @returns {SFError} on error
+   */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.moveToDirectory(directory)
@@ -147,10 +147,10 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   /**
-  * Renames directory
-  * @param {string} name
-  * @returns {SFError} on error
-  */
+   * Renames directory
+   * @param {string} name
+   * @returns {SFError} on error
+   */
   rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.rename(name)
@@ -160,9 +160,9 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   /**
-  * Removes directory
-  * @returns {SFError} on error
-  */
+   * Removes directory
+   * @returns {SFError} on error
+   */
   remove(): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.deleteSolidDataset()
@@ -197,11 +197,11 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   /**
-  * TODO: add correct return type
-  * Creates container
-  * @param {string} name
-  */
-  async createContainer(name: string): Promise<void> {
+   * TODO: add correct return type
+   * Creates container
+   * @param {string} name
+   */
+  async createContainer(name: string): Promise<any> {
     return await createContainerAt(this.parent.fullPath + name, {
       fetch: fetch
     })
@@ -217,9 +217,9 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   /**
-  * renames directory
-  * @param {string} name
-  */
+   * renames directory
+   * @param {string} name
+   */
   async renameDirectory(name: string): Promise<void> {
     const existingDataset = await getSolidDataset(this.fullPath, {
       fetch: fetch
@@ -241,9 +241,9 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   /**
-  * Moves to directory
-  * @param {StorageFrameworkDirectoryEntry} directory
-  */
+   * Moves to directory
+   * @param {StorageFrameworkDirectoryEntry} directory
+   */
   async moveToDirectory(
     directory: StorageFrameworkDirectoryEntry
   ): Promise<void> {
@@ -266,10 +266,10 @@ export class SolidDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   /**
-  * Gets filename
-  * @param {string} url
-  * @returns {string}
-  */
+   * Gets filename
+   * @param {string} url
+   * @returns {string}
+   */
   getFileName(url: string): string {
     return url.match('([^/]+)(?=[^/]*/?$)')[0]
   }

@@ -6,6 +6,8 @@
     --ui-background-400: hsl(220, 16%, 22%);
     --ui-background-500: hsl(221, 16%, 19%);
     --ui-background-600: hsl(222, 15%, 17%);
+    --ui-background-700: hsl(222, 15%, 15%);
+    --ui-border-300: hsl(222, 15%, 17%);
     --ui-border-400: hsl(220, 17%, 32%);
     --ui-foreground-300: hsl(219, 28%, 78%);
     --ui-foreground-400: hsl(219, 28%, 88%);
@@ -20,6 +22,7 @@
     --ui-background-400: white;
     --ui-background-500: #f5f7f9;
     --ui-background-600: #eceff4;
+    --ui-border-300: #eceff4;
     --ui-border-400: #d8dee9;
     --ui-foreground-300: hsl(220, 16%, 46%);
     --ui-foreground-400: hsl(220, 16%, 36%);
@@ -58,4 +61,28 @@ body {
   height: 100%;
   margin: 0;
   background-color: var(--ui-background-400);
+}
+
+::-webkit-scrollbar {
+  width: var(--ui-padding-400);
+  height: var(--ui-padding-400);
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: none;
+  /* background: none  var(--ui-background-600); */
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--ui-background-700);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ui-foreground-400);
+}
+::-webkit-scrollbar-corner {
+  background: rgba(0, 0, 0, 0);
 }

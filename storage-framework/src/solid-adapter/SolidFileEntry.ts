@@ -25,17 +25,19 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     this.name = name
     this.parent = parent
   }
+  isReadonly: false = false
+  wasModified: boolean
 
   /**
-  * Reads file
-  * @returns {SFFile} on success
-  * @returns {SFError} on error
-  */
+   * Reads file
+   * @returns {SFFile} on success
+   * @returns {SFError} on error
+   */
   read(): Result<SFFile, SFError> {
     return new Result((resolve, reject) => {
       this.file.file(
         (file) => {
-          resolve(new SFFile(this.name, null, [file]))
+          resolve(new SFFile(this.name, 0, [file]))
         },
         (err) => reject(new SFError('Failed to read file', err))
       )
@@ -43,10 +45,10 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Saves file
-  * @param {File} file
-  * @returns {SFError} on error
-  */  
+   * Saves file
+   * @param {File} file
+   * @returns {SFError} on error
+   */
   save(file: File): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.saveFile(file)
@@ -56,10 +58,10 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Gets parent of file
-  * @returns {StorageFrameworkDirectoryEntry} on success
-  * @returns {SFError} on error
-  */
+   * Gets parent of file
+   * @returns {StorageFrameworkDirectoryEntry} on success
+   * @returns {SFError} on error
+   */
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
       if (this.parent) {
@@ -71,10 +73,10 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Moves file
-  * @param {StorageFrameworkDirectoryEntry} directory
-  * @returns {SFError} on error
-  */
+   * Moves file
+   * @param {StorageFrameworkDirectoryEntry} directory
+   * @returns {SFError} on error
+   */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.moveFileToContainer(directory)
@@ -84,10 +86,10 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Renames file
-  * @param {string} name
-  * @returns {SFError} on error
-  */
+   * Renames file
+   * @param {string} name
+   * @returns {SFError} on error
+   */
   rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.renameFile(name)
@@ -97,9 +99,9 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Removes file
-  * @returns {SFError} on error
-  */
+   * Removes file
+   * @returns {SFError} on error
+   */
   remove(): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.deleteFile()
@@ -111,9 +113,9 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Renames files
-  * @param {string} name
-  */
+   * Renames files
+   * @param {string} name
+   */
   async renameFile(name: string): Promise<void> {
     const file: SolidFile = await getFile(this.fullPath, { fetch: fetch })
 
@@ -132,25 +134,25 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
   // There is also an overwriteFile function which overwrites the file
   // if it exists and creates the containers which are in the url but not in the pod
   /**
-  * Saves file
-  * @param {File} file
-  */
+   * Saves file
+   * @param {File} file
+   */
   async saveFile(file: File): Promise<void> {
     await saveFileInContainer(this.parent.fullPath, file)
   }
 
   /**
-  * Deletes file
-  */
+   * Deletes file
+   */
   async deleteFile(): Promise<void> {
     await deleteFile(this.fullPath, { fetch: fetch })
   }
 
   /**
-  * Moves file to container
-  * @param {StorageFrameworkDirectoryEntry} directory
-  * @returns {SolidFile}
-  */
+   * Moves file to container
+   * @param {StorageFrameworkDirectoryEntry} directory
+   * @returns {SolidFile}
+   */
   async moveFileToContainer(
     directory: StorageFrameworkDirectoryEntry
   ): Promise<SolidFile> {
@@ -163,13 +165,13 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * TODO: use /regex/ syntax for regexes
-  * create a utility function in lib that can be used for github owner and repo fields
-  * Replaces filename with new filename
-  * @param {string} fileName
-  * @param {string} newName
-  * @returns {string}
-  */
+   * TODO: use /regex/ syntax for regexes
+   * create a utility function in lib that can be used for github owner and repo fields
+   * Replaces filename with new filename
+   * @param {string} fileName
+   * @param {string} newName
+   * @returns {string}
+   */
   replaceFileNameWithNewName(fileName: string, newName: string): string {
     /*
      * TODO: use /regex/ syntax for regexes
@@ -180,10 +182,10 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Gets filename
-  * @param {string} url
-  * @returns {string}
-  */
+   * Gets filename
+   * @param {string} url
+   * @returns {string}
+   */
   getFileName(url: string): string {
     /*
      * TODO: use new Url()

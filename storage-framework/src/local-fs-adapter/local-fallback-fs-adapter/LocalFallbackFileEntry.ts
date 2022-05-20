@@ -9,13 +9,15 @@ import type { LocalFallbackDirectoryEntry } from './LocalFallbackDirectoryEntry'
 /**
  * Contains all methods for LocalFallbackFileEntry
  */
-export class LocalFallbackFileEntry implements StorageFrameworkFileEntry {
-  name: string
+export class LocalFallbackFileEntry
+  implements StorageFrameworkReadonlyFileEntry
+{
   readonly isDirectory: false
   readonly isFile: true
   readonly fullPath: string
   private file: File
   private readonly parent: LocalFallbackDirectoryEntry
+  public readonly isReadonly: true = true
 
   get name(): string {
     return this.file.name
@@ -40,15 +42,7 @@ export class LocalFallbackFileEntry implements StorageFrameworkFileEntry {
    */
   read(): Result<SFFile, SFError> {
     return new Result((resolve, reject) => {
-      if (typeof file === 'string') {
-        this.file = new SFFile(this.name, this.lastModified, [file])
-        this.wasModified = true
-      } else if (file instanceof File) {
-        this.file = file
-        resolve()
-      } else {
-        reject(new SFError('file must be instanceof File or typeof string'))
-      }
+      resolve(this.file)
     })
   }
 
@@ -59,7 +53,14 @@ export class LocalFallbackFileEntry implements StorageFrameworkFileEntry {
    */
   save(file: File): OkOrError<SFError> {
     return new Result((resolve, reject) => {
-      resolve(this.file)
+      if (typeof file === 'string') {
+        this.file = new SFFile(this.name, this.lastModified, [file])
+      } else if (file instanceof File) {
+        this.file = file
+        resolve()
+      } else {
+        reject(new SFError('file must be instanceof File or typeof string'))
+      }
     })
   }
 
@@ -91,7 +92,6 @@ export class LocalFallbackFileEntry implements StorageFrameworkFileEntry {
   rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.file = new SFFile(name, this.lastModified, [this.file])
-      this.wasModified = true
       resolve()
     })
   }

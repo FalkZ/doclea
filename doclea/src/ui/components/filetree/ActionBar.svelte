@@ -48,7 +48,7 @@
     disabled={!canCreate}
     on:click={(ev) => {
       dispatch('close')
-    }}>{@html logo} OPEN</span
+    }}>{@html logo} OPEN FILES</span
   >
   {#if selectedEntry != null}
     {#if selectedEntry.isDirectory}

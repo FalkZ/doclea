@@ -3,7 +3,7 @@ import {
   setBlockType,
   textblockTypeInputRule,
   Selection,
-  TextSelection,
+  TextSelection
 } from '@milkdown/prose'
 import { createNode } from '@milkdown/utils'
 import { TldrawView } from './editor'
@@ -38,14 +38,14 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
       isolating: true,
       attrs: {
         value: {
-          default: '',
+          default: ''
         },
         identity: {
-          default: '',
+          default: ''
         },
         create: {
-          default: false,
-        },
+          default: false
+        }
       },
       parseDOM: [
         {
@@ -58,10 +58,10 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
             }
             return {
               value: dom.dataset.url,
-              identity: dom.id,
+              identity: dom.id
             }
-          },
-        },
+          }
+        }
       ],
       toDOM: (node) => {
         const identity = getId(node)
@@ -71,9 +71,9 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
             id: identity,
             class: utils.getClassName(node.attrs, 'tldraw'),
             'data-type': id,
-            url: node.attrs.value,
+            url: node.attrs.value
           },
-          0,
+          0
         ]
       },
       parseMarkdown: {
@@ -85,15 +85,15 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
             state.addText(value)
           }
           state.closeNode()
-        },
+        }
       },
       toMarkdown: {
         match: (node) => node.type.name === id,
         runner: (state, node) => {
           console.log('toMarkdown', node)
           state.addNode('image', undefined, '', { url: node.attrs.value })
-        },
-      },
+        }
+      }
     }),
     // TODO: TurnIntoDiagram
     commands: (nodeType) => [
@@ -105,7 +105,7 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
         dispatch(_tr)
 
         return true
-      }),
+      })
     ],
     view: () => (node, view, getPos) => {
       // TODO: remove innerEditor but keep state
@@ -120,7 +120,11 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
 
       rendered.style.position = 'relative'
       rendered.style.width = '100%'
-      rendered.style.height = '500px'
+      rendered.style.minHeight = '100px'
+      rendered.style.height = 'auto'
+      rendered.style.background = 'var(--ui-background-600)'
+      //rendered.style.border = '1px solid var(--ui-border-300)'
+      rendered.style.borderRadius = 'var(--ui-radius-400)'
 
       const image = new TldrawImage(node.attrs.value)
       rendered.appendChild(image)
@@ -134,6 +138,7 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
         // TODO: check functionality
         update: (updatedNode) => true,
         selectNode: () => {
+          rendered.style.height = Math.max(rendered.clientHeight, 500) + 'px'
           innerEditor.openEditor(rendered, currentNode)
           tldrawEditor.create(rendered)
           image.hide()
@@ -148,6 +153,7 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
 
           innerEditor.closeEditor()
           rendered.classList.remove('ProseMirror-selectednode')
+          rendered.style.height = 'auto'
           image.show()
         },
         // TODO: check functionality
@@ -161,7 +167,7 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
         ignoreMutation: () => true,
         destroy: () => {
           rendered.remove()
-        },
+        }
       }
 
       // if (node.attrs.create) r.selectNode()
@@ -172,9 +178,9 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
     inputRules: (nodeType) => {
       const inputRegex = /^!!$/
       return [
-        textblockTypeInputRule(inputRegex, 'tldraw', () => tldrawDefaultNode),
+        textblockTypeInputRule(inputRegex, 'tldraw', () => tldrawDefaultNode)
       ]
     },
-    remarkPlugins: () => [remarkTldraw],
+    remarkPlugins: () => [remarkTldraw]
   }
 })

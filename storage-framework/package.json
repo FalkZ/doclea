@@ -21,7 +21,8 @@
   },
   "scripts": {
     "dev": "parcel watch",
-    "build": "parcel build"
+    "build": "parcel build",
+    "check": "tsc --noEmit"
   },
   "dependencies": {
     "@inrupt/solid-client": "^1.21.0",

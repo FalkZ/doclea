@@ -1,7 +1,7 @@
 import { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkDirectoryEntry,
-  StorageFrameworkEntry,
+  StorageFrameworkEntry
 } from '../lib/StorageFrameworkEntry'
 import { Result, type OkOrError } from '../lib/utilities'
 import { InMemoryDirectory } from './InMemoryDirectory'
@@ -16,15 +16,16 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
   abstract readonly isDirectory: boolean
   abstract readonly isFile: boolean
 
-  constructor(parent: InMemoryDirectory, name: string) {
+  constructor(parent: InMemoryDirectory | null, name: string | null) {
     this.parent = parent
+    // @ts-ignore
     this.name = this.parent == null ? '' : name
   }
 
   /**
-  * Gets full path of entry
-  * @returns {string}
-  */
+   * Gets full path of entry
+   * @returns {string}
+   */
   get fullPath(): string {
     if (this.parent === null) return '/'
     if (this.isDirectory) return this.parent.fullPath + this.name + '/'
@@ -32,17 +33,17 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
   }
 
   /**
-  * Gets if entry is root
-  * @returns {boolean}
-  */
+   * Gets if entry is root
+   * @returns {boolean}
+   */
   get isRoot(): boolean {
     return this.parent == null && this.isDirectory
   }
 
   /**
-  * Gets if node is attached to root
-  * @returns {boolean}
-  */
+   * Gets if node is attached to root
+   * @returns {boolean}
+   */
   isNodeAttachedToRoot(): boolean {
     if (this.isRoot) return true
 
@@ -52,10 +53,10 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
   }
 
   /**
-  * Verifies if node is attached to root
-  * @returns {null} on success
-  * @returns {SFError} on error
-  */
+   * Verifies if node is attached to root
+   * @returns {null} on success
+   * @returns {SFError} on error
+   */
   verifyNodeIsAttachedToRoot(): SFError | null {
     if (this.isNodeAttachedToRoot()) return null
     return new SFError(
@@ -64,19 +65,19 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
   }
 
   /**
-  * Gets parent of directory entry
-  * @returns {StorageFrameworkDirectoryEntry} on success
-  * @returns {SFError} on error
-  */
+   * Gets parent of directory entry
+   * @returns {StorageFrameworkDirectoryEntry} on success
+   * @returns {SFError} on error
+   */
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve) => resolve(this.parent))
   }
 
   /**
-  * Renames directory
-  * @param {string} name
-  * @returns {SFError} on error
-  */
+   * Renames directory
+   * @param {string} name
+   * @returns {SFError} on error
+   */
   rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       const error = this.verifyNodeIsAttachedToRoot()
@@ -104,9 +105,9 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
   }
 
   /**
-  * Removes directory
-  * @returns {SFError} on error
-  */
+   * Removes directory
+   * @returns {SFError} on error
+   */
   remove(): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       const error = this.verifyNodeIsAttachedToRoot()
@@ -128,10 +129,10 @@ export abstract class InMemoryFSEntry implements StorageFrameworkEntry {
   }
 
   /**
-  * Moves directory
-  * @param {StorageFrameworkDirectoryEntry} directory
-  * @returns {SFError} on error
-  */
+   * Moves directory
+   * @param {StorageFrameworkDirectoryEntry} directory
+   * @returns {SFError} on error
+   */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       {

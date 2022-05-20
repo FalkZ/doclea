@@ -13,29 +13,31 @@ export class InMemoryFile
   extends InMemoryFSEntry
   implements StorageFrameworkFileEntry
 {
+  isReadonly: false = false
+
   private data = new ArrayBuffer(0)
 
   /**
-  * Gets if entry is a directory or not
-  * @returns {boolean[]}
-  */
+   * Gets if entry is a directory or not
+   * @returns {boolean[]}
+   */
   get isDirectory(): false {
     return false
   }
 
   /**
-  * Gets if entry is a file or not
-  * @returns {boolean[]}
-  */
+   * Gets if entry is a file or not
+   * @returns {boolean[]}
+   */
   get isFile(): true {
     return true
   }
 
   /**
-  * Reads file
-  * @returns {SFFile} on success
-  * @returns {SFError} on error
-  */
+   * Reads file
+   * @returns {SFFile} on success
+   * @returns {SFError} on error
+   */
   read(): Result<SFFile, SFError> {
     return new Result((resolve, reject) => {
       const error = this.verifyNodeIsAttachedToRoot()
@@ -49,10 +51,10 @@ export class InMemoryFile
   }
 
   /**
-  * Saves file
-  * @param {File} file
-  * @returns {SFError} on error
-  */
+   * Saves file
+   * @param {File} file
+   * @returns {SFError} on error
+   */
   save(file: File): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       const error = this.verifyNodeIsAttachedToRoot()

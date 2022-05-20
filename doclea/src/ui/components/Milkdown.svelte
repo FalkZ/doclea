@@ -55,6 +55,22 @@
         },
       ]
 
+  const defaultMenuConfig = [...defaultConfig]
+
+  defaultMenuConfig.splice(2, 1)
+
+  const menuConfig = [
+    buttons,
+    ...defaultMenuConfig,
+    [
+      {
+        type: 'button',
+        icon: 'draw',
+        key: 'InsertTLDraw',
+      },
+    ],
+  ]
+
   const updateEditorValue = async (selectedFile, ctx) => {
     console.log({ selectedFile, ctx })
     if (ctx === null) return
@@ -105,17 +121,7 @@
       .use(slash)
       .use(
         menu({
-          config: [
-            buttons,
-            ...defaultConfig,
-            [
-              {
-                type: 'button',
-                icon: 'draw',
-                key: 'InsertTLDraw',
-              },
-            ],
-          ],
+          config: menuConfig,
         })
       )
       .create()
