@@ -193,9 +193,9 @@ export class LocalFallbackDirectoryEntry
       // TODO: use same utility as solid & github (utility does not exit has to be created first)
       const path = child.webkitRelativePath.match(/[\w_-]+[\/\\]/g)
       const fileName = child.webkitRelativePath
-        .match(/[\/\\][\w\ .,:_-]+/g)
+        .match(/[/\\][\w .,:_-]+/g)
         .pop()
-        .replace(/[\/\\]/, '')
+        .replace(/[/\\]/, '')
       if (path.length > 0) {
         // this.name = path[0].replace(/[\/\\]/, '')
         let current: LocalFallbackDirectoryEntry = this

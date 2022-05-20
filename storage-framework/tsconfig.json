@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "types": ["wicg-file-system-access"]
-  },
-
-  "extends": "eslint-config-ijw/tsconfig.json",
-  "include": ["**/*.d.ts", "**/*.ts", "**/*.js", "**/*.svelte"],
-  "exclude": ["node_modules", "**/node_modules"]
-}
