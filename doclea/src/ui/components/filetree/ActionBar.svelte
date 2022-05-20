@@ -8,7 +8,8 @@
   import FolderPlus from 'tabler-icons-svelte/icons/FolderPlus'
   import FilePlus from 'tabler-icons-svelte/icons/FilePlus'
   import Trash from 'tabler-icons-svelte/icons/Trash'
-  import { createEventDispatcher } from 'svelte'
+  import { createEventDispatcher, getContext } from 'svelte'
+  import type { Readable, Writable } from 'svelte/store'
 
   export let selectedEntry: StorageFrameworkEntry | null = null
 
@@ -16,14 +17,24 @@
   const canRemove = selectedEntry != null
   const dispatch = createEventDispatcher()
 
-  const createFolder = () => {
-    ;(selectedEntry as StorageFrameworkDirectoryEntry).createDirectory(
-      'new folder'
-    )
+  const renameStore: Writable<StorageFrameworkEntry> = getContext('renameStore')
+
+  const createFolder = async () => {
+    const entry = await (
+      selectedEntry as StorageFrameworkDirectoryEntry
+    ).createDirectory('new folder')
+
+    console.log('created entry', entry)
+    renameStore.set(entry)
   }
 
-  const createFile = () => {
-    ;(selectedEntry as StorageFrameworkDirectoryEntry).createFile('new file')
+  const createFile = async () => {
+    const entry = await (
+      selectedEntry as StorageFrameworkDirectoryEntry
+    ).createFile('new file')
+
+    console.log('created entry', entry)
+    renameStore.set(entry)
   }
 
   const removeEntry = () => {
@@ -40,18 +51,20 @@
     }}>{@html logo} OPEN</span
   >
   {#if selectedEntry != null}
-    <span
-      id="create-file"
-      class="right"
-      disabled={!canCreate}
-      on:click={createFile}><FilePlus /></span
-    >
-    <span
-      id="create-folder"
-      class="right"
-      disabled={!canCreate}
-      on:click={createFolder}><FolderPlus /></span
-    >
+    {#if selectedEntry.isDirectory}
+      <span
+        id="create-file"
+        class="right"
+        disabled={!canCreate}
+        on:click={createFile}><FilePlus /></span
+      >
+      <span
+        id="create-folder"
+        class="right"
+        disabled={!canCreate}
+        on:click={createFolder}><FolderPlus /></span
+      >
+    {/if}
 
     <span
       id="remove-entry"

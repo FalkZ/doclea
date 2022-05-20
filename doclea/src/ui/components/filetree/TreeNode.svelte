@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
+  import { createEventDispatcher, getContext } from 'svelte'
 
   import type {
     StorageFrameworkDirectoryEntry,
@@ -8,6 +8,7 @@
   import type { SelectedEventDetail } from './SelectedEventDetail'
   import ChevronRight from 'tabler-icons-svelte/icons/ChevronRight'
   import File from 'tabler-icons-svelte/icons/File'
+  import type { Readable, Writable } from 'svelte/store'
 
   const dispatch = createEventDispatcher()
 
@@ -63,6 +64,20 @@
     event.stopPropagation()
     if (!showAsRootNode) showChildren = !showChildren
   }
+
+  const entryOnRenaming: Writable<StorageFrameworkEntry> =
+    getContext('renameStore')
+
+  // entryOnRenaming.subscribe(() => {
+  //   if (i) i.focus()
+  // })
+
+  let i
+
+  const cb = (target) => {
+    console.log('changed rename')
+    setTimeout(() => target.focus())
+  }
 </script>
 
 {#if entry.isFile}
@@ -70,9 +85,27 @@
     class="entry title {isSelected ? 'selected' : ''}"
     style={getIndentationLevelStyle(indentionLevel)}
     on:click={onSelectClick}
+    on:dblclick={(e) => {
+      $entryOnRenaming = entry
+    }}
   >
     <File />
-    {entry.name}
+    {#if $entryOnRenaming !== entry}
+      <span>
+        {entry.name}
+      </span>
+    {:else}
+      <input
+        use:cb
+        bind:this={i}
+        on:change={(event) => entry.rename(event.target.value)}
+        on:blur={(e) => {
+          $entryOnRenaming = null
+        }}
+        type="text"
+        value={entry.name}
+      />
+    {/if}
     {#if entry.wasModified}
       <span class="mod">•</span>
     {/if}
@@ -90,14 +123,36 @@
         >
       </div>
     {:else}
-      <div class="title" style={getIndentationLevelStyle(indentionLevel)}>
+      <div
+        class="title"
+        style={getIndentationLevelStyle(indentionLevel)}
+        on:dblclick={(e) => {
+          $entryOnRenaming = entry
+        }}
+      >
         <span
           on:click={onArrowClicked}
           on:contextmenu|preventDefault={onContextMenu}
           class="arrow"
           class:arrowDown={showChildren}><ChevronRight /></span
         >
-        <span>{entry.name}</span>
+
+        {#if $entryOnRenaming !== entry}
+          <span>
+            {entry.name}
+          </span>
+        {:else}
+          <input
+            use:cb
+            bind:this={i}
+            on:change={(event) => entry.rename(event.target.value)}
+            on:blur={(e) => {
+              $entryOnRenaming = null
+            }}
+            type="text"
+            value={entry.name}
+          />
+        {/if}
       </div>
     {/if}
     {#if showChildren}
@@ -151,5 +206,13 @@
 
   .arrowDown {
     transform: rotate(90deg);
+  }
+
+  input {
+    font: inherit;
+    border: none;
+    background: none;
+    outline: none;
+    padding: 0;
   }
 </style>
