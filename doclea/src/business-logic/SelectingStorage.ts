@@ -108,9 +108,7 @@ export class SelectingStorage extends AbstractState<
               case 'github.com':
                 fs = new GithubFileSystem(
                   'b0febf46067600eed6e5',
-                  '228480a8a7eae9aed8299126211402f47c488013',
-                  'mikko-abad',
-                  'doclea'
+                  '228480a8a7eae9aed8299126211402f47c488013'
                 )
                 if (!(<GithubFileSystem>fs).isSignedIn) {
                   await (<GithubFileSystem>fs).authenticate()
@@ -128,7 +126,10 @@ export class SelectingStorage extends AbstractState<
             const event = await parentState.onNextEvent()
             switch (event.type) {
               case SelectingStorageEventType.Github:
-                fs = new GithubFileSystem()
+                fs = new GithubFileSystem(
+                  'b0febf46067600eed6e5',
+                  '228480a8a7eae9aed8299126211402f47c488013'
+                )
                 this.url = event.url
                 this.setUrlHash()
                 if (!(<GithubFileSystem>fs).isSignedIn) {
