@@ -66,13 +66,16 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
    * @param {File} file
    * @returns {SFError} on error
    */
-  save(file: File): OkOrError<SFError> {
+  save(file): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       try {
-        downloadFile(this.file || (await this.read()))
+        const writable = await this.fileHandle.createWritable()
+        await writable.write(file)
+        await writable.close()
+        this.wasModified = false
         resolve()
-      } catch (error) {
-        reject(new SFError('failed to download file', error))
+      } catch (err) {
+        reject(new SFError(`Failed to write local file ${this.fullPath}.`, err))
       }
     })
   }
