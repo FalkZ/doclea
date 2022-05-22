@@ -5,7 +5,8 @@ import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkFileEntry,
   StorageFrameworkEntry
-} from '../../../storage-framework'
+} from 'storage-framework'
+
 import { type Readable, type Writable, writable } from 'svelte/store'
 import type { AppStateMachine } from './Controller'
 

@@ -36,9 +36,19 @@ export type State<Self, Arg = never, Event = never> =
   | Functional<Self, Arg>
   | AbstractState<Self, Arg, Event>
 
+export class StateError extends Error {
+  constructor(error: Error, lastState: string) {
+    super(error.message)
+    this.name = error.name
+    if (error.stack) this.stack = error.stack
+    this.lastState = lastState
+  }
+  public lastState: string
+}
+
 export interface StateMachineDefinition {
   init: State<this, never>
-  error: State<this, Error>
+  error: State<this, StateError>
 }
 
 type ConvertFunctionalToClass<S> = S extends Functional<infer Self, infer Arg>

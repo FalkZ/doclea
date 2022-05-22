@@ -1,6 +1,12 @@
 import { Readable, Writable, writable } from 'svelte/store'
 import { Logger } from '../Logger'
-import { StateMachineDefinition, States, FunctionalState, OneOf } from './State'
+import {
+  StateMachineDefinition,
+  States,
+  FunctionalState,
+  OneOf,
+  StateError
+} from './State'
 
 export class StateMachine<T extends StateMachineDefinition> {
   private readonly _states: States<T>
@@ -9,7 +15,7 @@ export class StateMachine<T extends StateMachineDefinition> {
 
   get states(): Readable<OneOf<States<T>>> {
     return {
-      subscribe: (cb) => this.statesObservable.subscribe(cb),
+      subscribe: (cb) => this.statesObservable.subscribe(cb)
     }
   }
 
@@ -38,7 +44,7 @@ export class StateMachine<T extends StateMachineDefinition> {
         const promise = state.runWithArgs(this._states)
         state = await Promise.resolve(promise)
       } catch (e) {
-        state = this._states.error.arg(e)
+        state = this._states.error.arg(new StateError(e, state.name))
       }
       this.logger.groupEnd()
     }

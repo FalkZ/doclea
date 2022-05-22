@@ -29,7 +29,7 @@
   import { tldraw } from 'milkdown-plugin-tldraw'
   import type { StorageFrameworkFileEntry } from 'storage-framework/src/lib/StorageFrameworkEntry'
   import { Slice } from '@milkdown/prose'
-  import materialFontUrl from '@material-icons/font/css/all.css?url'
+  import materialFontUrl from 'material-icons/iconfont/material-icons.css?url'
 
   export let selectedFile: StorageFrameworkFileEntry
 
@@ -102,7 +102,6 @@
 
         ctx.get(listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
           output = markdown
-          //selectedFile.update(markdown)
         })
       })
       .use(nord)
@@ -142,10 +141,7 @@
 </script>
 
 <svelte:head>
-  <link
-    href="https://fonts.googleapis.com/icon?family=Material+Icons"
-    rel="stylesheet"
-  />
+  <link href={materialFontUrl} rel="stylesheet" />
 </svelte:head>
 
 <div use:editor />

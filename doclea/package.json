@@ -11,7 +11,6 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@material-icons/font": "^1.0.29",
     "@milkdown/core": "^5.5.0",
     "@milkdown/plugin-clipboard": "^5.5.0",
     "@milkdown/plugin-cursor": "^5.5.0",
@@ -31,6 +30,7 @@
     "@milkdown/prose": "5.5.0",
     "@milkdown/theme-nord": "5.5.0",
     "@milkdown/utils": "^5.5.0",
+    "material-icons": "^1.10.11",
     "milkdown-plugin-tldraw": "file:./milkdown-plugin-tldraw",
     "prism-themes": "^1.9.0",
     "storage-framework": "file:../storage-framework",

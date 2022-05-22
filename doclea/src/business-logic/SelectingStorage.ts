@@ -2,11 +2,12 @@ import type {
   State,
   States,
   NextState,
-  StateMachineDefinition
+  StateMachineDefinition,
+  StateError
 } from './state-machine/State'
 
 import { AbstractState } from './state-machine/AbstractState'
-import type { AppStateMachine } from './Controller'
+import type { AppStateMachine, Controller } from './Controller'
 import {
   LocalFileSystem,
   SolidFileSystem,
@@ -16,6 +17,8 @@ import { StateMachine } from './state-machine/StateMachine'
 import type { StorageFrameworkEntry } from 'storage-framework'
 import type { StorageFrameworkProvider } from 'storage-framework'
 import { writable, type Readable, type Writable } from 'svelte/store'
+import MessagesSvelte from '@src/ui/components/prompt/Messages.svelte'
+import { MessageType } from './MessageTypes'
 
 /**
  * Defines the two states authenticate and open
@@ -43,6 +46,11 @@ export class SelectingStorage extends AbstractState<
   never,
   SelectingStorageEvent
 > {
+  constructor(controller: Controller) {
+    super()
+    this.controller = controller
+  }
+  private controller: Controller
   private rootEntry: StorageFrameworkEntry
 
   private get fileSystemUrl(): string | null {
@@ -85,9 +93,14 @@ export class SelectingStorage extends AbstractState<
          * Is triggered every time an error occures
          * @returns {StateMachine} Returns to entry point state init
          */
-        error: ({ init, end }, arg: Error) => {
-          console.error('an error occurred', arg)
-          return end
+        error: ({ init, end }, error: StateError) => {
+          console.error(error)
+          this.controller.showMessage({
+            type: MessageType.Error,
+            message: `an error occurred in ${error.lastState}`
+          })
+          this.fileSystemUrl = null
+          return init
         },
         /**
          * Is triggered when authenticate has successfully finished

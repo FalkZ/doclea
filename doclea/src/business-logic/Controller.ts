@@ -65,7 +65,7 @@ export class Controller {
      * Is triggered after init
      * @returns {StateMachine} Returns class SelectingStorage
      */
-    selectingStorage: new SelectingStorage()
+    selectingStorage: new SelectingStorage(this)
   })
 
   constructor() {

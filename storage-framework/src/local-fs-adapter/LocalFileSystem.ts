@@ -1,4 +1,4 @@
-import type { SFError } from '../lib/SFError'
+import { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkEntry,
   StorageFrameworkProvider
@@ -9,41 +9,70 @@ import { Result } from '../lib/utilities/result'
 import { LocalFallbackDirectoryEntry } from './local-fallback-fs-adapter/LocalFallbackDirectoryEntry'
 import { LocalDirectoryEntry } from './LocalDirectoryEntry'
 
-export class LocalFileSystem implements StorageFrameworkProvider {
-  open(): Result<StorageFrameworkEntry, SFError> {
-    return new Result(async (resolve) => {
-      if (window.showDirectoryPicker) {
-        const dirHandle = await window.showDirectoryPicker({
-          multiple: true
-        })
-        resolve(
-          new ReactivityDirDecorator(
-            null,
-            new LocalDirectoryEntry(dirHandle, null, true)
-          )
-        )
-      } else {
-        const el = document.createElement('input')
-        el.setAttribute('type', 'file')
-        el.setAttribute('webkitdirectory', 'true')
-        el.setAttribute('multiple', 'true')
-        el.click()
+const selectFolder = (): Promise<File[]> =>
+  new Promise<File[]>((resolve, reject) => {
+    const el = document.createElement('input')
+    el.setAttribute('type', 'file')
+    el.setAttribute('webkitdirectory', 'true')
+    el.setAttribute('multiple', 'true')
 
-        el.onchange = (ev: any) => {
-          const dirName = ev.target?.files?.length
-            ? '/' + ev.target.files[0].webkitRelativePath.split('/')[0]
-            : ''
+    el.addEventListener('change', () => {
+      resolve([...el.files])
+    })
+
+    setTimeout((_) => {
+      el.click()
+      let counter = 0
+      const onFocus = () => {
+        counter += 1
+        if (counter === 2) {
+          window.removeEventListener('focus', onFocus)
+          document.body.addEventListener('mousemove', onMouseMove)
+        }
+      }
+      const onMouseMove = () => {
+        document.body.removeEventListener('mousemove', onMouseMove)
+        if (!el.files.length) {
+          reject()
+        }
+      }
+      window.addEventListener('focus', onFocus)
+    }, 0)
+  })
+
+export class LocalFileSystem implements StorageFrameworkProvider {
+  public open(): Result<StorageFrameworkEntry, SFError> {
+    return new Result(async (resolve, reject) => {
+      if (window.showDirectoryPicker) {
+        try {
+          const dirHandle = await window.showDirectoryPicker({
+            multiple: true
+          })
           resolve(
             new ReactivityDirDecorator(
               null,
-              new LocalFallbackDirectoryEntry(
-                dirName,
-                ev.target.files,
-                true,
-                null
-              )
+              new LocalDirectoryEntry(dirHandle, null, true)
             )
           )
+        } catch (e) {
+          reject(new SFError('Failed to open local file system', e))
+        }
+      } else {
+        try {
+          const files = await selectFolder()
+
+          if (files.length) {
+            const dirName = files[0].webkitRelativePath.split('/')[0]
+
+            resolve(
+              new ReactivityDirDecorator(
+                null,
+                new LocalFallbackDirectoryEntry(dirName, files, true, null)
+              )
+            )
+          }
+        } catch (e) {
+          reject(new SFError('Failed to open local file system'))
         }
       }
     })
