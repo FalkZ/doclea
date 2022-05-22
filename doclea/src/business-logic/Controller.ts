@@ -82,7 +82,7 @@ export class Controller {
   /**
    * Adds message to messageStore and removes it after messageTimeMs
    */
-  public showMessage(message: Message) {
+  public showMessage(message: Message): void {
     this.messageStore.update((messages) => {
       messages.push(message)
       return messages

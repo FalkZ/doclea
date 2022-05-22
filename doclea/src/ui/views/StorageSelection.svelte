@@ -12,7 +12,13 @@
 
   const { isOpenButtonActive } = selectingStorageState
 
-  let value
+  let value = ''
+
+  $: isValidGithubUrl = value.startsWith('https://github.com/')
+
+  $: isValidSolidUrl =
+    !isValidGithubUrl &&
+    (value.startsWith('https://') || value.startsWith('http://'))
 </script>
 
 <div class="backdrop" />
@@ -22,20 +28,27 @@
   <h1>{@html svg}oclea</h1>
   <p>select a storage location</p>
   <div>
-    <Input placeholder="https://github.com/..." bind:value />
+    <Input
+      placeholder="https://github.com/..."
+      bind:value
+      on:input={() => {
+        if (value) selectingStorageState.open(value)
+      }}
+    />
 
     <p>
       <Button
         inline={true}
-        on:click={() => selectingStorageState.openSolid(value)}
-        active={$isOpenButtonActive}
-        className={['left']}><Hexagon /> Solid</Button
+        on:click={() => selectingStorageState.open(value)}
+        active={$isOpenButtonActive && isValidSolidUrl}
+        ><Hexagon /> Solid</Button
       >
       or
       <Button
         inline={true}
-        on:click={() => selectingStorageState.openGithub(value)}
-        className={['right']}><BrandGithub /> GitHub</Button
+        on:click={() => selectingStorageState.open(value)}
+        active={$isOpenButtonActive && isValidGithubUrl}
+        ><BrandGithub /> GitHub</Button
       >
     </p>
   </div>
@@ -43,7 +56,7 @@
 
   <Button
     inline={true}
-    on:click={() => selectingStorageState.openLocal()}
+    on:click={() => selectingStorageState.open()}
     active={$isOpenButtonActive}><Folder /> open local folder</Button
   >
 </div>
@@ -59,19 +72,7 @@
     display: block;
   }
 
-  /* div :global(.left) {
-    position: absolute;
-    top: -20px;
-    left: 0;
-  }
-
-  div :global(.right) {
-    position: absolute;
-    top: -20px;
-    right: 0;
-  } */
-
-  :global(.logo) {
+  h1 :global(.logo) {
     height: 1em;
     width: 1em;
     top: 0.1em;

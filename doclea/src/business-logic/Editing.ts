@@ -4,13 +4,13 @@ import { AbstractState } from './state-machine/AbstractState'
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkFileEntry,
-  StorageFrameworkEntry,
+  StorageFrameworkEntry
 } from '../../../storage-framework'
 import { type Readable, type Writable, writable } from 'svelte/store'
 import type { AppStateMachine } from './Controller'
 
 enum EditorEventType {
-  CloseEditor,
+  CloseEditor
 }
 
 export type EditorEvent = EditorEventType.CloseEditor
@@ -20,8 +20,8 @@ export type EditorEvent = EditorEventType.CloseEditor
  */
 export class Editing extends AbstractState<
   AppStateMachine,
-  EditorEvent,
-  StorageFrameworkEntry
+  StorageFrameworkEntry,
+  EditorEvent
 > {
   protected async run(
     { selectingStorage }: States<AppStateMachine>,
@@ -29,7 +29,7 @@ export class Editing extends AbstractState<
   ): Promise<NextState> {
     console.log('added files', rootEntry)
     this.filesStore.set(rootEntry)
-    const event = await this.onNextEvent()
+    await this.onNextEvent()
 
     return selectingStorage
   }
@@ -44,41 +44,42 @@ export class Editing extends AbstractState<
     writable()
 
   /**
-    * Gets the selected file by the user
-    * @returns {StorageFrameworkFileEntry} Returns selectedFileStore
-    */
+   * Gets the selected file by the user
+   * @returns {StorageFrameworkFileEntry} Returns selectedFileStore
+   */
   get selectedFile(): Readable<StorageFrameworkFileEntry | null> {
     return { subscribe: this.selectedFileStore.subscribe }
   }
 
   /**
-    * Gets the selected entry by the user
-    * @returns {StorageFrameworkFileEntry} Returns selectedEntryStore
-    */
+   * Gets the selected entry by the user
+   * @returns {StorageFrameworkFileEntry} Returns selectedEntryStore
+   */
   get selectedEntry(): Readable<StorageFrameworkEntry | null> {
     return { subscribe: this.selectedEntryStore.subscribe }
   }
 
   /**
-    * Gets the files of the selected directory entry by the user
-    * @returns {StorageFrameworkDirectoryEntry} Returns filesStore
-    */
+   * Gets the files of the selected directory entry by the user
+   * @returns {StorageFrameworkDirectoryEntry} Returns filesStore
+   */
   get files(): Readable<StorageFrameworkDirectoryEntry | null> {
     return { subscribe: this.filesStore.subscribe }
   }
 
   /**
-    * Sets the selected entry by the user
-    */
+   * Sets the selected entry by the user
+   */
   public setSelectedEntry(entry: StorageFrameworkEntry): void {
-    if (entry.isFile) this.selectedFileStore.set(<StorageFrameworkFileEntry>entry)
+    if (entry.isFile)
+      this.selectedFileStore.set(<StorageFrameworkFileEntry>entry)
 
     this.selectedEntryStore.set(entry)
   }
 
   /**
-    * Closes the editor with a dispach method
-    */
+   * Closes the editor with a dispach method
+   */
   closeEditor(): void {
     this.dispatchEvent(EditorEventType.CloseEditor)
   }

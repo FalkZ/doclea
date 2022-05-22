@@ -26,6 +26,11 @@
     font-weight: bold;
     cursor: pointer;
   }
+  button[disabled] {
+    color: var(--ui-foreground-300);
+    box-shadow: none;
+    cursor: auto;
+  }
 
   .inline {
     display: inline-block;

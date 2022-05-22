@@ -23,7 +23,7 @@
       />
     </Pane>
     <Pane>
-      <div>
+      <div class="milkdownContainer">
         {#if $selectedFile}
           <Milkdown selectedFile={$selectedFile} />
         {:else}
@@ -39,49 +39,26 @@
     height: 100vh;
     width: 100vw;
   }
-  div {
+  .milkdownContainer {
     position: relative;
   }
-  #te {
-    display: table;
-  }
-  :global(.icon-tabler) {
-    height: 2em;
-    margin-top: -0.5em;
-    margin-bottom: -0.5em;
-    position: relative;
-    top: 0.1em;
-  }
-  #sidepane,
-  #filetree {
-    display: block;
-    box-sizing: border-box;
-    height: 100vh;
-    background: var(--ui-background-500);
-  }
-  #filetree {
-    overflow: scroll;
-  }
 
-  :global(html) {
-    background-color: var(--ui-background-500) !important;
-  }
-
-  :global(.splitpanes__pane) {
+  main :global(.splitpanes__pane) {
     min-width: 260px;
     background-color: var(--ui-background-500) !important;
   }
 
-  :global(.splitpanes) {
+  main :global(.splitpanes) {
     background-color: var(--ui-background-500) !important;
   }
-  :global(.splitpanes__splitter) {
+  main :global(.splitpanes__splitter) {
     background-color: var(--ui-background-500) !important;
     border-color: var(--ui-background-500) !important;
     color: var(--ui-foreground-400) !important;
   }
 
-  :global(.splitpanes__splitter::before, .splitpanes__splitter::after) {
+  main :global(.splitpanes__splitter::after),
+  main :global(.splitpanes__splitter::before) {
     background-color: var(--ui-foreground-300) !important;
   }
 </style>

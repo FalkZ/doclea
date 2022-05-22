@@ -54,9 +54,15 @@ export class GithubFileSystem implements StorageFrameworkProvider {
 
   public static owner: string
   public static repo: string
-  constructor(client_id: string, client_secret: string) {
-    sessionStorage.setItem(github_client_id, client_id)
-    sessionStorage.setItem(github_client_secret, client_secret)
+  constructor({
+    clientId,
+    clientSecret
+  }: {
+    clientId: string
+    clientSecret: string
+  }) {
+    sessionStorage.setItem(github_client_id, clientId)
+    sessionStorage.setItem(github_client_secret, clientSecret)
 
     this.token = sessionStorage.getItem(guid)
     console.log('constructor() - the token: ', this.token)

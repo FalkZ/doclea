@@ -12,17 +12,17 @@ type Functional<Self, Args> = (
 ) => MaybePromise<NextState>
 
 export class FunctionalState<
-  T extends DefinableStates,
-  A
-> extends AbstractState<T, A> {
-  private readonly fn: Functional<T, A>
+  Self extends DefinableStates,
+  Arg
+> extends AbstractState<Self, Arg> {
+  private readonly fn: Functional<Self, Arg>
 
-  constructor(fn: Functional<T, A>) {
+  constructor(fn: Functional<Self, Arg>) {
     super()
     this.fn = fn
   }
 
-  protected async run(states: States<T>, arg?: A): Promise<NextState> {
+  protected async run(states: States<Self>, arg?: Arg): Promise<NextState> {
     return this.fn(states, arg)
   }
 }
@@ -32,9 +32,9 @@ export interface DefinableStates {
   end: never
 }
 
-export type State<Self, Args = never, Event = never> =
-  | Functional<Self, Args>
-  | AbstractState<Self, Event, Args>
+export type State<Self, Arg = never, Event = never> =
+  | Functional<Self, Arg>
+  | AbstractState<Self, Arg, Event>
 
 export interface StateMachineDefinition {
   init: State<this, never>

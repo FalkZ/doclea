@@ -63,6 +63,14 @@ body {
   background-color: var(--ui-background-400);
 }
 
+.icon-tabler {
+  height: 2em;
+  margin-top: -0.5em;
+  margin-bottom: -0.5em;
+  position: relative;
+  top: 0.1em;
+}
+
 ::-webkit-scrollbar {
   width: var(--ui-padding-400);
   height: var(--ui-padding-400);

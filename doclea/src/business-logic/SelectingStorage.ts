@@ -24,50 +24,54 @@ interface SelectingStorageStateMachine extends StateMachineDefinition {
   /**
    * authenticate state init
    */
-  authenticate: State<this, never, StorageFrameworkProvider>
+  authenticate: State<this>
   /**
    * open state init
    */
-  open: State<this, never, StorageFrameworkProvider>
+  open: State<this, StorageFrameworkProvider>
 }
 
-enum SelectingStorageEventType {
-  Github,
-  Solid,
-  Local
+export interface SelectingStorageEvent {
+  url?: string
 }
-
-enum ButtonState {
-  Active = 1,
-  Inactive = 0
-}
-
-export type SelectingStorageEvent =
-  | {
-      type: SelectingStorageEventType.Github | SelectingStorageEventType.Solid
-      url: string
-    }
-  | {
-      type: SelectingStorageEventType.Local
-    }
 
 /**
  * Contains all methods of the selectingStorage state
  */
 export class SelectingStorage extends AbstractState<
   AppStateMachine,
+  never,
   SelectingStorageEvent
 > {
   private rootEntry: StorageFrameworkEntry
-  private url: string
-  private get fileSystemUrl(): URL | null {
+
+  private get fileSystemUrl(): string | null {
     const url = window.location.hash.replace('#', '')
-    return url ? new URL(url) : null
+    return url || null
+  }
+
+  /**
+   * Sets url hash to e.g. #https://github.com/...
+   */
+  private set fileSystemUrl(url: string | null | undefined) {
+    if (url) window.location.hash = url
+    else window.location.hash = ''
+  }
+
+  private getStorageByUrl(url?: string): StorageFrameworkProvider {
+    if (!url) {
+      return new LocalFileSystem()
+    } else if (url.startsWith('https://github.com')) {
+      return new GithubFileSystem({
+        clientId: 'b0febf46067600eed6e5',
+        clientSecret: '228480a8a7eae9aed8299126211402f47c488013'
+      })
+    } else {
+      return new SolidFileSystem()
+    }
   }
 
   private async runSelectingStorageStateMachine() {
-    const parentState = this
-    let fs: StorageFrameworkProvider
     const selectingStorageStateMachine =
       new StateMachine<SelectingStorageStateMachine>({
         /**
@@ -83,16 +87,15 @@ export class SelectingStorage extends AbstractState<
          */
         error: ({ init, end }, arg: Error) => {
           console.error('an error occurred', arg)
-          return init
+          return end
         },
         /**
          * Is triggered when authenticate has successfully finished
          * @returns {StateMachine} Returns state end (which moves over to editing state)
          */
-        open: async ({ end }) => {
-          if (this.url) {
-            this.rootEntry = await fs.open(this.url)
-          } else this.rootEntry = await fs.open()
+        open: async ({ end }, fs) => {
+          this.rootEntry = await fs.open(this.fileSystemUrl)
+
           return end
         },
 
@@ -101,71 +104,31 @@ export class SelectingStorage extends AbstractState<
          * @returns {StateMachine} Returns state open
          */
         authenticate: async ({ open }) => {
-          parentState.openButtonStateStore.set(true)
+          this.openButtonStateStore.set(true)
           if (this.fileSystemUrl) {
-            this.url = this.fileSystemUrl.toString()
-            switch (this.fileSystemUrl.hostname) {
-              case 'github.com':
-                fs = new GithubFileSystem(
-                  'b0febf46067600eed6e5',
-                  '228480a8a7eae9aed8299126211402f47c488013'
-                )
-                if (!(<GithubFileSystem>fs).isSignedIn) {
-                  await (<GithubFileSystem>fs).authenticate()
-                }
+            const fs = this.getStorageByUrl(this.fileSystemUrl)
 
-                return open
-              default:
-                fs = new SolidFileSystem()
-                if (!fs.isSignedIn) {
-                  await fs.authenticate()
-                }
-                return open
+            if (!fs.isSignedIn) {
+              await fs.authenticate()
             }
+
+            return open.arg(fs)
           } else {
-            const event = await parentState.onNextEvent()
-            switch (event.type) {
-              case SelectingStorageEventType.Github:
-                fs = new GithubFileSystem(
-                  'b0febf46067600eed6e5',
-                  '228480a8a7eae9aed8299126211402f47c488013'
-                )
-                this.url = event.url
-                this.setUrlHash()
-                if (!(<GithubFileSystem>fs).isSignedIn) {
-                  await (<GithubFileSystem>fs).authenticate()
-                }
+            const { url } = await this.onNextEvent()
 
-                return open
+            this.fileSystemUrl = url
+            const fs = this.getStorageByUrl(url)
 
-              case SelectingStorageEventType.Solid:
-                fs = new SolidFileSystem()
-                this.url = event.url
-                this.setUrlHash()
-                if (!(<SolidFileSystem>fs).isSignedIn) {
-                  await (<SolidFileSystem>fs).authenticate()
-                }
-
-                return open
-
-              case SelectingStorageEventType.Local:
-                fs = new LocalFileSystem()
-                return open
+            if (fs.authenticate && !fs.isSignedIn) {
+              await fs.authenticate()
             }
+
+            return open.arg(fs)
           }
         }
       })
 
     await selectingStorageStateMachine.run()
-  }
-
-  /**
-   * Sets url hash to e.g. #https://github.com/...
-   */
-  private setUrlHash() {
-    const docURL = new URL(location.href)
-    docURL.hash = `#${this.url}`
-    location.href = docURL.href
   }
 
   protected async run({
@@ -186,23 +149,9 @@ export class SelectingStorage extends AbstractState<
   }
 
   /**
-   * opens storageFramework of storage-type: local
+   * opens storageFramework with url or local without url
    */
-  public openLocal() {
-    this.dispatchEvent({ type: SelectingStorageEventType.Local })
-  }
-
-  /**
-   * opens storageFramework of storage-type: solid
-   */
-  public openSolid(url: string): void {
-    this.dispatchEvent({ type: SelectingStorageEventType.Solid, url: url })
-  }
-
-  /**
-   * opens storageFramework of storage-type: github
-   */
-  public openGithub(url: string): void {
-    this.dispatchEvent({ type: SelectingStorageEventType.Github, url: url })
+  public open(url?: string): void {
+    this.dispatchEvent({ url: url })
   }
 }

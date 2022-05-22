@@ -1,9 +1,9 @@
 import type { States, NextState, OneOf } from './State'
 
-export abstract class AbstractState<T, E = never, A = never> {
-  protected abstract run(states: States<T>, arg?: A): Promise<NextState>
+export abstract class AbstractState<T, Arg = never, Event = never> {
+  protected abstract run(states: States<T>, arg?: Arg): Promise<NextState>
   private _name: string
-  private _arg: A
+  private _arg: Arg
 
   private eventTarget = new EventTarget()
 
@@ -18,7 +18,7 @@ export abstract class AbstractState<T, E = never, A = never> {
     return r
   }
 
-  public arg(arg: A): this {
+  public arg(arg: Arg): this {
     this._arg = arg
     return this
   }
@@ -27,24 +27,24 @@ export abstract class AbstractState<T, E = never, A = never> {
     this._name = name
   }
 
-  private createCustomEvent(event: E): CustomEvent {
+  private createCustomEvent(event: Event): CustomEvent {
     return new CustomEvent('state', {
-      detail: event,
+      detail: event
     })
   }
 
-  protected onNextEvent(): Promise<E> {
-    return new Promise<E>((resolve) => {
+  protected onNextEvent(): Promise<Event> {
+    return new Promise<Event>((resolve) => {
       const listener: EventListener = ({ detail }) => {
         this.eventTarget.removeEventListener('state', listener)
 
-        resolve(<E>detail)
+        resolve(<Event>detail)
       }
       this.eventTarget.addEventListener('state', listener)
     })
   }
 
-  protected dispatchEvent(event: E) {
+  protected dispatchEvent(event: Event) {
     this.eventTarget.dispatchEvent(this.createCustomEvent(event))
   }
 }
