@@ -11,10 +11,10 @@ import {
   LocalFileSystem,
   SolidFileSystem,
   GithubFileSystem
-} from '../../../storage-framework'
+} from 'storage-framework'
 import { StateMachine } from './state-machine/StateMachine'
-import type { StorageFrameworkEntry } from '../../../storage-framework'
-import type { StorageFrameworkProvider } from '../../../storage-framework'
+import type { StorageFrameworkEntry } from 'storage-framework'
+import type { StorageFrameworkProvider } from 'storage-framework'
 import { writable, type Readable, type Writable } from 'svelte/store'
 
 /**
@@ -35,6 +35,11 @@ enum SelectingStorageEventType {
   Github,
   Solid,
   Local
+}
+
+enum ButtonState {
+  Active = 1,
+  Inactive = 0
 }
 
 export type SelectingStorageEvent =
@@ -90,6 +95,7 @@ export class SelectingStorage extends AbstractState<
           } else this.rootEntry = await fs.open()
           return end
         },
+
         /**
          * Is triggered after init state and handles authentication for the selected storageFramework
          * @returns {StateMachine} Returns state open
@@ -100,10 +106,14 @@ export class SelectingStorage extends AbstractState<
             this.url = this.fileSystemUrl.toString()
             switch (this.fileSystemUrl.hostname) {
               case 'github.com':
-                fs = new GithubFileSystem()
+                fs = new GithubFileSystem(
+                  'b0febf46067600eed6e5',
+                  '228480a8a7eae9aed8299126211402f47c488013'
+                )
                 if (!(<GithubFileSystem>fs).isSignedIn) {
                   await (<GithubFileSystem>fs).authenticate()
                 }
+
                 return open
               default:
                 fs = new SolidFileSystem()
@@ -116,7 +126,10 @@ export class SelectingStorage extends AbstractState<
             const event = await parentState.onNextEvent()
             switch (event.type) {
               case SelectingStorageEventType.Github:
-                fs = new GithubFileSystem()
+                fs = new GithubFileSystem(
+                  'b0febf46067600eed6e5',
+                  '228480a8a7eae9aed8299126211402f47c488013'
+                )
                 this.url = event.url
                 this.setUrlHash()
                 if (!(<GithubFileSystem>fs).isSignedIn) {

@@ -1,5 +1,5 @@
 import { Octokit } from '@octokit/core'
-import type { Readable } from 'src/lib/utilities/stores'
+import type { Readable } from '../lib/utilities/stores'
 import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
 import type { StorageFrameworkDirectoryEntry } from '../lib/StorageFrameworkEntry'
@@ -9,19 +9,19 @@ import { GithubFileSystem } from './GithubFileSystem'
 import type { ArrayResponse, SingleFile } from './GithubTypes'
 
 import { Mutex } from '../lib/utilities/mutex'
+import { getFileContent } from '../lib/utilities/getFileContent'
 
 /**
  * Contains all methods for GithubFileEntry
  */
 export class GithubFileEntry implements StorageFrameworkFileEntry {
-  readonly isDirectory = false
-  readonly isFile = true
-  readonly fullPath: string
-  readonly name: string
-  readonly content_url: string
-  private readonly parent: StorageFrameworkDirectoryEntry
-  octokit: Octokit
-  githubEntry: SingleFile
+  public readonly isDirectory = false
+  public readonly isFile = true
+  public readonly fullPath: string
+  public readonly name: string
+  private parent: StorageFrameworkDirectoryEntry
+  private octokit: Octokit
+  private githubEntry: SingleFile
 
   private readonly mutex = new Mutex()
 
@@ -40,10 +40,10 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Reads file
-  * @returns {SFFile} on success
-  * @returns {SFError} on error
-  */
+   * Reads file
+   * @returns {SFFile} on success
+   * @returns {SFError} on error
+   */
   read(): Result<SFFile, SFError> {
     return new Result(async (result) => {
       await this.getGithubFile(this.fullPath)
@@ -56,21 +56,20 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Saves file
-  * @param {File} file
-  * @returns {SFError} on error
-  */
+   * Saves file
+   * @param {File} file
+   * @returns {SFError} on error
+   */
   save(file: File): OkOrError<SFError> {
-    return new Result((resolve, reject) => {
+    console.log(file)
+    return new Result(async (resolve, reject) => {
       this.octokit
         .request('PUT /repos/{owner}/{repo}/contents/{path}', {
-          owner: GithubFileSystem.config.owner,
-          repo: GithubFileSystem.config.repo,
+          owner: GithubFileSystem.owner,
+          repo: GithubFileSystem.repo,
           path: this.fullPath,
           message: 'doclea update',
-          content: window.btoa(
-            unescape(encodeURIComponent(file.text.toString()))
-          ),
+          content: btoa(await getFileContent(file)),
           sha: this.githubEntry.sha
         })
         .then((response) => {
@@ -86,10 +85,10 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Gets parent of file
-  * @returns {StorageFrameworkDirectoryEntry} on success
-  * @returns {SFError} on error
-  */
+   * Gets parent of file
+   * @returns {StorageFrameworkDirectoryEntry} on success
+   * @returns {SFError} on error
+   */
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
       if (this.parent) {
@@ -101,9 +100,9 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Removes file
-  * @returns {SFError} on error
-  */
+   * Removes file
+   * @returns {SFError} on error
+   */
   remove(): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       await this.mutex.apply(async () => {
@@ -120,10 +119,10 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Moves file
-  * @param {StorageFrameworkDirectoryEntry} directory
-  * @returns {SFError} on error
-  */
+   * Moves file
+   * @param {StorageFrameworkDirectoryEntry} directory
+   * @returns {SFError} on error
+   */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       await this.mutex.apply(async () => {
@@ -150,10 +149,10 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Renames file
-  * @param {string} name
-  * @returns {SFError} on error
-  */
+   * Renames file
+   * @param {string} name
+   * @returns {SFError} on error
+   */
   rename(name: string): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       await this.mutex.apply(async () => {
@@ -174,13 +173,13 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
       })
     })
   }
-  
+
   private getGithubFile(getFileFullPath: string): Result<SingleFile, void> {
     return new Result((resolve, reject) => {
       this.octokit
         .request('GET /repos/{owner}/{repo}/contents/{path}', {
-          owner: GithubFileSystem.config.owner,
-          repo: GithubFileSystem.config.repo,
+          owner: GithubFileSystem.owner,
+          repo: GithubFileSystem.repo,
           path: getFileFullPath
         })
         .then(({ data }) => {
@@ -189,9 +188,8 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
           resolve(this.githubEntry)
         })
         .catch((error) => {
-          // TODO: reject error
           console.log('Failed to read file from GitHub: ', getFileFullPath)
-          reject
+          reject(error)
         })
     })
   }
@@ -203,22 +201,19 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     return new Result(async (resolve, reject) => {
       await this.octokit
         .request('PUT /repos/{owner}/{repo}/contents/{path}', {
-          owner: GithubFileSystem.config.owner,
-          repo: GithubFileSystem.config.repo,
+          owner: GithubFileSystem.owner,
+          repo: GithubFileSystem.repo,
           path: newFileFullPath,
           message: 'doclea created file',
           content: contentInBase65
         })
         .then((response) => {
-          /**
-           * TODO: resolve & reject
-           */
           if (response.status == 201) {
             console.log('Succesfully created file in GitHub: ', newFileFullPath)
-            resolve
+            resolve()
           } else {
             console.log('Failed to create file in GitHub: ', newFileFullPath)
-            reject
+            reject()
           }
         })
     })
@@ -231,8 +226,8 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     return new Result(async (resolve, reject) => {
       await this.octokit
         .request('DELETE /repos/{owner}/{repo}/contents/{path}', {
-          owner: GithubFileSystem.config.owner,
-          repo: GithubFileSystem.config.repo,
+          owner: GithubFileSystem.owner,
+          repo: GithubFileSystem.repo,
           path: removeFileFullPath,
           message: 'doclea removed file',
           sha: sha
@@ -244,8 +239,10 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
               'Succesfully removed file in GitHub: ',
               removeFileFullPath
             )
+            resolve()
           } else {
             console.log('Failed to remove file in GitHub: ', removeFileFullPath)
+            reject()
           }
         })
     })

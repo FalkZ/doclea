@@ -32,7 +32,10 @@
         className={['left']}><Hexagon /> Solid</Button
       >
       or
-      <Button inline={true} className={['right']}><BrandGithub /> GitHub</Button
+      <Button
+        inline={true}
+        on:click={() => selectingStorageState.openGithub(value)}
+        className={['right']}><BrandGithub /> GitHub</Button
       >
     </p>
   </div>
