@@ -96,12 +96,8 @@ export class ReactivityFileDecorator
     })
   }
 
-  save(): OkOrError<SFError> {
-    return this.wrappedEntry.save()
-  }
-
-  download(): OkOrError<SFError> {
-    return this.wrappedEntry.download()
+  save(file: File): OkOrError<SFError> {
+    return this.wrappedEntry.save(file)
   }
 
   get isReadonly(): false {

@@ -9,6 +9,7 @@ import { GithubFileSystem } from './GithubFileSystem'
 import type { ArrayResponse, SingleFile } from './GithubTypes'
 
 import { Mutex } from '../lib/utilities/mutex'
+import { getFileContent } from '../lib/utilities/getFileContent'
 
 /**
  * Contains all methods for GithubFileEntry
@@ -60,16 +61,15 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
    * @returns {SFError} on error
    */
   save(file: File): OkOrError<SFError> {
-    return new Result((resolve, reject) => {
+    console.log(file)
+    return new Result(async (resolve, reject) => {
       this.octokit
         .request('PUT /repos/{owner}/{repo}/contents/{path}', {
           owner: GithubFileSystem.owner,
           repo: GithubFileSystem.repo,
           path: this.fullPath,
           message: 'doclea update',
-          content: window.btoa(
-            unescape(encodeURIComponent(file.text.toString()))
-          ),
+          content: btoa(await getFileContent(file)),
           sha: this.githubEntry.sha
         })
         .then((response) => {

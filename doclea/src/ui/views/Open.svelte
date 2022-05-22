@@ -34,7 +34,7 @@
       or
       <Button
         inline={true}
-        on:click={() => selectingStorageState.openGithub('')}
+        on:click={() => selectingStorageState.openGithub(value)}
         className={['right']}><BrandGithub /> GitHub</Button
       >
     </p>
