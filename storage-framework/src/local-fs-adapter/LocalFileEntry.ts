@@ -1,7 +1,7 @@
 import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
 import type { StorageFrameworkDirectoryEntry } from '../lib/StorageFrameworkEntry'
-import { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
+import type { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
 import { downloadFile } from '../lib/utilities/downloadFile'
 import { Result, type OkOrError } from '../lib/utilities/result'
 import type { LocalDirectoryEntry } from './LocalDirectoryEntry'

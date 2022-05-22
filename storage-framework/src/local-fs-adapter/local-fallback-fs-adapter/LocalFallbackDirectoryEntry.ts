@@ -4,7 +4,7 @@ import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry
 } from '../../lib/StorageFrameworkEntry'
-import { StorageFrameworkFileEntry } from '../../lib/StorageFrameworkFileEntry'
+import type { StorageFrameworkFileEntry } from '../../lib/StorageFrameworkFileEntry'
 import { Result, type OkOrError } from '../../lib/utilities'
 import { PathUtil } from '../../lib/utilities/pathUtil'
 import { LocalFallbackFileEntry } from './LocalFallbackFileEntry'
@@ -121,8 +121,9 @@ export class LocalFallbackDirectoryEntry
    */
   remove(): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
+      if (!this.parent) reject(new SFError('Cannot remove root directory'))
       try {
-        await this.parent.removeChild(this.name)
+        await this.parent?.removeChild(this.name)
         resolve()
       } catch (error) {
         reject(error)
