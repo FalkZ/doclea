@@ -101,15 +101,3 @@ export interface StorageFrameworkDirectoryEntry extends StorageFrameworkEntry {
    */
   createDirectory(name: string): Result<StorageFrameworkDirectoryEntry, SFError>
 }
-
-/**
- * Add observability to the StorageFrameworkDirectoryEntry
- */
-export interface ObservableStorageFrameworkDirectoryEntry
-  extends StorageFrameworkDirectoryEntry {
-  /**
-   * retrive all children and watch out for any modifications
-   * @returns an observable for children, or SFError on error
-   */
-  watchChildren(): Result<Observable<StorageFrameworkEntry[]>, SFError>
-}

@@ -1,6 +1,7 @@
 import type { Result, OkOrError } from '../utilities/result'
 import type { SFError } from '../SFError'
 import type { SFFile } from '../SFFile'
+import type { CreateReadonly, MaybeReadonly } from './CreateReadonly'
 
 /**
  * Common properties for all entries of the storage framework.
@@ -74,14 +75,7 @@ export interface WritableDirectoryEntry extends BaseEntry {
   createDirectory(name: string): Result<DirectoryEntry, SFError>
 }
 
-type ReadonlyDirectoryEntry = Omit<
-  WritableDirectoryEntry,
-  'delete' | 'createFile' | 'createDirectory' | 'isReadonly'
-> & {
-  readonly isReadonly: true
-}
-
-export type DirectoryEntry = ReadonlyDirectoryEntry | WritableDirectoryEntry
+export type DirectoryEntry = MaybeReadonly<WritableDirectoryEntry>
 
 /**
  * Representation of a file entry in the storage framework
@@ -113,6 +107,6 @@ export type ReadonlyFileEntry = Omit<
   readonly isReadonly: true
 }
 
-export type FileEntry = WritableFileEntry | ReadonlyFileEntry
+export type FileEntry = MaybeReadonly<WritableFileEntry>
 
 export type Entry = FileEntry | DirectoryEntry
