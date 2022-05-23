@@ -60,7 +60,7 @@ export class Controller {
      * Is triggered when appStateMachine moves to Editing state (after successfully selecting storage)
      * @returns {StateMachine} Returns class Editing
      */
-    editing: new Editing(),
+    editing: new Editing(this),
     /**
      * Is triggered after init
      * @returns {StateMachine} Returns class SelectingStorage
