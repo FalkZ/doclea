@@ -3,7 +3,7 @@ import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry
 } from '../lib/StorageFrameworkEntry'
-import { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
+import type { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
 import { Result, type OkOrError } from '../lib/utilities/result'
 import { LocalFileEntry } from './LocalFileEntry'
 
@@ -21,21 +21,17 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
 
   constructor(
     directoryHandle: FileSystemDirectoryHandle,
-    parent: LocalDirectoryEntry | null,
-    isRoot: boolean
+    parent: LocalDirectoryEntry | null
   ) {
     this.directoryHandle = directoryHandle
     this.parent = parent
-    /**
-     * TODO: check if parent exists instead like in solid adapter
-     */
-    this.isRoot = isRoot
+    this.isRoot = this.parent ? false : true
     this.name = directoryHandle.name
     this.isFile = false
     this.isDirectory = true
     this.fullPath = this.isRoot
       ? '/' + this.name
-      : this.parent.fullPath + '/' + this.name
+      : this.parent?.fullPath + '/' + this.name
   }
 
   /**
@@ -51,11 +47,7 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
         const child: FileSystemHandle = value
         if (child.kind === 'directory') {
           children.push(
-            new LocalDirectoryEntry(
-              <FileSystemDirectoryHandle>child,
-              this,
-              false
-            )
+            new LocalDirectoryEntry(<FileSystemDirectoryHandle>child, this)
           )
         } else if (child.kind === 'file') {
           children.push(new LocalFileEntry(<FileSystemFileHandle>child, this))

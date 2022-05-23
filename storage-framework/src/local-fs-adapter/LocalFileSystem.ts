@@ -52,7 +52,7 @@ export class LocalFileSystem implements StorageFrameworkProvider {
           resolve(
             new ReactivityDirDecorator(
               null,
-              new LocalDirectoryEntry(dirHandle, null, true)
+              new LocalDirectoryEntry(dirHandle, null)
             )
           )
         } catch (err) {

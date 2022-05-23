@@ -10,9 +10,6 @@ import { PathUtil } from '../../lib/utilities/pathUtil'
 import { LocalFallbackFileEntry } from './LocalFallbackFileEntry'
 
 /**
- * use public or private fields
- */
-/**
  * Contains all methods for LocalFallbackDirectoryEntry
  */
 export class LocalFallbackDirectoryEntry
@@ -20,10 +17,10 @@ export class LocalFallbackDirectoryEntry
 {
   public readonly isDirectory: true
   public readonly isFile: false
-  fullPath: string
-  name: string
-  parent: LocalFallbackDirectoryEntry | null
   public readonly isRoot: boolean
+  readonly fullPath: string
+  readonly name: string
+  readonly parent: LocalFallbackDirectoryEntry | null
   private children
 
   constructor(
@@ -48,7 +45,6 @@ export class LocalFallbackDirectoryEntry
   }
 
   /**
-   * TODO: try catch and reject error
    * Creates file in entry
    * @param {string} name
    * @returns {StorageFrameworkFileEntry} on success
@@ -60,13 +56,14 @@ export class LocalFallbackDirectoryEntry
         const newFile = new LocalFallbackFileEntry(new File([], name), this)
         resolve(newFile)
       } catch (err) {
-        reject(new SFError('Failed to create file', err))
+        reject(
+          new SFError(`Failed to create file ${name} in ${this.fullPath}`, err)
+        )
       }
     })
   }
 
   /**
-   * TODO: try catch and reject error
    * @param {string} name
    * @returns {StorageFrameworkDirectoryEntry} on success
    * @returns {SFError} on error
@@ -75,8 +72,17 @@ export class LocalFallbackDirectoryEntry
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
-      const newDirectory = new LocalFallbackDirectoryEntry(name, [], this)
-      resolve(newDirectory)
+      try {
+        const newDirectory = new LocalFallbackDirectoryEntry(name, [], this)
+        resolve(newDirectory)
+      } catch (err) {
+        reject(
+          new SFError(
+            `Failed to create directory ${name} in ${this.fullPath}`,
+            err
+          )
+        )
+      }
     })
   }
 
