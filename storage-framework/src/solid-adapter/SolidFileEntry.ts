@@ -1,7 +1,7 @@
 import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
 import type { StorageFrameworkDirectoryEntry } from '../lib/StorageFrameworkEntry'
-import { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
+import type { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
 import type { SolidDirectoryEntry } from './SolidDirectoryEntry'
 import { saveFileInContainer, deleteFile, getFile } from '@inrupt/solid-client'
 
@@ -20,6 +20,8 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
   readonly fullPath: string
   readonly isDirectory: false
   readonly isFile: true
+  readonly isReadonly: false = false
+  readonly wasModified: boolean
   name: string
   private readonly parent: SolidDirectoryEntry
   private readonly file: FileSystemFileEntry
@@ -29,8 +31,6 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     this.name = name
     this.parent = parent
   }
-  isReadonly: false = false
-  wasModified: boolean
 
   /**
    * Reads file
@@ -116,6 +116,10 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
+  update(file: File | string): OkOrError<SFError> {
+    return null
+  }
+
   private async renameFile(name: string): Promise<void> {
     const file: SolidFile = await getFile(this.fullPath, { fetch: fetch })
 
@@ -162,34 +166,5 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
       slug: getFileName(file.internal_resourceInfo.sourceIri),
       fetch: fetch
     })
-  }
-
-  /**
-   * TODO: use /regex/ syntax for regexes
-   * create a utility function in lib that can be used for github owner and repo fields
-   * Replaces filename with new filename
-   * @param {string} fileName
-   * @param {string} newName
-   * @returns {string}
-   */
-  replaceFileNameWithNewName(fileName: string, newName: string): string {
-    /*
-     * TODO: use /regex/ syntax for regexes
-     * create a utility function in lib that can be used for github owner and repo fields
-     */
-    const match = fileName.match('(.+?)(.[^.]*$|$)')[0]
-    return fileName.replace(match, newName)
-  }
-
-  /**
-   * Gets filename
-   * @param {string} url
-   * @returns {string}
-   */
-  getFileName(url: string): string {
-    /*
-     * TODO: use new Url()
-     */
-    return url.match('([^/]+)(?=[^/]*/?$)')[0]
   }
 }

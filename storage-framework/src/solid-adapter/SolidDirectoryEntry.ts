@@ -3,7 +3,7 @@ import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry
 } from '../lib/StorageFrameworkEntry'
-import { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
+import type { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
 
 import {
   getSolidDataset,

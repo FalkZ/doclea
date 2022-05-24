@@ -14,14 +14,13 @@ import {
 import {
   getSolidDataset,
   getThingAll,
-  type SolidDataset,
   type Thing,
-  type WithServerResourceInfo
 } from '@inrupt/solid-client'
 
 import { Result } from '../lib/utilities/result'
 import { SolidDirectoryEntry } from './SolidDirectoryEntry'
 import { ReactivityDirDecorator } from '../lib/wrappers/ReactivityDecorator'
+import type { Subject } from '@inrupt/solid-client/dist/rdf.internal'
 
 export type SolidSubject = Thing
 
@@ -40,7 +39,7 @@ export class SolidFileSystem implements StorageFrameworkProvider {
    */
   open(urlPod: string): Result<StorageFrameworkEntry, SFError> {
     return new Result((resolve, reject) => {
-      this.loginAndFetch(urlPod)
+      this.fetch(urlPod)
         .then((root) =>
           resolve(
             new ReactivityDirDecorator(
@@ -54,13 +53,13 @@ export class SolidFileSystem implements StorageFrameworkProvider {
   }
 
   /**
-   * TODO: correct return type
-   * @param urlPod
-   * @returns
+   * Fetches root directory from solid pod
+   * @param urlPod url of pod
+   * @returns Subject
    */
-  async loginAndFetch(
+  async fetch(
     urlPod: string
-  ): Promise<SolidDataset & WithServerResourceInfo> {
+  ): Promise<Subject> {
     if (!this.sessionId) {
       await this.authenticate()
     }
