@@ -1,7 +1,7 @@
 import type { Result, OkOrError } from '../utilities/result'
 import type { SFError } from '../SFError'
 import type { SFFile } from '../SFFile'
-import type { CreateReadonly, MaybeReadonly } from './CreateReadonly'
+import type { MaybeReadonly } from './CreateReadonly'
 
 /**
  * Common properties for all entries of the storage framework.

@@ -8,6 +8,7 @@ import type { Readable as Observable } from '../utilities/stores'
 export interface TransactionalWritableFileEntry
   extends Omit<CreateReadonly<ObservableWritableFileEntry>, 'isReadonly'> {
   readonly isReadonly: false
+  readonly wasModified: Observable<boolean>
   updateContent(content: BlobPart): OkOrError<SFError>
   updateName(name: string): OkOrError<SFError>
   updateFile(file: File): OkOrError<SFError>
@@ -18,10 +19,8 @@ export interface TransactionalWritableFileEntry
 export interface TransactionalWritableDirectoryEntry
   extends Omit<CreateReadonly<WritableDirectoryEntry>, 'isReadonly'> {
   readonly isReadonly: false
-  updateContent(content: BlobPart): OkOrError<SFError>
+  readonly wasModified: Observable<boolean>
   updateName(name: string): OkOrError<SFError>
-  updateFile(file: File): OkOrError<SFError>
-  downloadEntry(): OkOrError<SFError>
   saveEntry(): OkOrError<SFError>
   watchChildren(): Result<Observable<TransactionalEntry[]>, SFError>
 }
