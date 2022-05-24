@@ -8,6 +8,7 @@ import { ReactivityDirDecorator } from '../lib/wrappers/ReactivityDecorator'
 import { Result } from '../lib/utilities/result'
 import { LocalFallbackDirectoryEntry } from './local-fallback-fs-adapter/LocalFallbackDirectoryEntry'
 import { LocalDirectoryEntry } from './LocalDirectoryEntry'
+import { PathUtil } from '../lib/utilities/pathUtil'
 
 const selectFolder = (): Promise<File[]> =>
   new Promise<File[]>((resolve, reject) => {
@@ -41,7 +42,7 @@ const selectFolder = (): Promise<File[]> =>
   })
 
 export class LocalFileSystem implements StorageFrameworkProvider {
-  public open(): Result<StorageFrameworkEntry, SFError> {
+  open(): Result<StorageFrameworkEntry, SFError> {
     return new Result(async (resolve, reject) => {
       if (window.showDirectoryPicker) {
         try {
@@ -51,11 +52,11 @@ export class LocalFileSystem implements StorageFrameworkProvider {
           resolve(
             new ReactivityDirDecorator(
               null,
-              new LocalDirectoryEntry(dirHandle, null, true)
+              new LocalDirectoryEntry(dirHandle, null)
             )
           )
-        } catch (e) {
-          reject(new SFError('Failed to open local file system', e))
+        } catch (err) {
+          reject(new SFError('No directory provided', err))
         }
       } else {
         try {
@@ -67,7 +68,7 @@ export class LocalFileSystem implements StorageFrameworkProvider {
             resolve(
               new ReactivityDirDecorator(
                 null,
-                new LocalFallbackDirectoryEntry(dirName, files, true, null)
+                new LocalFallbackDirectoryEntry(dirName, files, null)
               )
             )
           }

@@ -1,15 +1,14 @@
+import { Logger } from '../../../../doclea/src/business-logic/Logger'
 import { SFError } from '../../lib/SFError'
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry
 } from '../../lib/StorageFrameworkEntry'
-import { StorageFrameworkFileEntry } from '../../lib/StorageFrameworkFileEntry'
+import type { StorageFrameworkFileEntry } from '../../lib/StorageFrameworkFileEntry'
 import { Result, type OkOrError } from '../../lib/utilities'
+import { PathUtil } from '../../lib/utilities/pathUtil'
 import { LocalFallbackFileEntry } from './LocalFallbackFileEntry'
 
-/**
- * use public or private fields
- */
 /**
  * Contains all methods for LocalFallbackDirectoryEntry
  */
@@ -18,25 +17,24 @@ export class LocalFallbackDirectoryEntry
 {
   public readonly isDirectory: true
   public readonly isFile: false
-  fullPath: string
-  name: string
-  parent: LocalFallbackDirectoryEntry
   public readonly isRoot: boolean
+  readonly fullPath: string
+  readonly name: string
+  readonly parent: LocalFallbackDirectoryEntry | null
   private children
 
   constructor(
     name: string,
     children: File[],
-    isRoot: boolean,
     parent: LocalFallbackDirectoryEntry | null
   ) {
     this.name = name
-    this.isRoot = isRoot
     this.parent = parent
+    this.isRoot = parent === null
     this.isDirectory = true
     this.children = {}
-    if (isRoot) this.fullPath = this.name
-    else this.fullPath = this.parent.fullPath + '/' + this.name
+    if (this.isRoot) this.fullPath = this.name
+    else this.fullPath = this.parent?.fullPath + '/' + this.name
     this.addChildren(children)
   }
 
@@ -47,7 +45,6 @@ export class LocalFallbackDirectoryEntry
   }
 
   /**
-   * TODO: try catch and reject error
    * Creates file in entry
    * @param {string} name
    * @returns {StorageFrameworkFileEntry} on success
@@ -55,13 +52,18 @@ export class LocalFallbackDirectoryEntry
    */
   createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
     return new Result((resolve, reject) => {
-      const newFile = new LocalFallbackFileEntry(new File([], name), this)
-      resolve(newFile)
+      try {
+        const newFile = new LocalFallbackFileEntry(new File([], name), this)
+        resolve(newFile)
+      } catch (err) {
+        reject(
+          new SFError(`Failed to create file ${name} in ${this.fullPath}`, err)
+        )
+      }
     })
   }
 
   /**
-   * TODO: try catch and reject error
    * @param {string} name
    * @returns {StorageFrameworkDirectoryEntry} on success
    * @returns {SFError} on error
@@ -70,13 +72,17 @@ export class LocalFallbackDirectoryEntry
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
-      const newDirectory = new LocalFallbackDirectoryEntry(
-        name,
-        [],
-        false,
-        this
-      )
-      resolve(newDirectory)
+      try {
+        const newDirectory = new LocalFallbackDirectoryEntry(name, [], this)
+        resolve(newDirectory)
+      } catch (err) {
+        reject(
+          new SFError(
+            `Failed to create directory ${name} in ${this.fullPath}`,
+            err
+          )
+        )
+      }
     })
   }
 
@@ -116,14 +122,15 @@ export class LocalFallbackDirectoryEntry
   }
 
   /**
-   * TODO: resolve not used
    * Removes directory
    * @returns {SFError} on error
    */
   remove(): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
+      if (!this.parent) reject(new SFError('Cannot remove root directory'))
       try {
-        await this.parent.removeChild(this.name)
+        await this.parent?.removeChild(this.name)
+        resolve()
       } catch (error) {
         reject(error)
       }
@@ -182,7 +189,7 @@ export class LocalFallbackDirectoryEntry
    * @param {string} name
    */
   addChildDirectory(name: string): void {
-    this.children[name] = new LocalFallbackDirectoryEntry(name, [], false, this)
+    this.children[name] = new LocalFallbackDirectoryEntry(name, [], this)
   }
 
   private addChildren(children: File[]): void {
@@ -190,24 +197,19 @@ export class LocalFallbackDirectoryEntry
      * TODO: refactor, I think this can be implemented a bit easier (with recursion maybe...)
      */
     for (const child of children) {
-      // TODO: use same utility as solid & github (utility does not exit has to be created first)
-      const path = child.webkitRelativePath.match(/[\w_-]+[\/\\]/g)
-      const fileName = child.webkitRelativePath
-        .match(/[/\\][\w .,:_-]+/g)
-        .pop()
-        .replace(/[/\\]/, '')
-      if (path.length > 0) {
-        // this.name = path[0].replace(/[\/\\]/, '')
+      const pathUtil = new PathUtil(child.webkitRelativePath)
+      const path = pathUtil.path
+      const fileName = pathUtil.fileName
+      if (fileName && path && path.length > 0) {
         let current: LocalFallbackDirectoryEntry = this
         for (let dirName of path.slice(1)) {
-          dirName = dirName.replace(/[/\\]/, '')
           if (!current.containsChildDirectory(dirName)) {
             current.addChildDirectory(dirName)
           }
           current = current.getChildDirectory(dirName)
         }
         current.addChildFile(fileName, child)
-      }
+      } else console.error(`Invalid path or file name for file ${child}`)
     }
   }
 }
