@@ -11,11 +11,7 @@ import {
   getDefaultSession
 } from '@inrupt/solid-client-authn-browser'
 
-import {
-  getSolidDataset,
-  getThingAll,
-  type Thing,
-} from '@inrupt/solid-client'
+import { getSolidDataset, getThingAll, type Thing } from '@inrupt/solid-client'
 
 import { Result } from '../lib/utilities/result'
 import { SolidDirectoryEntry } from './SolidDirectoryEntry'
@@ -28,8 +24,8 @@ export type SolidSubject = Thing
  * Contains all methods for SolidFileSystem
  */
 export class SolidFileSystem implements StorageFrameworkProvider {
-  isSignedIn: boolean
-  sessionId: string
+  private isSignedIn: boolean
+  private sessionId: string
 
   /**
    * Opens solid entry
@@ -57,9 +53,7 @@ export class SolidFileSystem implements StorageFrameworkProvider {
    * @param urlPod url of pod
    * @returns Subject
    */
-  async fetch(
-    urlPod: string
-  ): Promise<Subject> {
+  async fetch(urlPod: string): Promise<Subject> {
     if (!this.sessionId) {
       await this.authenticate()
     }

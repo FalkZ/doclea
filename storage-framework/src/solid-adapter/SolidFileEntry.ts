@@ -3,7 +3,13 @@ import { SFFile } from '../lib/SFFile'
 import type { StorageFrameworkDirectoryEntry } from '../lib/StorageFrameworkEntry'
 import type { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
 import type { SolidDirectoryEntry } from './SolidDirectoryEntry'
-import { saveFileInContainer, deleteFile, getFile } from '@inrupt/solid-client'
+import {
+  saveFileInContainer,
+  deleteFile,
+  getFile,
+  overwriteFile,
+  type WithResourceInfo
+} from '@inrupt/solid-client'
 
 import { Result, type OkOrError } from '../lib/utilities/result'
 import {
@@ -21,7 +27,7 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
   readonly isDirectory: false
   readonly isFile: true
   readonly isReadonly: false = false
-  readonly wasModified: boolean
+  private lastModified: number
   name: string
   private readonly parent: SolidDirectoryEntry
   private readonly file: FileSystemFileEntry
@@ -116,10 +122,32 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     })
   }
 
+  /**
+   * Updates file to pod
+   * @param file
+   * @returns {SFError} on error
+   */
   update(file: File | string): OkOrError<SFError> {
-    return null
+    return new Result((resolve, reject) => {
+      if (typeof file === 'string') {
+        let updatedFile = new SFFile(this.name, this.lastModified, [file])
+        //TODO update file but dont know how to update this.file
+        this.updateFile(updatedFile)
+      } else if (file instanceof File) {
+        this.updateFile(file)
+        resolve()
+      } else {
+        reject(new SFError('file must be instanceof File or typeof string'))
+      }
+    })
   }
 
+  /**
+   * The approach of of renaming a file in a pod is the following:
+   * First gets file from pod which is going be renamedmed.
+   * Second replacing new file name with old name. Third saving new file to container in pod.
+   * @param name
+   */
   private async renameFile(name: string): Promise<void> {
     const file: SolidFile = await getFile(this.fullPath, { fetch: fetch })
 
@@ -135,18 +163,26 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     this.name = renamedFile.internal_resourceInfo.sourceIri
   }
 
-  // There is also an overwriteFile function which overwrites the file
-  // if it exists and creates the containers which are in the url but not in the pod
   /**
-   * Saves file
+   * Saves changes to file resource in pod
    * @param {File} file
    */
-  async saveFile(file: File): Promise<void> {
-    await saveFileInContainer(this.parent.fullPath, file)
+  async saveFile(file: File): Promise<File & WithResourceInfo> {
+    return await saveFileInContainer(this.parent.fullPath, file, {
+      fetch: fetch
+    })
   }
 
   /**
-   * Deletes file
+   * Overwritesfile in solid pod
+   * @param {File} file
+   */
+  async updateFile(file: File): Promise<File & WithResourceInfo> {
+    return await overwriteFile(this.parent.fullPath, file, { fetch: fetch })
+  }
+
+  /**
+   * Deletes file in solid pod
    */
   async deleteFile(): Promise<void> {
     await deleteFile(this.fullPath, { fetch: fetch })
