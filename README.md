@@ -56,3 +56,7 @@ The story-points `SP` are aligned to +/- hours.
 ### Burndown Chart
 
 The burndown chart is stored in MS Teams under files [Doclea_Burndown_Chart.xlsx](https://zhaw.sharepoint.com/:x:/s/PM4Doclea/EYVPOceyMERGoH3cm_8GU18BaUObmT175e3nHpUQGCEB6Q?e=gtbt9B)
+
+### Technical Artivcle
+
+The technical article is stored in MS Teams under files [Doclea_Fachartikel_PM4FS22.pdf](https://zhaw.sharepoint.com/:b:/s/PM4Doclea/EbC5CZv1eYZFiPZ1FuwK7ZgBuTfvD5ZiD7_tagiDTwmW3w?e=ZeZxFg)
