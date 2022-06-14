@@ -1,0 +1,52 @@
+{
+  "name": "doclea",
+  "version": "0.0.0",
+  "source": "src/index.html",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "postinstall": "patch-package"
+  },
+  "dependencies": {
+    "@milkdown/core": "^5.5.0",
+    "@milkdown/plugin-clipboard": "^5.5.0",
+    "@milkdown/plugin-cursor": "^5.5.0",
+    "@milkdown/plugin-diagram": "^5.5.0",
+    "@milkdown/plugin-emoji": "^5.5.0",
+    "@milkdown/plugin-history": "^5.5.0",
+    "@milkdown/plugin-indent": "^5.5.0",
+    "@milkdown/plugin-listener": "^5.5.0",
+    "@milkdown/plugin-math": "^5.5.0",
+    "@milkdown/plugin-menu": "^5.5.0",
+    "@milkdown/plugin-prism": "^5.5.0",
+    "@milkdown/plugin-slash": "^5.5.0",
+    "@milkdown/plugin-tooltip": "^5.5.0",
+    "@milkdown/plugin-upload": "^5.5.0",
+    "@milkdown/preset-commonmark": "^5.5.0",
+    "@milkdown/preset-gfm": "^5.5.0",
+    "@milkdown/prose": "5.5.0",
+    "@milkdown/theme-nord": "5.5.0",
+    "@milkdown/utils": "^5.5.0",
+    "material-icons": "^1.10.11",
+    "milkdown-plugin-tldraw": "file:./milkdown-plugin-tldraw",
+    "prism-themes": "^1.9.0",
+    "storage-framework": "file:../storage-framework",
+    "svelte-splitpanes": "^0.6.3",
+    "tabler-icons-svelte": "^1.7.0"
+  },
+  "devDependencies": {
+    "@babel/core": ">=7.10.2 <8.0.0",
+    "@milahu/patch-package-with-pnpm-support": "^6.4.10",
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
+    "@tsconfig/svelte": "^2.0.1",
+    "svelte": "^3.44.0",
+    "svelte-check": "^2.2.7",
+    "svelte-preprocess": "^4.9.8",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.4",
+    "vite": "2.9.0"
+  }
+}

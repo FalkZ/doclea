@@ -4,12 +4,23 @@
 
 # Development
 
+Install dependencies:
+
 ```
-pnpm install
+pnpm run setup
 ```
+
+Run dev server:
 
 ```
 pnpm run dev
+```
+
+
+## install pnpm
+
+```
+npm install -g pnpm
 ```
 
 # CI / CD

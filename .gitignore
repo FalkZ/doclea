@@ -7,10 +7,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+pnpm-lock.yaml
+
 node_modules
 dist
+!doclea/dist
 dist-ssr
 *.local
+.parcel-cache
 
 # Editor directories and files
 .idea
@@ -20,3 +24,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+*.code-workspace
