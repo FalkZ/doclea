@@ -6,6 +6,7 @@
   "main": "dist/esm.js",
   "types": "dist/types.d.ts",
   "targets": {
+    "types": false,
     "main": {
       "includeNodeModules": {
         "@inrupt/solid-client": true,

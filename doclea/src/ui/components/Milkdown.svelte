@@ -29,6 +29,7 @@
   import { tldraw } from 'milkdown-plugin-tldraw'
   import type { StorageFrameworkFileEntry } from 'storage-framework/src/lib/StorageFrameworkEntry'
   import { Slice } from '@milkdown/prose'
+  import 'material-icons/iconfont/material-icons.css'
   import materialFontUrl from 'material-icons/iconfont/material-icons.css?url'
 
   export let selectedFile: StorageFrameworkFileEntry
