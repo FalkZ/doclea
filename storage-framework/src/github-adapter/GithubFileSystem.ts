@@ -1,90 +1,99 @@
 import { Octokit } from '@octokit/core'
 import { ReactivityDirDecorator } from '../lib/wrappers/ReactivityDecorator'
-import { Result } from '../lib/utilities'
-import { parseUrl } from '../lib/utilities/url'
+import { Result, type OkOrError } from '../lib/utilities'
+import { getAndRemoveSearchParam, hasSearchParam, parseUrl } from '../lib/utilities/url'
 import { GithubDirectoryEntry } from './GithubDirectoryEntry'
 import type { SFError } from '../lib/SFError'
-import type {
-  StorageFrameworkProvider,
-  StorageFrameworkEntry
-} from '../lib/StorageFrameworkEntry'
+import type { SFProviderAuth } from '../lib/new-interface/SFProvider'
 
 const guid = 'github-auth-reiupkvhldwe'
-const github_client_id = 'github-client_id'
-const github_client_secret = 'github-client_secret'
 
-if (window.location.hash === '#' + guid) {
-  if (window.location.search.startsWith('?code')) {
-    console.log(
-      'received code',
-      new URLSearchParams(window.location.search).get('code')
-    )
-    const code = new URLSearchParams(window.location.search).get('code')
+const STARTED_GITHUB_AUTH = 'STARTED_GITHUB_AUTH'
+const TOKEN = 'TOKEN'
 
-    const params = new URLSearchParams({
-      client_id: 'b0febf46067600eed6e5',
-      client_secret: '228480a8a7eae9aed8299126211402f47c488013',
-      redirect_uri: `http://127.0.0.1:3000#${guid}`,
-      code: code
+const noop = () => {}
+
+class Signal<T> extends Promise<T> {
+  private res
+  private rej
+
+  constructor(fn?) {
+  
+    // needed for MyPromise.race/all ecc
+    if (fn instanceof Function) {
+      return super(fn)
+    }
+
+    let res
+    let rej
+    super((resolve, reject) => {
+      res = (v) => resolve(v)
+      rej = (e) => reject(e)
     })
 
-    void fetch('https://github.com/login/oauth/access_token?' + params, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json'
-      }
-    })
-      .then((response) => {
-        if (!response.ok) console.error('failed fetch', response)
-        return response.json()
-      })
-      .then((json) => {
-        console.log('global - the token: ', json.access_token)
-        sessionStorage.setItem(guid, json.access_token)
-      })
+    this.res = res
+    this.rej = rej
+  }
+  public resolve(v: T): void {
+    this.res(v)
+  }
+
+  public reject(e: Error): void {
+    this.rej(e)
+  }
+
+  static get [Symbol.species]() {
+    return Promise
+  }
+  get [Symbol.toStringTag]() {
+    return 'Signal'
   }
 }
+
+noop(Signal)
 
 /**
  * Contains all methods for GithubFileSystem
  */
-export class GithubFileSystem implements StorageFrameworkProvider {
-  public readonly isSignedIn: boolean
+export class GithubFileSystem implements SFProviderAuth {
   private token
+  private readonly clientId
+  private readonly clientSecret
+  private octokit: Octokit
 
   public static owner: string
   public static repo: string
-  constructor({
+  public constructor({
     clientId,
     clientSecret
   }: {
     clientId: string
     clientSecret: string
   }) {
-    sessionStorage.setItem(github_client_id, clientId)
-    sessionStorage.setItem(github_client_secret, clientSecret)
+    this.clientId = clientId
+    this.clientSecret = clientSecret
 
-    this.token = sessionStorage.getItem(guid)
-    console.log('constructor() - the token: ', this.token)
-    this.isSignedIn = !this.token
+    this.checkToken()
   }
+
+  public isAuthenticated = new Signal<boolean>()
 
   /**
    * Runs authentication process of github
    */
-  authenticate() {
+  public authenticate(): OkOrError<SFError> {
+    sessionStorage.setItem(STARTED_GITHUB_AUTH, 'true')
+    const redirectUri = window.location.href.replace('localhost', '127.0.0.1')
     const params = new URLSearchParams({
-      client_id: GithubFileSystem.client_id,
-      redirect_uri: `http://127.0.0.1:3000#${guid}`,
+      client_id: this.clientId,
+      redirect_uri: redirectUri,
       scope: 'repo'
     })
 
     window.location.href = 'https://github.com/login/oauth/authorize?' + params
 
-    console.log('never called')
+    noop('never called')
   }
-
-  octokit: Octokit
 
   /**
    * Opens github entry
@@ -92,15 +101,12 @@ export class GithubFileSystem implements StorageFrameworkProvider {
    * @returns {StorageFrameworkEntry} on success
    * @returns {SFError} on error
    */
-  open(githubUrl: string): Result<StorageFrameworkEntry, SFError> {
-    let githubPathFragments = parseUrl(githubUrl).pathFragments
-    let fragmentSize = githubPathFragments.length
-    GithubFileSystem.repo = githubPathFragments[fragmentSize - 1]
-    GithubFileSystem.owner = githubPathFragments[fragmentSize - 2]
+  public open(githubUrl: string): Result<Entry, SFError> {
+    const githubPathFragments = parseUrl(githubUrl).pathFragments
 
-    this.token = sessionStorage.getItem(guid)
-    console.log('open() - the token: ', this.token)
-    console.log('GitHub open!')
+    GithubFileSystem.repo = githubPathFragments[1]
+    GithubFileSystem.owner = githubPathFragments[0]
+
     return new Result(async (resolve, reject) => {
       this.octokit = new Octokit({
         auth: this.token, // https://github.com/settings/tokens
@@ -118,42 +124,86 @@ export class GithubFileSystem implements StorageFrameworkProvider {
 
       const workspace = new GithubDirectoryEntry(null, '', '', this.octokit)
       workspace.getChildren()
-      resolve(new ReactivityDirDecorator(null, workspace))
+      resolve(workspace)
     })
   }
-}
 
-if (window.location.hash === '#' + guid) {
-  if (window.location.search.startsWith('?code')) {
-    console.log(
-      'received code',
-      new URLSearchParams(window.location.search).get('code')
-    )
-    const code = new URLSearchParams(window.location.search).get('code')
+  private checkToken() {
+    const token = sessionStorage.getItem(TOKEN)
+    if(token){
+      noop({token})
+      this.token = token;
+      this.isAuthenticated.resolve(true)
+    }
+    else if (sessionStorage.getItem(STARTED_GITHUB_AUTH)) {
+      sessionStorage.removeItem(STARTED_GITHUB_AUTH)
+      if (hasSearchParam('code')) {
+       
+        const code = getAndRemoveSearchParam('code')
 
-    const client_id = sessionStorage.getItem(github_client_id)
-    const client_secret = sessionStorage.getItem(github_client_secret)
+        const params = new URLSearchParams({
+          client_id: 'b0febf46067600eed6e5',
+          client_secret: '228480a8a7eae9aed8299126211402f47c488013',
+          redirect_uri: `http://127.0.0.1:3000#${guid}`,
+          code: code
+        })
 
-    const params = new URLSearchParams({
-      client_id: client_id,
-      client_secret: client_secret,
-      redirect_uri: `http://127.0.0.1:3000#${guid}`,
-      code: <string>code
-    })
-
-    void fetch('https://github.com/login/oauth/access_token?' + params, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json'
+        void fetch('https://github.com/login/oauth/access_token?' + params, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json'
+          }
+        })
+          .then((response) => {
+            if (!response.ok) console.error('failed fetch', response)
+            return response.json()
+          })
+          .then((json) => {
+            this.token = json.access_token
+            sessionStorage.setItem(TOKEN, this.token)
+            noop({token})
+            this.isAuthenticated.resolve(true)
+          })
+      } else {
+        this.isAuthenticated.resolve(false)
       }
-    })
-      .then((response) => {
-        if (!response.ok) console.error('failed fetch', response)
-        return response.json()
-      })
-      .then((json) => {
-        console.log('global - the token: ', json.access_token)
-        sessionStorage.setItem(guid, json.access_token)
-      })
+    } else {
+      this.isAuthenticated.resolve(false)
+    }
   }
-}
+// }
+
+// if (window.location.hash === '#' + guid) {
+//   if (window.location.search.startsWith('?code')) {
+//     noop(
+//       'received code',
+//       new URLSearchParams(window.location.search).get('code')
+//     )
+//     const code = new URLSearchParams(window.location.search).get('code')
+
+//     const client_id = sessionStorage.getItem(github_client_id)
+//     const client_secret = sessionStorage.getItem(github_client_secret)
+
+//     const params = new URLSearchParams({
+//       client_id: client_id,
+//       client_secret: client_secret,
+//       redirect_uri: `http://127.0.0.1:3000#${guid}`,
+//       code: code || ''
+//     })
+
+//     void fetch('https://github.com/login/oauth/access_token?' + params, {
+//       method: 'POST',
+//       headers: {
+//         Accept: 'application/json'
+//       }
+//     })
+//       .then((response) => {
+//         if (!response.ok) console.error('failed fetch', response)
+//         return response.json()
+//       })
+//       .then((json) => {
+//         noop('global - the token: ', json.access_token)
+//         sessionStorage.setItem(guid, json.access_token)
+//       })
+//   }
+// }

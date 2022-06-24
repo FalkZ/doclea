@@ -1,6 +1,6 @@
 import type { SFError } from '../SFError'
 import type { OkOrError, Result } from '../utilities'
-import type { Entry } from './SFBaseEntry'
+import type { TransactionalEntry } from './TransactionalEntry'
 
 /**
  * Provider for the root entry of a file system.
@@ -9,22 +9,22 @@ import type { Entry } from './SFBaseEntry'
  */
 export type SFProvider = SFProviderSimple | SFProviderAuth
 
-interface SFProviderSimple {
+export interface SFProviderSimple {
   /**
    * Provide the root entry of a file system.
    *
    * @returns the root entry, or an error
    */
-  open(): Result<Entry, SFError>
+  open(): Result<TransactionalEntry, SFError>
 }
 
-interface SFProviderAuth {
+export interface SFProviderAuth {
   /**
    * Provide the root entry of a file system.
    *
    * @returns the root entry, or an error
    */
-  open(url: string): Result<Entry, SFError>
+  open(url: string): Result<TransactionalEntry, SFError>
   authenticate(): OkOrError<SFError>
   isAuthenticated: Promise<boolean>
 }

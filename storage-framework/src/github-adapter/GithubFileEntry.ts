@@ -1,32 +1,37 @@
-import { Octokit } from '@octokit/core'
-import type { Readable } from '../lib/utilities/stores'
+import type { Octokit } from '@octokit/core'
 import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
 import type { StorageFrameworkDirectoryEntry } from '../lib/StorageFrameworkEntry'
-import { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
-import { Result, OkOrError } from '../lib/utilities'
+import { Result, type OkOrError } from '../lib/utilities'
 import { GithubFileSystem } from './GithubFileSystem'
-import type { ArrayResponse, SingleFile } from './GithubTypes'
-
+import type { SingleFile } from './GithubTypes'
 import { Mutex } from '../lib/utilities/mutex'
 import { getFileContent } from '../lib/utilities/getFileContent'
+import type {
+  WritableDirectoryEntry,
+  WritableFileEntry
+} from '../lib/new-interface/SFBaseEntry'
+
+const noop = () => {}
 
 /**
  * Contains all methods for GithubFileEntry
  */
-export class GithubFileEntry implements StorageFrameworkFileEntry {
+export class GithubFileEntry implements WritableFileEntry {
   public readonly isDirectory = false
   public readonly isFile = true
+  public readonly isReadonly: false = false
+
   public readonly fullPath: string
   public readonly name: string
-  private parent: StorageFrameworkDirectoryEntry
-  private octokit: Octokit
+  private readonly parent: WritableDirectoryEntry
+  private readonly octokit: Octokit
   private githubEntry: SingleFile
 
   private readonly mutex = new Mutex()
 
-  constructor(
-    parent: StorageFrameworkDirectoryEntry,
+  public constructor(
+    parent: WritableDirectoryEntry,
     fullPath: string,
     name: string,
     octokit: Octokit
@@ -36,7 +41,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     this.name = name
     this.octokit = octokit
 
-    console.log(this)
+    noop(this)
   }
 
   /**
@@ -44,14 +49,10 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
    * @returns {SFFile} on success
    * @returns {SFError} on error
    */
-  read(): Result<SFFile, SFError> {
+  public read(): Result<SFFile, SFError> {
     return new Result(async (result) => {
       await this.getGithubFile(this.fullPath)
-      result(
-        new SFFile(this.name, 0, [
-          decodeURIComponent(escape(window.atob(this.githubEntry.content)))
-        ])
-      )
+      result(new SFFile(this.name, 0, [atob(this.githubEntry.content)]))
     })
   }
 
@@ -60,8 +61,8 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
    * @param {File} file
    * @returns {SFError} on error
    */
-  save(file: File): OkOrError<SFError> {
-    console.log(file)
+  public write(file: File): OkOrError<SFError> {
+    noop(file)
     return new Result(async (resolve, reject) => {
       this.octokit
         .request('PUT /repos/{owner}/{repo}/contents/{path}', {
@@ -73,10 +74,9 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
           sha: this.githubEntry.sha
         })
         .then((response) => {
-          if (response.status == 200) {
+          if (response.status === 200) {
             resolve()
           } else {
-            console.log(response)
             reject(new SFError('Failed to save file'))
           }
         })
@@ -89,7 +89,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
    * @returns {StorageFrameworkDirectoryEntry} on success
    * @returns {SFError} on error
    */
-  getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
+  public getParent(): Result<WritableDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
       if (this.parent) {
         resolve(this.parent)
@@ -103,7 +103,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
    * Removes file
    * @returns {SFError} on error
    */
-  remove(): OkOrError<SFError> {
+  public delete(): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       await this.mutex.apply(async () => {
         try {
@@ -123,7 +123,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
    * @param {StorageFrameworkDirectoryEntry} directory
    * @returns {SFError} on error
    */
-  moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
+  public moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       await this.mutex.apply(async () => {
         try {
@@ -132,7 +132,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
           const fileName = this.fullPath.split('/').pop()
           const newFullPathOfFile = directory.isRoot
             ? fileName
-            : directory.fullPath + '/' + fileName
+            : `${directory.fullPath}/${fileName}`
           await this.createGithubFile(
             newFullPathOfFile,
             this.githubEntry.content
@@ -153,7 +153,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
    * @param {string} name
    * @returns {SFError} on error
    */
-  rename(name: string): OkOrError<SFError> {
+  public rename(name: string): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       await this.mutex.apply(async () => {
         try {
@@ -183,12 +183,12 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
           path: getFileFullPath
         })
         .then(({ data }) => {
-          console.log('Succesfully read file from GitHub: ', getFileFullPath)
-          this.githubEntry = <SingleFile>data
+          noop('Succesfully read file from GitHub: ', getFileFullPath)
+          this.githubEntry = data as SingleFile
           resolve(this.githubEntry)
         })
         .catch((error) => {
-          console.log('Failed to read file from GitHub: ', getFileFullPath)
+          noop('Failed to read file from GitHub: ', getFileFullPath)
           reject(error)
         })
     })
@@ -208,11 +208,11 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
           content: contentInBase65
         })
         .then((response) => {
-          if (response.status == 201) {
-            console.log('Succesfully created file in GitHub: ', newFileFullPath)
+          if (response.status === 201) {
+            noop('Succesfully created file in GitHub: ', newFileFullPath)
             resolve()
           } else {
-            console.log('Failed to create file in GitHub: ', newFileFullPath)
+            noop('Failed to create file in GitHub: ', newFileFullPath)
             reject()
           }
         })
@@ -233,15 +233,12 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
           sha: sha
         })
         .then((response) => {
-          console.log(response)
+          noop(response)
           if (response.status === 200) {
-            console.log(
-              'Succesfully removed file in GitHub: ',
-              removeFileFullPath
-            )
+            noop('Succesfully removed file in GitHub: ', removeFileFullPath)
             resolve()
           } else {
-            console.log('Failed to remove file in GitHub: ', removeFileFullPath)
+            noop('Failed to remove file in GitHub: ', removeFileFullPath)
             reject()
           }
         })

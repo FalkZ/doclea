@@ -14,6 +14,8 @@ export interface TransactionalWritableFileEntry
   updateFile(file: File): OkOrError<SFError>
   downloadEntry(): OkOrError<SFError>
   saveEntry(): OkOrError<SFError>
+  delete(): OkOrError<SFError>
+  moveTo(directory: TransactionalWritableDirectoryEntry): OkOrError<SFError>
 }
 
 export interface TransactionalWritableDirectoryEntry
@@ -23,6 +25,8 @@ export interface TransactionalWritableDirectoryEntry
   updateName(name: string): OkOrError<SFError>
   saveEntry(): OkOrError<SFError>
   watchChildren(): Result<Observable<TransactionalEntry[]>, SFError>
+  delete(): OkOrError<SFError>
+  moveTo(directory: TransactionalWritableDirectoryEntry): OkOrError<SFError>
 }
 
 export type TransactionalFileEntry =
