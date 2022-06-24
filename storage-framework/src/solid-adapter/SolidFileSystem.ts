@@ -16,6 +16,7 @@ import { getSolidDataset, getThingAll, type Thing } from '@inrupt/solid-client'
 import { Result } from '../lib/utilities/result'
 import { SolidDirectoryEntry } from './SolidDirectoryEntry'
 import { ReactivityDirDecorator } from '../lib/wrappers/ReactivityDecorator'
+import { Signal } from '../github-adapter/Signal'
 
 export type SolidSubject = Thing
 
@@ -26,6 +27,8 @@ export class SolidFileSystem implements StorageFrameworkProvider {
   isSignedIn: boolean
   sessionId: string
 
+  isAuthenticated = Promise.resolve(getDefaultSession().info.isLoggedIn)
+
   /**
    * Opens solid entry
    * @param {string} urlPod
@@ -34,15 +37,10 @@ export class SolidFileSystem implements StorageFrameworkProvider {
    */
   open(urlPod: string): Result<StorageFrameworkEntry, SFError> {
     return new Result((resolve, reject) => {
+      if (urlPod)
+        if (!urlPod) reject(new SFError('You have to supply a pod url to open'))
       this.loginAndFetch(urlPod)
-        .then((root) =>
-          resolve(
-            new ReactivityDirDecorator(
-              null,
-              new SolidDirectoryEntry(root.url, null)
-            )
-          )
-        )
+        .then((root) => resolve(new SolidDirectoryEntry(root.url, null)))
         .catch((e) => reject(new SFError('Failed to ...', e)))
     })
   }
@@ -55,10 +53,6 @@ export class SolidFileSystem implements StorageFrameworkProvider {
    */
   // TODO only root fetch
   async loginAndFetch(urlPod: string): Promise<any> {
-    if (!this.sessionId) {
-      await this.authenticate()
-    }
-
     const dataset = await getSolidDataset(urlPod, {
       fetch: fetch
     })
@@ -86,11 +80,12 @@ export class SolidFileSystem implements StorageFrameworkProvider {
     })
 
     if (!getDefaultSession().info.isLoggedIn) {
-      await login({
-        redirectUrl: window.location.href,
-        oidcIssuer: 'https://broker.pod.inrupt.com',
-        clientName: 'Doclea'
-      })
+      console.error('not logged in')
+      // await login({
+      //   redirectUrl: window.location.href,
+      //   oidcIssuer: 'https://broker.pod.inrupt.com',
+      //   clientName: 'Doclea'
+      // })
     }
   }
 

@@ -8,6 +8,10 @@ export class SFFile extends File {
     super(content, name, { lastModified })
   }
 
+  static fromFile(file: File): SFFile {
+    return new SFFile(file.name, file.lastModified, [file])
+  }
+
   get content(): Promise<string> {
     return getFileContent(this)
   }

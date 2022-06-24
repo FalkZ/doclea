@@ -1,3 +1,4 @@
+import type { WritableFileEntry } from '../lib/new-interface/SFBaseEntry'
 import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
 import type { StorageFrameworkDirectoryEntry } from '../lib/StorageFrameworkEntry'
@@ -9,7 +10,7 @@ import type { LocalDirectoryEntry } from './LocalDirectoryEntry'
 /**
  * Contains all methods for LocalFileEntry
  */
-export class LocalFileEntry implements StorageFrameworkFileEntry {
+export class LocalFileEntry implements WritableFileEntry {
   readonly isDirectory: false = false
   readonly isFile: true = true
   public wasModified: boolean = false
@@ -120,7 +121,7 @@ export class LocalFileEntry implements StorageFrameworkFileEntry {
    * Removes file
    * @returns {SFError} on error
    */
-  remove(): OkOrError<SFError> {
+  delete(): OkOrError<SFError> {
     return this.parent.removeEntry(this.name)
   }
 }

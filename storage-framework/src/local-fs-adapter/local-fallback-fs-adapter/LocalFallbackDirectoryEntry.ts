@@ -1,4 +1,5 @@
 import { Logger } from '../../../../doclea/src/business-logic/Logger'
+import type { ReadonlyDirectoryEntry } from '../../lib/new-interface/SFBaseEntry'
 import { SFError } from '../../lib/SFError'
 import type {
   StorageFrameworkDirectoryEntry,
@@ -12,12 +13,11 @@ import { LocalFallbackFileEntry } from './LocalFallbackFileEntry'
 /**
  * Contains all methods for LocalFallbackDirectoryEntry
  */
-export class LocalFallbackDirectoryEntry
-  implements StorageFrameworkDirectoryEntry
-{
+export class LocalFallbackDirectoryEntry implements ReadonlyDirectoryEntry {
   public readonly isDirectory: true
   public readonly isFile: false
   public readonly isRoot: boolean
+  public readonly isReadonly: true = true
   readonly fullPath: string
   readonly name: string
   readonly parent: LocalFallbackDirectoryEntry | null
@@ -199,7 +199,7 @@ export class LocalFallbackDirectoryEntry
     for (const child of children) {
       const pathUtil = new PathUtil(child.webkitRelativePath)
       const path = pathUtil.path
-      const fileName = pathUtil.fileName
+      const fileName = child.name
       if (fileName && path && path.length > 0) {
         let current: LocalFallbackDirectoryEntry = this
         for (let dirName of path.slice(1)) {
@@ -209,7 +209,7 @@ export class LocalFallbackDirectoryEntry
           current = current.getChildDirectory(dirName)
         }
         current.addChildFile(fileName, child)
-      } else console.error(`Invalid path or file name for file ${child}`)
+      } else console.error(`Invalid path or file name for file`, child)
     }
   }
 }

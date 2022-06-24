@@ -100,6 +100,13 @@ export interface WritableFileEntry extends BaseEntry {
   write(file: File): OkOrError<SFError>
 }
 
+export type ReadonlyDirectoryEntry = Omit<
+  WritableDirectoryEntry,
+  'createFile' | 'createDirectory' | 'isReadonly'
+> & {
+  readonly isReadonly: true
+}
+
 export type ReadonlyFileEntry = Omit<
   WritableFileEntry,
   'delete' | 'write' | 'isReadonly'

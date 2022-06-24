@@ -42,7 +42,7 @@ export class LocalFallbackFileEntry
    */
   read(): Result<SFFile, SFError> {
     return new Result((resolve, reject) => {
-      resolve(this.file)
+      resolve(SFFile.fromFile(this.file))
     })
   }
 

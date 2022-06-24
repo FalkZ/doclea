@@ -49,12 +49,8 @@ export class LocalFileSystem implements StorageFrameworkProvider {
           const dirHandle = await window.showDirectoryPicker({
             multiple: true
           })
-          resolve(
-            new ReactivityDirDecorator(
-              null,
-              new LocalDirectoryEntry(dirHandle, null)
-            )
-          )
+          // TODO
+          resolve(new LocalDirectoryEntry(dirHandle, null))
         } catch (err) {
           reject(new SFError('No directory provided', err))
         }
@@ -65,12 +61,8 @@ export class LocalFileSystem implements StorageFrameworkProvider {
           if (files.length) {
             const dirName = files[0].webkitRelativePath.split('/')[0]
 
-            resolve(
-              new ReactivityDirDecorator(
-                null,
-                new LocalFallbackDirectoryEntry(dirName, files, null)
-              )
-            )
+            // TODO
+            resolve(new LocalFallbackDirectoryEntry(dirName, files, null))
           }
         } catch (e) {
           reject(new SFError('Failed to open local file system'))

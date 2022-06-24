@@ -5,6 +5,7 @@ import { getAndRemoveSearchParam, hasSearchParam, parseUrl } from '../lib/utilit
 import { GithubDirectoryEntry } from './GithubDirectoryEntry'
 import type { SFError } from '../lib/SFError'
 import type { SFProviderAuth } from '../lib/new-interface/SFProvider'
+import { Signal } from './Signal'
 
 const guid = 'github-auth-reiupkvhldwe'
 
@@ -12,45 +13,6 @@ const STARTED_GITHUB_AUTH = 'STARTED_GITHUB_AUTH'
 const TOKEN = 'TOKEN'
 
 const noop = () => {}
-
-class Signal<T> extends Promise<T> {
-  private res
-  private rej
-
-  constructor(fn?) {
-  
-    // needed for MyPromise.race/all ecc
-    if (fn instanceof Function) {
-      return super(fn)
-    }
-
-    let res
-    let rej
-    super((resolve, reject) => {
-      res = (v) => resolve(v)
-      rej = (e) => reject(e)
-    })
-
-    this.res = res
-    this.rej = rej
-  }
-  public resolve(v: T): void {
-    this.res(v)
-  }
-
-  public reject(e: Error): void {
-    this.rej(e)
-  }
-
-  static get [Symbol.species]() {
-    return Promise
-  }
-  get [Symbol.toStringTag]() {
-    return 'Signal'
-  }
-}
-
-noop(Signal)
 
 /**
  * Contains all methods for GithubFileSystem

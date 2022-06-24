@@ -1,3 +1,7 @@
+import type {
+  DirectoryEntry,
+  WritableDirectoryEntry
+} from '../lib/new-interface/SFBaseEntry'
 import { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkDirectoryEntry,
@@ -10,7 +14,7 @@ import { LocalFileEntry } from './LocalFileEntry'
 /**
  * Contains all methods for LocalDirectoryEntry
  */
-export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
+export class LocalDirectoryEntry implements WritableDirectoryEntry {
   readonly isDirectory: true
   readonly isFile: false
   readonly fullPath: string
@@ -63,10 +67,20 @@ export class LocalDirectoryEntry implements StorageFrameworkDirectoryEntry {
    * @returns {StorageFrameworkFileEntry} on success
    * @returns {SFError} on error
    */
-  createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
+  createFile(file: File): Result<StorageFrameworkFileEntry, SFError> {
     return new Result(async (resolve, reject) => {
       try {
-        const fileHandle = await window.showSaveFilePicker()
+        const fileHandle = await this.directoryHandle.getFileHandle(file.name, {
+          create: true
+        })
+
+        const writable = await fileHandle.createWritable()
+
+        // Write the contents of the file to the stream.
+        await writable.write(file)
+
+        // Close the file and write the contents to disk.
+        await writable.close()
         resolve(new LocalFileEntry(fileHandle, this))
       } catch (err) {
         reject(new SFError(`Failed to create file ${name}`, err))

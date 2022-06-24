@@ -38,7 +38,7 @@
     "@parcel/packager-ts": "2.5.0",
     "@parcel/transformer-typescript-types": "latest",
     "@types/wicg-file-system-access": "^2020.9.5",
-    "browser-unit-test": "0.0.1",
+    "browser-unit-test": "0.0.2",
     "parcel": "latest",
     "vite": "^2.9.9"
   }
