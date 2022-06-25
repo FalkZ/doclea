@@ -6,6 +6,7 @@ import { GithubDirectoryEntry } from './GithubDirectoryEntry'
 import type { SFError } from '../lib/SFError'
 import type { SFProviderAuth } from '../lib/new-interface/SFProvider'
 import { Signal } from './Signal'
+import { GitHubAPI } from './GithubApi'
 
 const guid = 'github-auth-reiupkvhldwe'
 
@@ -66,8 +67,10 @@ export class GithubFileSystem implements SFProviderAuth {
   public open(githubUrl: string): Result<Entry, SFError> {
     const githubPathFragments = parseUrl(githubUrl).pathFragments
 
-    GithubFileSystem.repo = githubPathFragments[1]
-    GithubFileSystem.owner = githubPathFragments[0]
+   const repo = githubPathFragments[1]
+   const owner = githubPathFragments[0]
+
+   const api = new GitHubAPI({  authToken: this.token,repo, owner})
 
     return new Result(async (resolve, reject) => {
       this.octokit = new Octokit({
@@ -84,7 +87,7 @@ export class GithubFileSystem implements SFProviderAuth {
         }
       })
 
-      const workspace = new GithubDirectoryEntry(null, '', '', this.octokit)
+      const workspace = new GithubDirectoryEntry(null, '', '', api)
       workspace.getChildren()
       resolve(workspace)
     })

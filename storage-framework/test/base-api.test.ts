@@ -41,31 +41,31 @@ const createNewLocal = async () => {
   return _local
 }
 export const beforeEach = {
-  // github: async () => {
-  //   const provider = new GithubFileSystem({
-  //     clientId: 'b0febf46067600eed6e5',
-  //     clientSecret: '228480a8a7eae9aed8299126211402f47c488013'
-  //   })
-
-  //   if (await provider.isAuthenticated) {
-  //     const fs = await provider.open('https://github.com/FalkZ/doclea-test')
-  //     await cleanup(fs)
-  //     return fs
-  //   } else {
-  //     provider.authenticate()
-  //   }
-  // },
-  solid: async () => {
-    const provider = new SolidFileSystem()
+  github: async () => {
+    const provider = new GithubFileSystem({
+      clientId: 'b0febf46067600eed6e5',
+      clientSecret: '228480a8a7eae9aed8299126211402f47c488013'
+    })
 
     if (await provider.isAuthenticated) {
-      const fs = await provider.open('https://pod.inrupt.com/falkz/doclea-test')
+      const fs = await provider.open('https://github.com/FalkZ/doclea-test')
       await cleanup(fs)
       return fs
     } else {
       provider.authenticate()
     }
   },
+  // solid: async () => {
+  //   const provider = new SolidFileSystem()
+
+  //   if (await provider.isAuthenticated) {
+  //     const fs = await provider.open('https://pod.inrupt.com/falkz/doclea-test')
+  //     await cleanup(fs)
+  //     return fs
+  //   } else {
+  //     provider.authenticate()
+  //   }
+  // },
   local: async () => {
     return await createNewLocal()
   }

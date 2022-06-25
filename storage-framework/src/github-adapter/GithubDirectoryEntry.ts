@@ -9,6 +9,7 @@ import { SFError } from '../lib/SFError'
 import type { StorageFrameworkDirectoryEntry } from '../lib/StorageFrameworkEntry'
 import type { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
 import { Result, type OkOrError } from '../lib/utilities'
+import type { GitHubAPI } from './GithubApi'
 import { GithubFileEntry } from './GithubFileEntry'
 import { GithubFileSystem } from './GithubFileSystem'
 import type { ArrayResponse } from './GithubTypes'
@@ -28,18 +29,18 @@ export class GithubDirectoryEntry implements WritableDirectoryEntry {
   public readonly isRoot: boolean
   private children: Entry[] = []
   public readonly parent: WritableDirectoryEntry
-  private readonly octokit: Octokit
+  private readonly githubApi: GitHubAPI
 
   public constructor(
     parent: WritableDirectoryEntry,
     fullPath: string,
     name: string,
-    octokit: Octokit
+    octokit: GitHubAPI
   ) {
     this.parent = parent
     this.fullPath = fullPath
     this.name = name
-    this.octokit = octokit
+    this.githubApi = octokit
     this.isRoot = fullPath === ''
   }
 
@@ -72,8 +73,8 @@ export class GithubDirectoryEntry implements WritableDirectoryEntry {
       const pathOfDir = this.isRoot
         ? file.name
         : this.fullPath + '/' + file.name
-      await this.createGithubFile(pathOfDir, 'Cg==')
-      resolve(new GithubFileEntry(this, pathOfDir, file.name, this.octokit))
+      await this.githubApi.createGithubFile(pathOfDir, await file.text())
+      resolve(new GithubFileEntry(this, pathOfDir, file.name, this.githubApi))
     })
   }
 
@@ -86,8 +87,8 @@ export class GithubDirectoryEntry implements WritableDirectoryEntry {
   public createDirectory(name: string): Result<DirectoryEntry, SFError> {
     return new Result(async (resolve) => {
       const pathOfDir = this.isRoot ? name : this.parent.fullPath + '/' + name
-      await this.createGithubFile(pathOfDir + '/' + 'README.md', 'Cg==')
-      resolve(new GithubDirectoryEntry(this, pathOfDir, name, this.octokit))
+      await this.githubApi.createGithubFile(pathOfDir + '/' + 'README.md', '')
+      resolve(new GithubDirectoryEntry(this, pathOfDir, name, this.githubApi))
     })
   }
 
@@ -140,8 +141,9 @@ export class GithubDirectoryEntry implements WritableDirectoryEntry {
             : this.parent.fullPath + '/' + name
           const newFileFullPath =
             newDirFullPath + '/' + storageElements[index].name
-          await this.createGithubFile(
+          await this.githubApi.createGithubFile(
             newFileFullPath,
+            '',
             storageElements[index].githubEntry.sha
           )
 
@@ -168,42 +170,9 @@ export class GithubDirectoryEntry implements WritableDirectoryEntry {
     })
   }
 
-  private getGithubDir(): Promise<ArrayResponse> {
-    return this.octokit
-      .request('GET /repos/{owner}/{repo}/contents/{path}', {
-        owner: GithubFileSystem.owner,
-        repo: GithubFileSystem.repo,
-        path: this.fullPath
-      })
-      .then(({ data }) => {
-        this.githubEntry = <ArrayResponse>data
-        return data
-      }) as Promise<ArrayResponse>
-  }
-
-  private createGithubFile(
-    newFileFullPath: string,
-    contentInBase65: string
-  ): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.octokit
-        .request('PUT /repos/{owner}/{repo}/contents/{path}', {
-          owner: GithubFileSystem.owner,
-          repo: GithubFileSystem.repo,
-          path: newFileFullPath,
-          message: 'doclea created file',
-          content: contentInBase65
-        })
-        .then((response) => {
-          if (response.status == 201) {
-            noop('Succesfully created file in GitHub: ', newFileFullPath)
-            resolve()
-          } else {
-            noop('Failed to create file in GitHub: ', newFileFullPath)
-            reject()
-          }
-        })
-    })
+  private async getGithubDir(): Promise<ArrayResponse> {
+    this.githubEntry = <ArrayResponse>await this.githubApi.getDir(this.fullPath)
+    return this.githubEntry
   }
 
   private createChildren(): void {
@@ -214,7 +183,7 @@ export class GithubDirectoryEntry implements WritableDirectoryEntry {
           this,
           element.path,
           element.name,
-          this.octokit
+          this.githubApi
         )
         this.children.push(githubDirectory)
       } else if (element.type === 'file') {
@@ -222,7 +191,7 @@ export class GithubDirectoryEntry implements WritableDirectoryEntry {
           this,
           element.path,
           element.name,
-          this.octokit
+          this.githubApi
         )
         this.children.push(githubFile)
       }

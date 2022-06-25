@@ -11,6 +11,8 @@ import type {
   WritableDirectoryEntry,
   WritableFileEntry
 } from '../lib/new-interface/SFBaseEntry'
+import { toBase64 } from '../lib/toBase64'
+import type { GitHubAPI } from './GithubApi'
 
 const noop = () => {}
 
@@ -25,8 +27,10 @@ export class GithubFileEntry implements WritableFileEntry {
   public readonly fullPath: string
   public readonly name: string
   private readonly parent: WritableDirectoryEntry
-  private readonly octokit: Octokit
-  private githubEntry: SingleFile
+  private readonly githubAPI: GitHubAPI
+  private get githubEntry(): Promise<SingleFile> {
+    return this.getGithubFile(this.fullPath)
+  }
 
   private readonly mutex = new Mutex()
 
@@ -34,14 +38,12 @@ export class GithubFileEntry implements WritableFileEntry {
     parent: WritableDirectoryEntry,
     fullPath: string,
     name: string,
-    octokit: Octokit
+    octokit: GitHubAPI
   ) {
     this.parent = parent
     this.fullPath = fullPath
     this.name = name
-    this.octokit = octokit
-
-    noop(this)
+    this.githubAPI = octokit
   }
 
   /**
@@ -51,8 +53,8 @@ export class GithubFileEntry implements WritableFileEntry {
    */
   public read(): Result<SFFile, SFError> {
     return new Result(async (result) => {
-      await this.getGithubFile(this.fullPath)
-      result(new SFFile(this.name, 0, [atob(this.githubEntry.content)]))
+      const f = await this.githubEntry
+      result(new SFFile(this.name, 0, [atob(f.content)]))
     })
   }
 
@@ -61,27 +63,12 @@ export class GithubFileEntry implements WritableFileEntry {
    * @param {File} file
    * @returns {SFError} on error
    */
-  public write(file: File): OkOrError<SFError> {
-    noop(file)
-    return new Result(async (resolve, reject) => {
-      this.octokit
-        .request('PUT /repos/{owner}/{repo}/contents/{path}', {
-          owner: GithubFileSystem.owner,
-          repo: GithubFileSystem.repo,
-          path: this.fullPath,
-          message: 'doclea update',
-          content: btoa(await getFileContent(file)),
-          sha: this.githubEntry.sha
-        })
-        .then((response) => {
-          if (response.status === 200) {
-            resolve()
-          } else {
-            reject(new SFError('Failed to save file'))
-          }
-        })
-        .catch((err) => reject(new SFError(`Failed to save file`, err)))
-    })
+  public async write(file: File): OkOrError<SFError> {
+    return this.githubAPI.createGithubFile(
+      this.fullPath,
+      await file.text(),
+      (await this.githubEntry).sha
+    )
   }
 
   /**
@@ -107,8 +94,12 @@ export class GithubFileEntry implements WritableFileEntry {
     return new Result(async (resolve, reject) => {
       await this.mutex.apply(async () => {
         try {
-          await this.getGithubFile(this.fullPath)
-          await this.removeGithubFile(this.fullPath, this.githubEntry.sha)
+          await this.githubAPI.deleteFile(
+            this.fullPath,
+            (
+              await this.githubEntry
+            ).sha
+          )
 
           resolve()
         } catch (error) {
@@ -133,12 +124,19 @@ export class GithubFileEntry implements WritableFileEntry {
           const newFullPathOfFile = directory.isRoot
             ? fileName
             : `${directory.fullPath}/${fileName}`
-          await this.createGithubFile(
+          await this.githubAPI.createGithubFile(
             newFullPathOfFile,
-            this.githubEntry.content
+            (
+              await this.githubEntry
+            ).content
           )
 
-          await this.removeGithubFile(this.fullPath, this.githubEntry.sha)
+          await this.githubAPI.deleteFile(
+            this.fullPath,
+            (
+              await this.githubEntry
+            ).sha
+          )
 
           resolve()
         } catch (error) {
@@ -162,9 +160,19 @@ export class GithubFileEntry implements WritableFileEntry {
           const newFileFullPath = this.parent.isRoot
             ? name
             : this.parent.fullPath + '/' + name
-          await this.createGithubFile(newFileFullPath, this.githubEntry.content)
+          await this.githubAPI.createGithubFile(
+            newFileFullPath,
+            (
+              await this.githubEntry
+            ).content
+          )
 
-          await this.removeGithubFile(this.fullPath, this.githubEntry.sha)
+          await this.githubAPI.deleteFile(
+            this.fullPath,
+            (
+              await this.githubEntry
+            ).sha
+          )
 
           resolve()
         } catch (error) {
@@ -175,73 +183,6 @@ export class GithubFileEntry implements WritableFileEntry {
   }
 
   private getGithubFile(getFileFullPath: string): Result<SingleFile, void> {
-    return new Result((resolve, reject) => {
-      this.octokit
-        .request('GET /repos/{owner}/{repo}/contents/{path}', {
-          owner: GithubFileSystem.owner,
-          repo: GithubFileSystem.repo,
-          path: getFileFullPath
-        })
-        .then(({ data }) => {
-          noop('Succesfully read file from GitHub: ', getFileFullPath)
-          this.githubEntry = data as SingleFile
-          resolve(this.githubEntry)
-        })
-        .catch((error) => {
-          noop('Failed to read file from GitHub: ', getFileFullPath)
-          reject(error)
-        })
-    })
-  }
-
-  private createGithubFile(
-    newFileFullPath: string,
-    contentInBase65: string
-  ): Result<void, void> {
-    return new Result(async (resolve, reject) => {
-      await this.octokit
-        .request('PUT /repos/{owner}/{repo}/contents/{path}', {
-          owner: GithubFileSystem.owner,
-          repo: GithubFileSystem.repo,
-          path: newFileFullPath,
-          message: 'doclea created file',
-          content: contentInBase65
-        })
-        .then((response) => {
-          if (response.status === 201) {
-            noop('Succesfully created file in GitHub: ', newFileFullPath)
-            resolve()
-          } else {
-            noop('Failed to create file in GitHub: ', newFileFullPath)
-            reject()
-          }
-        })
-    })
-  }
-
-  private removeGithubFile(
-    removeFileFullPath: string,
-    sha: string
-  ): Result<void, void> {
-    return new Result(async (resolve, reject) => {
-      await this.octokit
-        .request('DELETE /repos/{owner}/{repo}/contents/{path}', {
-          owner: GithubFileSystem.owner,
-          repo: GithubFileSystem.repo,
-          path: removeFileFullPath,
-          message: 'doclea removed file',
-          sha: sha
-        })
-        .then((response) => {
-          noop(response)
-          if (response.status === 200) {
-            noop('Succesfully removed file in GitHub: ', removeFileFullPath)
-            resolve()
-          } else {
-            noop('Failed to remove file in GitHub: ', removeFileFullPath)
-            reject()
-          }
-        })
-    })
+    return this.githubAPI.getGithubFile(getFileFullPath)
   }
 }
