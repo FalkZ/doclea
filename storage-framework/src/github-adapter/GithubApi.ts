@@ -13,9 +13,7 @@ export class GitHubAPI {
     this.octokit = new Octokit({
       auth: config.authToken, // https://github.com/settings/tokens
       userAgent: 'doclea',
-
       baseUrl: 'https://api.github.com',
-
       log: {
         debug: console.debug,
         info: console.info,
@@ -57,7 +55,10 @@ export class GitHubAPI {
         .request('GET /repos/{owner}/{repo}/contents/{path}', {
           owner: this.owner,
           repo: this.repo,
-          path: fullPath
+          path: fullPath,
+          headers: {
+            'If-None-Match': ''
+          }
         })
         .then((response) => {
           if (response.status === 200) resolve(response.data as SingleFile)
