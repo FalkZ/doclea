@@ -7,6 +7,7 @@ import {
 import {
   TransactionalEntry,
   TransactionalWritableDirectoryEntry,
+  type TransactionalDirectoryEntry,
   type TransactionalWritableFileEntry
 } from '../new-interface/TransactionalEntry'
 import { SFError } from '../SFError'
@@ -18,6 +19,11 @@ import {
   type BaseEntryState,
   type TransactionalDecoratorEntry
 } from './BaseDecorator'
+import {
+  fileStateForNewEntry,
+  fileStateFromInnerEntry,
+  TransactionalFileDecorator
+} from './FileDecorator'
 
 export const decorateDirectory = (
   innerEntry: DirectoryEntry
@@ -101,7 +107,10 @@ export class TransactionalDirDecorator
   // TEMPORARY ACTIONS
 
   public watchChildren(): Result<Readable<TransactionalEntry[]>, SFError> {
-    return this.getCurrentChildren()
+    return this.getCurrentChildren() as Result<
+      Readable<TransactionalEntry[]>,
+      SFError
+    >
   }
 
   public createDirectory(
@@ -121,9 +130,13 @@ export class TransactionalDirDecorator
     name: string
   ): Result<TransactionalWritableFileEntry, SFError> {
     return this.appendEntry(name, (name) => {
-      // TODO
-      throw new Error('unimplemented')
-    })
+      const file = new TransactionalFileDecorator(
+        fileStateForNewEntry(this, name),
+        fileStateForNewEntry(this, name)
+      )
+
+      return file
+    }) as Result<TransactionalWritableFileEntry, SFError>
   }
 
   // TODO: remove
@@ -131,8 +144,12 @@ export class TransactionalDirDecorator
   //   return this.watchChildren().then((store) => store.get())
   // }
 
-  getParent(): Result<DirectoryEntry, SFError> {
-    throw new Error('Method not implemented.')
+  // ================================================================================
+
+  public getParent(): Result<TransactionalDirectoryEntry | null, SFError> {
+    return new Result((resolve) => {
+      resolve(this.currentState.parent)
+    })
   }
 
   // ================================================================================

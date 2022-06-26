@@ -7,10 +7,11 @@ import {
 import {
   TransactionalEntry,
   TransactionalWritableDirectoryEntry,
+  type TransactionalDirectoryEntry,
   type TransactionalWritableFileEntry
 } from '../new-interface/TransactionalEntry'
 import { SFError } from '../SFError'
-import type { SFFile } from '../SFFile'
+import { SFFile } from '../SFFile'
 import { OkOrError, Result } from '../utilities'
 import { Readable, writable, type Writable } from '../utilities/stores'
 import {
@@ -24,10 +25,11 @@ import type { TransactionalDirDecorator } from './DirDecorator'
 
 interface FileEntryState extends BaseEntryState {
   readonly innerEntry: FileEntry | null
+  parent: TransactionalDirDecorator
   content: Writable<SFFile> | null
 }
 
-const stateFromInnerEntry = (
+export const fileStateFromInnerEntry = (
   parent: TransactionalDirDecorator,
   innerEntry: FileEntry
 ): FileEntryState => ({
@@ -35,6 +37,16 @@ const stateFromInnerEntry = (
   parent: parent,
   name: innerEntry.name,
   content: null
+})
+
+export const fileStateForNewEntry = (
+  parent: TransactionalDirDecorator,
+  name: string
+): FileEntryState => ({
+  innerEntry: null,
+  parent: parent,
+  name: name,
+  content: writable(new ArrayBuffer(0))
 })
 
 // ================================================================================
@@ -51,32 +63,50 @@ export class TransactionalFileDecorator
   // ================================================================================
   // INTERNAL METHODS
 
+  private getCurrentContent(): Result<Writable<SFFile>, SFError> {
+    // TODO
+    throw new Error('Method not implemented.')
+  }
+
   // ================================================================================
   // PERMANENT ACTIONS
 
   // ================================================================================
   // TEMPORARY UPDATE ACTIONS
 
+  updateContent(content: BlobPart): OkOrError<SFError> {
+    content.
+  }
+  public async updateFile(file: File): OkOrError<SFError> {
+    new File([await file.arrayBuffer()], file.name)
+    return this.updateName(file.name).then(() => {
+      
+      file.arrayBuffer().then(data => new Uint8Array(data).buffer)
+      .then
+      this.updateContent()
+    })
+  }
+
   // ================================================================================
 
-  watchContent(): Result<Readable<SFFile>, SFError> {
+  public watchContent(): Result<Readable<SFFile>, SFError> {
+    return this.getCurrentContent()
+  }
+  read(): Result<SFFile, SFError> {
+    this.getCurrentContent()
     throw new Error('Method not implemented.')
   }
 
-  updateContent(content: BlobPart): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
-  }
-  updateFile(file: File): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
-  }
   downloadEntry(): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
-  getParent(): Result<DirectoryEntry | null, SFError> {
-    throw new Error('Method not implemented.')
-  }
-  read(): Result<SFFile, SFError> {
-    throw new Error('Method not implemented.')
+
+  // ================================================================================
+
+  public getParent(): Result<TransactionalDirectoryEntry, SFError> {
+    return new Result((resolve) => {
+      resolve(this.currentState.parent)
+    })
   }
 
   // ================================================================================

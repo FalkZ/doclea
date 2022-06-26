@@ -1,6 +1,8 @@
+import type { DirectoryEntry } from '../new-interface/SFBaseEntry'
 import {
   TransactionalEntry,
   TransactionalWritableDirectoryEntry,
+  type TransactionalDirectoryEntry,
   type TransactionalWritableFileEntry
 } from '../new-interface/TransactionalEntry'
 import { SFError } from '../SFError'
@@ -44,9 +46,6 @@ export abstract class BaseTransactionalDecorator<S extends BaseEntryState> {
     throw new Error('Method not implemented.')
   }
 
-  // ================================================================================
-  // TEMPORARY ACTIONS
-
   public moveTo(
     directory: TransactionalWritableDirectoryEntry
   ): OkOrError<SFError> {
@@ -56,6 +55,9 @@ export abstract class BaseTransactionalDecorator<S extends BaseEntryState> {
   public updateName(name: string): OkOrError<SFError> {
     throw new Error('Method not implemented.')
   }
+
+  // ================================================================================
+  // TEMPORARY ACTIONS
 
   // ================================================================================
   // CHANGEABLE PROPERTIES
