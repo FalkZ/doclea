@@ -51,14 +51,15 @@ export class GithubDirectoryEntry implements WritableDirectoryEntry {
    */
   public getChildren(): Result<Entry[], SFError> {
     return new Result(async (resolve, reject) => {
-      await this.getGithubDir()
-        .then(() => {
-          this.createChildren()
-          resolve(this.children)
-        })
-        .catch(() => {
-          reject(new SFError('Failed to get children'))
-        })
+      try {
+        this.githubEntry = <ArrayResponse>(
+          await this.githubApi.getDir(this.fullPath)
+        )
+        const children = this.createChildren(this.githubEntry)
+        resolve(children)
+      } catch (e) {
+        reject(new SFError('Failed to get children', e))
+      }
     })
   }
 
@@ -170,14 +171,9 @@ export class GithubDirectoryEntry implements WritableDirectoryEntry {
     })
   }
 
-  private async getGithubDir(): Promise<ArrayResponse> {
-    this.githubEntry = <ArrayResponse>await this.githubApi.getDir(this.fullPath)
-    return this.githubEntry
-  }
-
-  private createChildren(): void {
-    this.children = []
-    this.githubEntry.forEach((element) => {
+  private createChildren(githubEntry: ArrayResponse): Entry[] {
+    const children: Entry[] = []
+    githubEntry.forEach((element) => {
       if (element.type === 'dir') {
         const githubDirectory = new GithubDirectoryEntry(
           this,
@@ -185,7 +181,7 @@ export class GithubDirectoryEntry implements WritableDirectoryEntry {
           element.name,
           this.githubApi
         )
-        this.children.push(githubDirectory)
+        children.push(githubDirectory)
       } else if (element.type === 'file') {
         const githubFile = new GithubFileEntry(
           this,
@@ -193,8 +189,11 @@ export class GithubDirectoryEntry implements WritableDirectoryEntry {
           element.name,
           this.githubApi
         )
-        this.children.push(githubFile)
+        children.push(githubFile)
       }
     })
+
+    this.children = children
+    return children
   }
 }

@@ -67,7 +67,7 @@ export class LocalFileEntry implements WritableFileEntry {
    * @param {File} file
    * @returns {SFError} on error
    */
-  save(file): OkOrError<SFError> {
+  write(file): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       try {
         const writable = await this.fileHandle.createWritable()
@@ -112,9 +112,10 @@ export class LocalFileEntry implements WritableFileEntry {
    * @param {string} name
    * @returns {SFError} on error
    */
-  rename(name: string): OkOrError<SFError> {
-    this.wasModified = true
-    throw new Error('Method not implemented.')
+  async rename(name: string): OkOrError<SFError> {
+    this.file = new File([await this.file.arrayBuffer()], name)
+    await this.delete()
+    this.parent.createFile(this.file)
   }
 
   /**

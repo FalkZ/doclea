@@ -102,6 +102,7 @@
 
         ctx.get(listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
           output = markdown
+          selectedFile.updateContent(markdown)
         })
       })
       .use(nord)
@@ -129,12 +130,12 @@
         if (!selectedFile.isReadonly)
           document.querySelector('[title="save"]').onclick = () => {
             console.log('start saving')
-            selectedFile.save(new File([output], 'test.md'))
+            selectedFile.saveContent()
           }
 
         document.querySelector('[title="download"]').onclick = () => {
           console.log('start download')
-          selectedFile.download()
+          selectedFile.downloadEntry()
         }
       })
   }

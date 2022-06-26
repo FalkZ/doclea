@@ -105,7 +105,8 @@ export class Editing
         Object.keys(ActionType)[type]
       )
     } else {
-      this[listener](arg)
+      console.log(this)
+      this[listener](this, arg)
     }
   }
 
@@ -113,10 +114,10 @@ export class Editing
    * Closes the editor with a dispatch method
    */
 
-  @ErrorMessage('Failed to open storage selection')
+  //@ErrorMessage('Failed to open storage selection')
   @AddActionListener(ActionType.OpenStorageSelection)
-  public closeEditor(): void {
-    throw new Error()
+  public closeEditor(t): void {
+    console.log(this, t, arguments)
     this.dispatchEvent(EditorEventType.CloseEditor)
   }
 }

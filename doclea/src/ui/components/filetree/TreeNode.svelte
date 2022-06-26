@@ -20,7 +20,7 @@
     `--indention-level: calc(${indentionLevel} * var(--ui-padding-500))`
 
   let isSelected = false
-  let showChildren = true
+  let showChildren = indentionLevel === 0
   let children: StorageFrameworkEntry[] = []
 
   $: {
@@ -78,6 +78,8 @@
     console.log('changed rename')
     setTimeout(() => target.focus())
   }
+
+  const { wasModified } = entry
 </script>
 
 {#if entry.isFile}
@@ -106,7 +108,7 @@
         value={entry.name}
       />
     {/if}
-    {#if entry.wasModified}
+    {#if $wasModified}
       <span class="mod">•</span>
     {/if}
   </div>

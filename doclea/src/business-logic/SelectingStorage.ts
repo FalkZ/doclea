@@ -121,7 +121,7 @@ export class SelectingStorage extends AbstractState<
           if (this.fileSystemUrl) {
             const fs = this.getStorageByUrl(this.fileSystemUrl)
 
-            if (!fs.isSignedIn) {
+            if (!(await fs.isAuthenticated)) {
               await fs.authenticate()
             }
 
@@ -132,7 +132,7 @@ export class SelectingStorage extends AbstractState<
             this.fileSystemUrl = url
             const fs = this.getStorageByUrl(url)
 
-            if (fs.authenticate && !fs.isSignedIn) {
+            if (fs.authenticate && !(await fs.isAuthenticated)) {
               await fs.authenticate()
             }
 

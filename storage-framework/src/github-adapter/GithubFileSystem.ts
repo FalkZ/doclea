@@ -52,7 +52,9 @@ export class GithubFileSystem implements SFProviderAuth {
     if (!localStorage.getItem(STARTED_GITHUB_AUTH) && !hasSearchParam('code')) {
       localStorage.setItem(STARTED_GITHUB_AUTH, '1')
       const redirectUri = (
-        window.location.origin + window.location.pathname
+        window.location.origin +
+        window.location.pathname +
+        window.location.hash
       ).replace('localhost', '127.0.0.1')
       const params = new URLSearchParams({
         client_id: this.clientId,

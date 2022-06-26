@@ -35,6 +35,12 @@ const getChild = async (parent: DirectoryEntry, key: string) => {
 
   expect(children).to.be.an('array')
 
+  console.log(
+    { children },
+    children.find(({ name }) => name === key),
+    key
+  )
+
   return children.find(({ name }) => name === key)
 }
 
@@ -48,21 +54,21 @@ const createNewLocal = async () => {
   return _local
 }
 export const beforeEach = {
-  github: async () => {
-    const provider = new GithubFileSystem({
-      clientId: 'b0febf46067600eed6e5',
-      clientSecret: '228480a8a7eae9aed8299126211402f47c488013'
-    })
+  // github: async () => {
+  //   const provider = new GithubFileSystem({
+  //     clientId: 'b0febf46067600eed6e5',
+  //     clientSecret: '228480a8a7eae9aed8299126211402f47c488013'
+  //   })
 
-    if (await provider.isAuthenticated) {
-      const fs = await provider.open('https://github.com/FalkZ/doclea-test')
-      const result: DirectoryEntry = fs._wrappedEntry as DirectoryEntry
-      await cleanup(result)
-      return fs
-    } else {
-      provider.authenticate()
-    }
-  },
+  //   if (await provider.isAuthenticated) {
+  //     const fs = await provider.open('https://github.com/FalkZ/doclea-test')
+  //     const result: DirectoryEntry = fs._wrappedEntry as DirectoryEntry
+  //     await cleanup(result)
+  //     return fs
+  //   } else {
+  //     provider.authenticate()
+  //   }
+  // },
   local: async () => {
     return await createNewLocal()
   }

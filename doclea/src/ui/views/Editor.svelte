@@ -44,7 +44,7 @@
   }
 
   main :global(.splitpanes__pane) {
-    min-width: 260px;
+    min-width: 270px;
     background-color: var(--ui-background-500) !important;
   }
 

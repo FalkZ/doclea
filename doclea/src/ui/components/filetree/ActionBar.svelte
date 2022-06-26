@@ -40,7 +40,7 @@
   }
 
   const removeEntry = () => {
-    selectedEntry?.remove()
+    selectedEntry?.delete()
   }
 </script>
 

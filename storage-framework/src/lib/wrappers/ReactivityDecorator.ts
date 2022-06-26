@@ -13,6 +13,7 @@ import type { SFError } from '../SFError'
 import { SFFile } from '../SFFile'
 
 import { Result, type OkOrError } from '../utilities'
+import { downloadFile } from '../utilities/downloadFile'
 import { writable, type Readable, type Writable } from '../utilities/stores'
 
 abstract class ReactivityDecorator<E extends BaseEntry> {
@@ -102,7 +103,8 @@ export class ReactivityFileDecorator
   }
 
   public downloadEntry(): OkOrError<SFError> {
-    throw new Error('Method not implemented.')
+    const f = this.data?.get()
+    if (f) downloadFile(f)
   }
 
   public rename(name: string): OkOrError<SFError> {
