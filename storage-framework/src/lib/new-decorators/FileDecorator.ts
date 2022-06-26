@@ -46,7 +46,7 @@ export const fileStateForNewEntry = (
   innerEntry: null,
   parent: parent,
   name: name,
-  content: writable(new ArrayBuffer(0))
+  content: writable(new SFFile())
 })
 
 // ================================================================================
