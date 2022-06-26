@@ -105,6 +105,12 @@ export class ReactivityFileDecorator
     throw new Error('Method not implemented.')
   }
 
+  public rename(name: string): OkOrError<SFError> {
+    return super.rename(name).then(() => {
+      this.data?.update((file) => new SFFile(name, [file]))
+    })
+  }
+
   public get isReadonly(): false {
     return this.wrappedEntry.isReadonly
   }
