@@ -1,7 +1,11 @@
 import { Octokit } from '@octokit/core'
 import { ReactivityDirDecorator } from '../lib/wrappers/ReactivityDecorator'
 import { Result, type OkOrError } from '../lib/utilities'
-import { getAndRemoveSearchParam, hasSearchParam, parseUrl } from '../lib/utilities/url'
+import {
+  getAndRemoveSearchParam,
+  hasSearchParam,
+  parseUrl
+} from '../lib/utilities/url'
 import { GithubDirectoryEntry } from './GithubDirectoryEntry'
 import type { SFError } from '../lib/SFError'
 import type { SFProviderAuth } from '../lib/new-interface/SFProvider'
@@ -45,17 +49,20 @@ export class GithubFileSystem implements SFProviderAuth {
    * Runs authentication process of github
    */
   public authenticate(): OkOrError<SFError> {
-    sessionStorage.setItem(STARTED_GITHUB_AUTH, 'true')
-    const redirectUri = window.location.href.replace('localhost', '127.0.0.1')
-    const params = new URLSearchParams({
-      client_id: this.clientId,
-      redirect_uri: redirectUri,
-      scope: 'repo'
-    })
+    if (!localStorage.getItem(STARTED_GITHUB_AUTH) && !hasSearchParam('code')) {
+      localStorage.setItem(STARTED_GITHUB_AUTH, '1')
+      const redirectUri = (
+        window.location.origin + window.location.pathname
+      ).replace('localhost', '127.0.0.1')
+      const params = new URLSearchParams({
+        client_id: this.clientId,
+        redirect_uri: redirectUri,
+        scope: 'repo'
+      })
 
-    window.location.href = 'https://github.com/login/oauth/authorize?' + params
-
-    noop('never called')
+      window.location.href =
+        'https://github.com/login/oauth/authorize?' + params
+    }
   }
 
   /**
@@ -67,10 +74,10 @@ export class GithubFileSystem implements SFProviderAuth {
   public open(githubUrl: string): Result<Entry, SFError> {
     const githubPathFragments = parseUrl(githubUrl).pathFragments
 
-   const repo = githubPathFragments[1]
-   const owner = githubPathFragments[0]
+    const repo = githubPathFragments[1]
+    const owner = githubPathFragments[0]
 
-   const api = new GitHubAPI({  authToken: this.token,repo, owner})
+    const api = new GitHubAPI({ authToken: this.token, repo, owner })
 
     return new Result(async (resolve, reject) => {
       this.octokit = new Octokit({
@@ -95,80 +102,55 @@ export class GithubFileSystem implements SFProviderAuth {
 
   private checkToken() {
     const token = sessionStorage.getItem(TOKEN)
-    if(token){
-      noop({token})
-      this.token = token;
+    if (token) {
+      noop({ token })
+      this.token = token
       this.isAuthenticated.resolve(true)
-    }
-    else if (sessionStorage.getItem(STARTED_GITHUB_AUTH)) {
-      sessionStorage.removeItem(STARTED_GITHUB_AUTH)
+    } else if (hasSearchParam('code')) {
       if (hasSearchParam('code')) {
-       
         const code = getAndRemoveSearchParam('code')
 
         const params = new URLSearchParams({
           client_id: 'b0febf46067600eed6e5',
-          client_secret: '228480a8a7eae9aed8299126211402f47c488013',
-          redirect_uri: `http://127.0.0.1:3000#${guid}`,
+          // client_secret: '228480a8a7eae9aed8299126211402f47c488013',
+          redirect_uri: `http://127.0.0.1:3000`,
           code: code
         })
 
-        void fetch('https://github.com/login/oauth/access_token?' + params, {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json'
+        void fetch(
+          'https://github-oauth-proxy-server.herokuapp.com?' + params,
+          {
+            method: 'POST'
           }
-        })
+        )
           .then((response) => {
-            if (!response.ok) console.error('failed fetch', response)
+            if (!response.ok) {
+              console.error('failed fetch', response)
+              throw new Error()
+            }
             return response.json()
           })
           .then((json) => {
-            this.token = json.access_token
-            sessionStorage.setItem(TOKEN, this.token)
-            noop({token})
-            this.isAuthenticated.resolve(true)
+            if (json.error) {
+              console.error(json)
+            } else {
+              this.token = json.access_token
+              if (this.token) {
+                sessionStorage.setItem(TOKEN, this.token)
+
+                this.isAuthenticated.resolve(true)
+              }
+            }
+          })
+          .finally(() => {
+            localStorage.removeItem(STARTED_GITHUB_AUTH)
           })
       } else {
         this.isAuthenticated.resolve(false)
       }
     } else {
+      localStorage.removeItem(STARTED_GITHUB_AUTH)
       this.isAuthenticated.resolve(false)
     }
   }
-// }
-
-// if (window.location.hash === '#' + guid) {
-//   if (window.location.search.startsWith('?code')) {
-//     noop(
-//       'received code',
-//       new URLSearchParams(window.location.search).get('code')
-//     )
-//     const code = new URLSearchParams(window.location.search).get('code')
-
-//     const client_id = sessionStorage.getItem(github_client_id)
-//     const client_secret = sessionStorage.getItem(github_client_secret)
-
-//     const params = new URLSearchParams({
-//       client_id: client_id,
-//       client_secret: client_secret,
-//       redirect_uri: `http://127.0.0.1:3000#${guid}`,
-//       code: code || ''
-//     })
-
-//     void fetch('https://github.com/login/oauth/access_token?' + params, {
-//       method: 'POST',
-//       headers: {
-//         Accept: 'application/json'
-//       }
-//     })
-//       .then((response) => {
-//         if (!response.ok) console.error('failed fetch', response)
-//         return response.json()
-//       })
-//       .then((json) => {
-//         noop('global - the token: ', json.access_token)
-//         sessionStorage.setItem(guid, json.access_token)
-//       })
-//   }
-// }
+}
