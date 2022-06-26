@@ -32,7 +32,7 @@ export class LocalFileEntry implements WritableFileEntry {
   update(file: File | string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       if (typeof file === 'string') {
-        this.file = new SFFile(this.name, this.lastModified, [file])
+        this.file = new SFFile(this.name, [file])
         this.wasModified = true
       } else if (file instanceof File) {
         this.file = file
@@ -52,7 +52,7 @@ export class LocalFileEntry implements WritableFileEntry {
   read(): Result<SFFile, SFError> {
     return new Result(async (resolve, reject) => {
       try {
-        this.file = new SFFile(this.name, this.lastModified, [
+        this.file = new SFFile(this.name, [
           this.file || (await this.fileHandle.getFile())
         ])
         resolve(this.file)

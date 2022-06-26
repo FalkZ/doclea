@@ -37,7 +37,7 @@ export class SolidFileEntry implements StorageFrameworkFileEntry {
     return new Result((resolve, reject) => {
       this.file.file(
         (file) => {
-          resolve(new SFFile(this.name, 0, [file]))
+          resolve(new SFFile(this.name, [file]))
         },
         (err) => reject(new SFError('Failed to read file', err))
       )

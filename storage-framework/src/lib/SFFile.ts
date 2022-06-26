@@ -9,7 +9,7 @@ export class SFFile extends File {
   }
 
   static fromFile(file: File): SFFile {
-    return new SFFile(file.name, file.lastModified, [file])
+    return new SFFile(file.name, [file])
   }
 
   public get content(): Promise<string> {
@@ -19,5 +19,5 @@ export class SFFile extends File {
 
 export const duplicateFile = async (file: File): Promise<SFFile> => {
   const data = new Uint8Array(await file.arrayBuffer()).buffer
-  return new SFFile(file.name, file.lastModified, [data])
+  return new SFFile(file.name, [data])
 }

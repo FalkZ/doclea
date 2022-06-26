@@ -51,9 +51,9 @@ export class LocalFileSystem implements StorageFrameworkProvider {
           const dirHandle = await window.showDirectoryPicker({
             multiple: true
           })
-          // TODO
           resolve(
-            new TransactionalDirectoryEntry(
+            new ReactivityDirDecorator(
+              null,
               new LocalDirectoryEntry(dirHandle, null)
             )
           )
@@ -67,9 +67,9 @@ export class LocalFileSystem implements StorageFrameworkProvider {
           if (files.length) {
             const dirName = files[0].webkitRelativePath.split('/')[0]
 
-            // TODO
             resolve(
-              new TransactionalDirectoryEntry(
+              new ReactivityDirDecorator(
+                null,
                 new LocalFallbackDirectoryEntry(dirName, files, null)
               )
             )

@@ -6,8 +6,9 @@ import type {
   Entry,
   WritableFileEntry
 } from '../src/lib/new-interface/SFBaseEntry'
-import type { TransactionalDirectoryEntry } from '../src/lib/wrappers/TransactionalDirectoryEntry'
+
 import type {
+  TransactionalDirectoryEntry,
   TransactionalFileEntry,
   TransactionalWritableFileEntry
 } from '../src/lib/new-interface/TransactionalEntry'
@@ -55,7 +56,7 @@ export const beforeEach = {
 
     if (await provider.isAuthenticated) {
       const fs = await provider.open('https://github.com/FalkZ/doclea-test')
-      const result: DirectoryEntry = fs._getBaseEntry() as DirectoryEntry
+      const result: DirectoryEntry = fs._wrappedEntry as DirectoryEntry
       await cleanup(result)
       return fs
     } else {
@@ -70,7 +71,7 @@ export const beforeEach = {
 export const canReadBasicStructure = async (
   entry: TransactionalDirectoryEntry
 ) => {
-  const result: DirectoryEntry = entry._getBaseEntry() as DirectoryEntry
+  const result: DirectoryEntry = entry._wrappedEntry as DirectoryEntry
   expect(result).to.be.an('object')
 
   const children = await result.getChildren()
@@ -81,7 +82,7 @@ export const canReadBasicStructure = async (
 }
 
 export const canReadFile = async (entry: TransactionalDirectoryEntry) => {
-  const result: DirectoryEntry = entry._getBaseEntry() as DirectoryEntry
+  const result: DirectoryEntry = entry._wrappedEntry as DirectoryEntry
   const child = await getChild(result, 'test.md')
   expect(child).to.be.an('object')
 
@@ -97,7 +98,7 @@ export const canReadFile = async (entry: TransactionalDirectoryEntry) => {
 }
 
 export const canWriteFile = async (entry: TransactionalDirectoryEntry) => {
-  const result: DirectoryEntry = entry._getBaseEntry() as DirectoryEntry
+  const result: DirectoryEntry = entry._wrappedEntry as DirectoryEntry
   if (result.isReadonly) {
     console.warn('cant write to this filesystem because it is readonly')
     return
@@ -131,7 +132,7 @@ export const canWriteFile = async (entry: TransactionalDirectoryEntry) => {
 }
 
 export const canUpdateContent = async (entry: TransactionalDirectoryEntry) => {
-  const base: DirectoryEntry = entry._getBaseEntry() as DirectoryEntry
+  const base: DirectoryEntry = entry._wrappedEntry as DirectoryEntry
 
   const file = (await getChild(
     entry,
@@ -155,7 +156,7 @@ export const canUpdateContent = async (entry: TransactionalDirectoryEntry) => {
 
     expect(await baseFile.content).to.equal('# Test Content')
 
-    await file.saveEntry()
+    await file.saveContent()
 
     baseFile = await baseEntry.read()
 
@@ -163,17 +164,17 @@ export const canUpdateContent = async (entry: TransactionalDirectoryEntry) => {
 
     await file.updateContent('# Test Content')
 
-    await file.saveEntry()
+    await file.saveContent()
   } catch (e) {
     await file.updateContent('# Test Content')
-    await file.saveEntry()
+    await file.saveContent()
 
     throw e
   }
 }
 
 export const canRename = async (entry: TransactionalDirectoryEntry) => {
-  const base: DirectoryEntry = entry._getBaseEntry() as DirectoryEntry
+  const base: DirectoryEntry = entry._wrappedEntry as DirectoryEntry
 
   const file = (await getChild(
     entry,
@@ -185,7 +186,7 @@ export const canRename = async (entry: TransactionalDirectoryEntry) => {
   try {
     expect(f.name).to.equal('test.md')
 
-    await file.updateName('test2.md')
+    entry.rename('test2.md')
 
     f = await file.read()
 
@@ -197,7 +198,7 @@ export const canRename = async (entry: TransactionalDirectoryEntry) => {
 
     expect(await baseFile.content).to.equal('# Test Content')
 
-    await file.saveEntry()
+    await file.saveContent()
 
     baseEntry = (await getChild(base, 'test.md')) as WritableFileEntry
 
@@ -212,13 +213,13 @@ export const canRename = async (entry: TransactionalDirectoryEntry) => {
     await baseEntry.write(new File(['# Test Content'], 'test.md'))
   } catch (e) {
     const baseEntry = (await getChild(base, 'test2.md')) as WritableFileEntry
-    await baseEntry.write(new File(['# Test Content'], 'test.md'))
+    // await baseEntry.write(new File(['# Test Content'], 'test.md'))
     throw e
   }
 }
 
 export const canWatch = async (entry: TransactionalDirectoryEntry) => {
-  const base: DirectoryEntry = entry._getBaseEntry() as DirectoryEntry
+  const base: DirectoryEntry = entry._wrappedEntry as DirectoryEntry
 
   const file = (await getChild(
     entry,
@@ -240,12 +241,12 @@ export const canWatch = async (entry: TransactionalDirectoryEntry) => {
   file.updateContent('djklf')
 
   expect(numberOfCalls).to.equal(3)
-  file.updateName('djklf')
+  file.rename('djklf')
 
   expect(numberOfCalls).to.equal(3)
   expect(numberOfCallsChildren).to.equal(1)
 
-  await file.updateName('test2.md')
+  await file.rename('test2.md')
 
   expect(numberOfCalls).to.equal(3)
   expect(numberOfCallsChildren).to.equal(2)

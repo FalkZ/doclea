@@ -11,7 +11,6 @@ import type { SFError } from '../lib/SFError'
 import type { SFProviderAuth } from '../lib/new-interface/SFProvider'
 import { Signal } from './Signal'
 import { GitHubAPI } from './GithubApi'
-import { TransactionalDirectoryEntry } from '../lib/wrappers/TransactionalDirectoryEntry'
 
 const guid = 'github-auth-reiupkvhldwe'
 
@@ -98,7 +97,7 @@ export class GithubFileSystem implements SFProviderAuth {
       const workspace = new GithubDirectoryEntry(null, '', '', api)
       workspace.getChildren()
 
-      resolve(new TransactionalDirectoryEntry(workspace))
+      resolve(new ReactivityDirDecorator(null, workspace))
     })
   }
 

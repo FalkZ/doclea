@@ -54,7 +54,7 @@ export class LocalFallbackFileEntry
   save(file: File): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       if (typeof file === 'string') {
-        this.file = new SFFile(this.name, this.lastModified, [file])
+        this.file = new SFFile(this.name, [file])
       } else if (file instanceof File) {
         this.file = file
         resolve()
@@ -91,7 +91,7 @@ export class LocalFallbackFileEntry
    */
   rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
-      this.file = new SFFile(name, this.lastModified, [this.file])
+      this.file = new SFFile(name, [this.file])
       resolve()
     })
   }

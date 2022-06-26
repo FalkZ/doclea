@@ -41,7 +41,7 @@ export class GithubDirectoryEntry implements WritableDirectoryEntry {
     this.fullPath = fullPath
     this.name = name
     this.githubApi = octokit
-    this.isRoot = fullPath === ''
+    this.isRoot = parent == null
   }
 
   /**

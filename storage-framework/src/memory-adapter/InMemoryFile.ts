@@ -76,7 +76,7 @@ export class InMemoryFile
 
   private toSFFile(): SFFile {
     const data = new Uint8Array(this.data).buffer
-    const file = new SFFile(this.name, 0, [data])
+    const file = new SFFile(this.name, [data])
     return file
   }
 }

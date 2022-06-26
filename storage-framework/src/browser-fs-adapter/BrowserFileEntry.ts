@@ -30,15 +30,15 @@ export class BrowserFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Reads file
-  * @returns {SFFile} on success
-  * @returns {SFError} on error
-  */
+   * Reads file
+   * @returns {SFFile} on success
+   * @returns {SFError} on error
+   */
   read(): Result<SFFile, SFError> {
     return new Result((resolve, reject) => {
       this.file.file(
         (file) => {
-          resolve(new SFFile(this.name, this.lastModified, [file]))
+          resolve(new SFFile(this.name, [file]))
         },
         (err) => reject(new SFError('Failed to read file', err))
       )
@@ -46,10 +46,10 @@ export class BrowserFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Saves file
-  * @param {File} file
-  * @returns {SFError} on error
-  */
+   * Saves file
+   * @param {File} file
+   * @returns {SFError} on error
+   */
   save(file: File): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.file.createWriter(
@@ -64,10 +64,10 @@ export class BrowserFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Gets parent of file
-  * @returns {StorageFrameworkDirectoryEntry} on success
-  * @returns {SFError} on error
-  */
+   * Gets parent of file
+   * @returns {StorageFrameworkDirectoryEntry} on success
+   * @returns {SFError} on error
+   */
   getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
       if (this.parent) {
@@ -81,10 +81,10 @@ export class BrowserFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Moves file
-  * @param {StorageFrameworkDirectoryEntry} directory
-  * @returns {SFError} on error
-  */
+   * Moves file
+   * @param {StorageFrameworkDirectoryEntry} directory
+   * @returns {SFError} on error
+   */
   moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.file.moveTo(
@@ -100,10 +100,10 @@ export class BrowserFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Renames file
-  * @param {string} name
-  * @returns {SFError} on error
-  */
+   * Renames file
+   * @param {string} name
+   * @returns {SFError} on error
+   */
   rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.file.moveTo(
@@ -119,9 +119,9 @@ export class BrowserFileEntry implements StorageFrameworkFileEntry {
   }
 
   /**
-  * Removes file
-  * @returns {SFError} on error
-  */
+   * Removes file
+   * @returns {SFError} on error
+   */
   remove(): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.file.remove(

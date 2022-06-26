@@ -1,118 +1,123 @@
-import type { SFError } from '../SFError'
-import { duplicateFile, type SFFile } from '../SFFile'
 import type {
-  ObservableStorageFrameworkDirectoryEntry,
-  StorageFrameworkDirectoryEntry,
-  StorageFrameworkEntry
-} from '../StorageFrameworkEntry'
-import {
-  ObservableStorageFrameworkFileEntry,
-  StorageFrameworkFileEntry
-} from '../StorageFrameworkFileEntry'
+  BaseEntry,
+  Entry,
+  WritableDirectoryEntry,
+  WritableFileEntry
+} from '../new-interface/SFBaseEntry'
+import type {
+  TransactionalEntry,
+  TransactionalWritableDirectoryEntry,
+  TransactionalWritableFileEntry
+} from '../new-interface/TransactionalEntry'
+import type { SFError } from '../SFError'
+import { SFFile } from '../SFFile'
+
 import { Result, type OkOrError } from '../utilities'
 import { writable, type Readable, type Writable } from '../utilities/stores'
 
-abstract class ReactivityDecorator<E extends StorageFrameworkEntry>
-  implements StorageFrameworkEntry
-{
-  parent: ReactivityDirDecorator | null
-  wrappedEntry: E
+abstract class ReactivityDecorator<E extends BaseEntry> {
+  protected parent: ReactivityDirDecorator | null
+  protected wrappedEntry: E
 
-  constructor(parent: ReactivityDirDecorator | null, wrappedEntry: E) {
+  public constructor(parent: ReactivityDirDecorator | null, wrappedEntry: E) {
     this.parent = parent
     this.wrappedEntry = wrappedEntry
   }
 
-  get fullPath(): string {
+  public get _wrappedEntry(): E {
+    return this.wrappedEntry
+  }
+
+  public get fullPath(): string {
     return this.wrappedEntry.fullPath
   }
 
-  get name(): string {
+  public get name(): string {
     return this.wrappedEntry.name
   }
 
-  getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
+  public getParent(): Result<TransactionalWritableDirectoryEntry, SFError> {
     return new Result((resolve) => {
+      // @ts-expect-error
       resolve(this.parent)
     })
   }
 
-  rename(name: string): OkOrError<SFError> {
+  public rename(name: string): OkOrError<SFError> {
     return this.wrappedEntry.rename(name).then(() => {
-      this.parent.notifyChildListeners()
+      this.parent?.notifyChildListeners()
     })
   }
 
-  moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
-    const dir = directory as ReactivityDirDecorator
-    return this.wrappedEntry.moveTo(dir.wrappedEntry).then(() => {
-      this.parent.removeChild(this)
-      dir.appendChild(dir)
-      this.parent = dir
-    })
-  }
-
-  remove(): OkOrError<SFError> {
-    return this.wrappedEntry.remove().then(() => {
-      this.parent.removeChild(this)
+  public delete(): OkOrError<SFError> {
+    return this.wrappedEntry.delete().then(() => {
+      // @ts-expect-error
+      this.parent?.removeChild(this)
     })
   }
 }
 
-// eslint-disable-next-line no-unused-vars
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface ReactivityDecorator<E extends StorageFrameworkEntry>
-  extends StorageFrameworkEntry {}
-
 export class ReactivityFileDecorator
-  extends ReactivityDecorator<StorageFrameworkFileEntry>
-  implements ObservableStorageFrameworkFileEntry
+  extends ReactivityDecorator<WritableFileEntry>
+  implements TransactionalWritableFileEntry
 {
-  data: Writable<SFFile> | null
+  private readonly isModifiedStore = writable(false)
+  private data: Writable<SFFile> | null = null
 
-  watchContent(): Result<Readable<SFFile>, SFError> {
-    if (this.data == null) {
+  public watchContent(): Result<Readable<SFFile>, SFError> {
+    const data = this.data
+    if (data == null) {
       return this.wrappedEntry.read().then((file) => {
         this.data = writable(file)
         return this.data
       })
     } else {
       return new Result((resolve) => {
-        resolve(this.data)
+        resolve(data)
       })
     }
   }
 
   // ##################################################
-  // # StorageFrameworkFileEntry
+  // # TransactionalWritableFileEntry
 
-  read(): Result<SFFile, SFError> {
+  public read(): Result<SFFile, SFError> {
     return this.watchContent().then((o) => o.get())
   }
 
-  update(file: File): OkOrError<SFError> {
-    return this.wrappedEntry.update(file).then(() => {
-      void duplicateFile(file).then((duplicate) => this.data.set(duplicate))
-    })
+  // @ts-expect-error
+  public async updateContent(content: BlobPart): OkOrError<SFError> {
+    const data = new SFFile(this.name, [content])
+    if (this.data) this.data.set(data)
+    else this.data = writable(data)
+
+    this.isModifiedStore.set(true)
   }
 
-  save(file: File): OkOrError<SFError> {
-    return this.wrappedEntry.save(file)
+  public saveContent(): OkOrError<SFError> {
+    const data = this.data ? this.data.get() : new SFFile(this.name, [])
+    return this.wrappedEntry
+      .write(data)
+      .then(() => this.isModifiedStore.set(false))
   }
 
-  get isReadonly(): false {
+  public downloadEntry(): OkOrError<SFError> {
+    throw new Error('Method not implemented.')
+  }
+
+  public get isReadonly(): false {
     return this.wrappedEntry.isReadonly
   }
 
-  get wasModified(): boolean {
-    return this.wrappedEntry.wasModified
+  public get wasModified(): Readable<boolean> {
+    return this.isModifiedStore
   }
 
-  get isDirectory(): false {
+  public get isDirectory(): false {
     return false
   }
 
-  get isFile(): true {
+  public get isFile(): true {
     return true
   }
 
@@ -121,91 +126,103 @@ export class ReactivityFileDecorator
 }
 
 export class ReactivityDirDecorator
-  extends ReactivityDecorator<StorageFrameworkDirectoryEntry>
-  implements ObservableStorageFrameworkDirectoryEntry
+  extends ReactivityDecorator<WritableDirectoryEntry>
+  implements TransactionalWritableDirectoryEntry
 {
-  private children: Writable<StorageFrameworkEntry[]> | null = null
+  private children: Writable<TransactionalEntry[]> | null = null
 
-  watchChildren(): Result<Readable<StorageFrameworkEntry[]>, SFError> {
+  public watchChildren(): Result<Readable<TransactionalEntry[]>, SFError> {
     if (this.children == null) {
-      return this.wrappedEntry.getChildren().then((children) => {
-        this.children = writable(children.map(this.decorateEntry))
-        console.log('has children ', children)
-        return this.children
+      return this.wrappedEntry.getChildren().then((innerChildren) => {
+        const children = writable(innerChildren.map(this.decorateEntry))
+        this.children = children
+
+        return children
       })
     } else {
       return new Result((resolve) => {
+        // @ts-expect-error
         resolve(this.children)
       })
     }
   }
 
-  // ##################################################
-  // # StorageFrameworkDirectoryEntry
+  public get isReadonly(): false {
+    // is a hack: dont remove the next line
+    return this.wrappedEntry.isReadonly
+  }
 
-  getChildren(): Result<StorageFrameworkEntry[], SFError> {
+  // ##################################################
+  // # TransactionalWritableDirectoryEntry
+
+  public getChildren(): Result<TransactionalEntry[], SFError> {
     return this.watchChildren().then((observable) => observable.get())
   }
 
-  createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
-    return this.wrappedEntry.createFile(name).then((entry) => {
-      this.appendChild(this.decorateEntry(entry))
-
-      return entry
-    })
-  }
-
-  createDirectory(
+  public createFile(
     name: string
-  ): Result<StorageFrameworkDirectoryEntry, SFError> {
-    return this.wrappedEntry.createDirectory(name).then((entry) => {
-      this.appendChild(this.decorateEntry(entry))
+  ): Result<TransactionalWritableFileEntry, SFError> {
+    const file = new SFFile(name, [])
+    return this.wrappedEntry.createFile(file).then((innerEntry) => {
+      const entry = this.decorateEntry(innerEntry) as ReactivityFileDecorator
+      this.appendChild(entry)
 
       return entry
     })
   }
 
-  get isRoot(): boolean {
+  public createDirectory(
+    name: string
+  ): Result<TransactionalWritableDirectoryEntry, SFError> {
+    return this.wrappedEntry.createDirectory(name).then((innerEntry) => {
+      const entry = this.decorateEntry(innerEntry) as ReactivityDirDecorator
+      this.appendChild(entry)
+
+      return entry
+    })
+  }
+
+  public get isRoot(): boolean {
     return this.wrappedEntry.isRoot
   }
 
-  get isDirectory(): true {
+  public get isDirectory(): true {
     return true
   }
 
-  get isFile(): false {
+  public get isFile(): false {
     return false
   }
 
   // ##################################################
   // # ADDITIONAL METHODS
 
-  appendChild(child: ReactivityDecorator<any>): void {
+  public appendChild(child: ReactivityDecorator<BaseEntry>): void {
+    // @ts-expect-error
     this.children.update((children) => {
+      // @ts-expect-error
       children.push(child)
+      // @ts-expect-error
       child.parent = this
       return children
     })
   }
 
-  removeChild(child: StorageFrameworkEntry): void {
+  public removeChild(child: TransactionalEntry): void {
+    // @ts-expect-error
     this.children.update((c) => c.filter((n) => n !== child))
   }
 
-  notifyChildListeners(): void {
+  public notifyChildListeners(): void {
+    // @ts-expect-error
     this.children.update((c) => c)
   }
 
-  decorateEntry(entry: StorageFrameworkEntry): ReactivityDecorator<any> {
+  private decorateEntry(
+    entry: Entry
+  ): ReactivityDirDecorator | ReactivityFileDecorator {
     if (entry.isDirectory)
-      return new ReactivityDirDecorator(
-        this,
-        entry as StorageFrameworkDirectoryEntry
-      )
-    else if (entry.isFile)
-      return new ReactivityFileDecorator(
-        this,
-        entry as StorageFrameworkFileEntry
-      )
+      return new ReactivityDirDecorator(this, entry as WritableDirectoryEntry)
+    else return new ReactivityFileDecorator(this, entry as WritableFileEntry)
   }
 }
