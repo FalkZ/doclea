@@ -41,6 +41,8 @@ export interface BaseEntry {
    * @returns nothing if succeeded, SFError otherwise
    */
   delete(): OkOrError<SFError>
+
+  rename(name: string): OkOrError<SFError>
 }
 
 /**

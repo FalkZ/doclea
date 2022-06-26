@@ -4,15 +4,15 @@ import { getFileContent } from './utilities/getFileContent'
  * The representation of a file for the storage framework.
  */
 export class SFFile extends File {
-  constructor(name: string, lastModified: number, content: BlobPart[]) {
-    super(content, name, { lastModified })
+  public constructor(name: string, content: BlobPart[]) {
+    super(content, name)
   }
 
   static fromFile(file: File): SFFile {
     return new SFFile(file.name, file.lastModified, [file])
   }
 
-  get content(): Promise<string> {
+  public get content(): Promise<string> {
     return getFileContent(this)
   }
 }

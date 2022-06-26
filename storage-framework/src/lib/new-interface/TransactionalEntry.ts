@@ -6,41 +6,40 @@ import type { WritableDirectoryEntry } from './SFBaseEntry'
 import type { Readable as Observable } from '../utilities/stores'
 
 export interface TransactionalWritableFileEntry
-  extends Omit<CreateReadonly<ObservableWritableFileEntry>, 'isReadonly'> {
+  extends Omit<
+    CreateReadonly<ObservableWritableFileEntry>,
+    'isReadonly' | 'getParent'
+  > {
   readonly isReadonly: false
   readonly wasModified: Observable<boolean>
   updateContent(content: BlobPart): OkOrError<SFError>
-  updateName(name: string): OkOrError<SFError>
-  updateFile(file: File): OkOrError<SFError>
+  saveContent(): OkOrError<SFError>
+
   downloadEntry(): OkOrError<SFError>
-  saveEntry(): OkOrError<SFError>
-  delete(): OkOrError<SFError>
-  moveTo(directory: TransactionalWritableDirectoryEntry): OkOrError<SFError>
+
+  getParent(): Result<TransactionalDirectoryEntry, SFError>
 }
 
 export interface TransactionalWritableDirectoryEntry
   extends Omit<
     CreateReadonly<WritableDirectoryEntry>,
-    'isReadonly' | 'getChildren'
+    'isReadonly' | 'getChildren' | 'getParent'
   > {
   readonly isReadonly: false
-  readonly wasModified: Observable<boolean>
   createFile(name: string): Result<TransactionalWritableFileEntry, SFError>
   createDirectory(
     name: string
   ): Result<TransactionalWritableDirectoryEntry, SFError>
-  updateName(name: string): OkOrError<SFError>
-  saveEntry(): OkOrError<SFError>
   watchChildren(): Result<Observable<TransactionalEntry[]>, SFError>
-  delete(): OkOrError<SFError>
-  moveTo(directory: TransactionalWritableDirectoryEntry): OkOrError<SFError>
+
+  getParent(): Result<TransactionalDirectoryEntry | null, SFError>
 }
 
 export type TransactionalFileEntry =
   MaybeReadonly<TransactionalWritableFileEntry>
 
 export type TransactionalDirectoryEntry =
-  MaybeReadonly<TransactionalWritableFileEntry>
+  MaybeReadonly<TransactionalWritableDirectoryEntry>
 
 export type TransactionalEntry =
   | TransactionalFileEntry
