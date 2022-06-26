@@ -19,9 +19,16 @@ export interface TransactionalWritableFileEntry
 }
 
 export interface TransactionalWritableDirectoryEntry
-  extends Omit<CreateReadonly<WritableDirectoryEntry>, 'isReadonly'> {
+  extends Omit<
+    CreateReadonly<WritableDirectoryEntry>,
+    'isReadonly' | 'getChildren'
+  > {
   readonly isReadonly: false
   readonly wasModified: Observable<boolean>
+  createFile(name: string): Result<TransactionalWritableFileEntry, SFError>
+  createDirectory(
+    name: string
+  ): Result<TransactionalWritableDirectoryEntry, SFError>
   updateName(name: string): OkOrError<SFError>
   saveEntry(): OkOrError<SFError>
   watchChildren(): Result<Observable<TransactionalEntry[]>, SFError>
