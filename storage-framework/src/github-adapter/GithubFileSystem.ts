@@ -11,6 +11,7 @@ import type { SFError } from '../lib/SFError'
 import type { SFProviderAuth } from '../lib/new-interface/SFProvider'
 import { Signal } from './Signal'
 import { GitHubAPI } from './GithubApi'
+import { TransactionalDirectoryEntry } from '../lib/wrappers/TransactionalDirectoryEntry'
 
 const guid = 'github-auth-reiupkvhldwe'
 
@@ -71,7 +72,7 @@ export class GithubFileSystem implements SFProviderAuth {
    * @returns {StorageFrameworkEntry} on success
    * @returns {SFError} on error
    */
-  public open(githubUrl: string): Result<Entry, SFError> {
+  public open(githubUrl: string): Result<TransactionalDirectoryEntry, SFError> {
     const githubPathFragments = parseUrl(githubUrl).pathFragments
 
     const repo = githubPathFragments[1]
@@ -96,7 +97,8 @@ export class GithubFileSystem implements SFProviderAuth {
 
       const workspace = new GithubDirectoryEntry(null, '', '', api)
       workspace.getChildren()
-      resolve(workspace)
+
+      resolve(new TransactionalDirectoryEntry(workspace))
     })
   }
 

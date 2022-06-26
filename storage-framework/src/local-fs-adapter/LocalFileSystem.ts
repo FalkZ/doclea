@@ -10,6 +10,8 @@ import { LocalFallbackDirectoryEntry } from './local-fallback-fs-adapter/LocalFa
 import { LocalDirectoryEntry } from './LocalDirectoryEntry'
 import { PathUtil } from '../lib/utilities/pathUtil'
 
+import { TransactionalDirectoryEntry } from '../lib/wrappers/TransactionalDirectoryEntry'
+
 const selectFolder = (): Promise<File[]> =>
   new Promise<File[]>((resolve, reject) => {
     const el = document.createElement('input')
@@ -42,7 +44,7 @@ const selectFolder = (): Promise<File[]> =>
   })
 
 export class LocalFileSystem implements StorageFrameworkProvider {
-  open(): Result<StorageFrameworkEntry, SFError> {
+  open(): Result<TransactionalDirectoryEntry, SFError> {
     return new Result(async (resolve, reject) => {
       if (window.showDirectoryPicker) {
         try {
@@ -50,7 +52,11 @@ export class LocalFileSystem implements StorageFrameworkProvider {
             multiple: true
           })
           // TODO
-          resolve(new LocalDirectoryEntry(dirHandle, null))
+          resolve(
+            new TransactionalDirectoryEntry(
+              new LocalDirectoryEntry(dirHandle, null)
+            )
+          )
         } catch (err) {
           reject(new SFError('No directory provided', err))
         }
@@ -62,7 +68,11 @@ export class LocalFileSystem implements StorageFrameworkProvider {
             const dirName = files[0].webkitRelativePath.split('/')[0]
 
             // TODO
-            resolve(new LocalFallbackDirectoryEntry(dirName, files, null))
+            resolve(
+              new TransactionalDirectoryEntry(
+                new LocalFallbackDirectoryEntry(dirName, files, null)
+              )
+            )
           }
         } catch (e) {
           reject(new SFError('Failed to open local file system'))

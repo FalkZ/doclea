@@ -3,8 +3,14 @@ import { expect } from 'browser-unit-test'
 import type { StorageFrameworkFileEntry } from '../dist/types'
 import type {
   DirectoryEntry,
-  Entry
+  Entry,
+  WritableFileEntry
 } from '../src/lib/new-interface/SFBaseEntry'
+import type { TransactionalDirectoryEntry } from '../src/lib/wrappers/TransactionalDirectoryEntry'
+import type {
+  TransactionalFileEntry,
+  TransactionalWritableFileEntry
+} from '../src/lib/new-interface/TransactionalEntry'
 
 const awaitClick = () =>
   new Promise<void>((resolve) => {
@@ -49,29 +55,22 @@ export const beforeEach = {
 
     if (await provider.isAuthenticated) {
       const fs = await provider.open('https://github.com/FalkZ/doclea-test')
-      await cleanup(fs)
+      const result: DirectoryEntry = fs._getBaseEntry() as DirectoryEntry
+      await cleanup(result)
       return fs
     } else {
       provider.authenticate()
     }
   },
-  // solid: async () => {
-  //   const provider = new SolidFileSystem()
-
-  //   if (await provider.isAuthenticated) {
-  //     const fs = await provider.open('https://pod.inrupt.com/falkz/doclea-test')
-  //     await cleanup(fs)
-  //     return fs
-  //   } else {
-  //     provider.authenticate()
-  //   }
-  // },
   local: async () => {
     return await createNewLocal()
   }
 }
 
-export const canReadBasicStructure = async (result: DirectoryEntry) => {
+export const canReadBasicStructure = async (
+  entry: TransactionalDirectoryEntry
+) => {
+  const result: DirectoryEntry = entry._getBaseEntry() as DirectoryEntry
   expect(result).to.be.an('object')
 
   const children = await result.getChildren()
@@ -81,7 +80,8 @@ export const canReadBasicStructure = async (result: DirectoryEntry) => {
   expect(children.length).to.be.oneOf([5, 6])
 }
 
-export const canReadFile = async (result: DirectoryEntry) => {
+export const canReadFile = async (entry: TransactionalDirectoryEntry) => {
+  const result: DirectoryEntry = entry._getBaseEntry() as DirectoryEntry
   const child = await getChild(result, 'test.md')
   expect(child).to.be.an('object')
 
@@ -96,7 +96,8 @@ export const canReadFile = async (result: DirectoryEntry) => {
   expect(await file.content).to.equal('# Test Content')
 }
 
-export const canWriteFile = async (result: DirectoryEntry) => {
+export const canWriteFile = async (entry: TransactionalDirectoryEntry) => {
+  const result: DirectoryEntry = entry._getBaseEntry() as DirectoryEntry
   if (result.isReadonly) {
     console.warn('cant write to this filesystem because it is readonly')
     return
@@ -127,4 +128,125 @@ export const canWriteFile = async (result: DirectoryEntry) => {
   expect(await file.content).to.equal(CONTENT)
 
   await cleanup(result)
+}
+
+export const canUpdateContent = async (entry: TransactionalDirectoryEntry) => {
+  const base: DirectoryEntry = entry._getBaseEntry() as DirectoryEntry
+
+  const file = (await getChild(
+    entry,
+    'test.md'
+  )) as TransactionalWritableFileEntry
+
+  let f = await file.read()
+
+  try {
+    expect(await f.content).to.equal('# Test Content')
+
+    await file.updateContent('# New Content')
+
+    f = await file.read()
+
+    expect(await f.content).to.equal('# New Content')
+
+    const baseEntry = (await getChild(base, 'test.md')) as WritableFileEntry
+
+    let baseFile = await baseEntry.read()
+
+    expect(await baseFile.content).to.equal('# Test Content')
+
+    await file.saveEntry()
+
+    baseFile = await baseEntry.read()
+
+    expect(await baseFile.content).to.equal('# New Content')
+
+    await file.updateContent('# Test Content')
+
+    await file.saveEntry()
+  } catch (e) {
+    await file.updateContent('# Test Content')
+    await file.saveEntry()
+
+    throw e
+  }
+}
+
+export const canRename = async (entry: TransactionalDirectoryEntry) => {
+  const base: DirectoryEntry = entry._getBaseEntry() as DirectoryEntry
+
+  const file = (await getChild(
+    entry,
+    'test.md'
+  )) as TransactionalWritableFileEntry
+
+  let f = await file.read()
+
+  try {
+    expect(f.name).to.equal('test.md')
+
+    await file.updateName('test2.md')
+
+    f = await file.read()
+
+    expect(f.name).to.equal('test2.md')
+
+    let baseEntry = (await getChild(base, 'test.md')) as WritableFileEntry
+
+    let baseFile = await baseEntry.read()
+
+    expect(await baseFile.content).to.equal('# Test Content')
+
+    await file.saveEntry()
+
+    baseEntry = (await getChild(base, 'test.md')) as WritableFileEntry
+
+    expect(baseEntry).to.be.null
+
+    baseEntry = (await getChild(base, 'test2.md')) as WritableFileEntry
+
+    baseFile = await baseEntry.read()
+
+    expect(await baseFile.content).to.equal('# Test Content')
+
+    await baseEntry.write(new File(['# Test Content'], 'test.md'))
+  } catch (e) {
+    const baseEntry = (await getChild(base, 'test2.md')) as WritableFileEntry
+    await baseEntry.write(new File(['# Test Content'], 'test.md'))
+    throw e
+  }
+}
+
+export const canWatch = async (entry: TransactionalDirectoryEntry) => {
+  const base: DirectoryEntry = entry._getBaseEntry() as DirectoryEntry
+
+  const file = (await getChild(
+    entry,
+    'test.md'
+  )) as TransactionalWritableFileEntry
+
+  let numberOfCalls = 0
+  ;(await file.watchContent()).subscribe(() => numberOfCalls++)
+
+  let numberOfCallsChildren = 0
+  ;(await entry.watchChildren()).subscribe(() => numberOfCallsChildren++)
+
+  expect(numberOfCalls).to.equal(1)
+  expect(numberOfCallsChildren).to.equal(1)
+
+  file.updateContent('djklf')
+
+  expect(numberOfCalls).to.equal(2)
+  file.updateContent('djklf')
+
+  expect(numberOfCalls).to.equal(3)
+  file.updateName('djklf')
+
+  expect(numberOfCalls).to.equal(3)
+  expect(numberOfCallsChildren).to.equal(1)
+
+  await file.updateName('test2.md')
+
+  expect(numberOfCalls).to.equal(3)
+  expect(numberOfCallsChildren).to.equal(2)
 }
