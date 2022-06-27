@@ -1,7 +1,7 @@
 ### Marc Meyer
 
-| **Studium** 			 | `Teilzeit` `2019 - 2013` `ZHAW School of Engineering` 					   |
-| :--------------------- | :-------------------------------------------------------------------------- |
-| **Ausbildung** 		 |   |
-| **Job**                |                     |
-| **Kompetenzen**        |    |
+| **Studium**     | `Teilzeit` `2019 - 2023` `ZHAW School of Engineering` |
+| :-------------- | :---------------------------------------------------- |
+| **Ausbildung**  |                                                       |
+| **Job**         |                                                       |
+| **Kompetenzen** |                                                       |
