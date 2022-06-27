@@ -123,6 +123,8 @@ export class TldrawView {
       )}" `
     )
 
+    console.log(svg)
+
     const src = toImageURL(svg)
 
     this.destroyTLDraw()

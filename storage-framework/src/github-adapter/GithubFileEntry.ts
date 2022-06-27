@@ -54,7 +54,9 @@ export class GithubFileEntry implements WritableFileEntry {
   public read(): Result<SFFile, SFError> {
     return new Result(async (result) => {
       const f = await this.githubEntry
-      result(new SFFile(this.name, [atob(f.content)]))
+      result(
+        new SFFile(this.name, [decodeURIComponent(escape(atob(f.content)))])
+      )
     })
   }
 

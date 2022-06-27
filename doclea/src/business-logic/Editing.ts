@@ -118,6 +118,7 @@ export class Editing
   @AddActionListener(ActionType.OpenStorageSelection)
   public closeEditor(t): void {
     console.log(this, t, arguments)
+    window.location.hash = ''
     this.dispatchEvent(EditorEventType.CloseEditor)
   }
 }
