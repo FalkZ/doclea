@@ -1,6 +1,6 @@
 export type GithubResponse = ArrayResponse | SingleFile | Directory
 
-export type ArrayResponse = (File | Directory)[]
+export type ArrayResponse = Array<File | Directory>
 
 interface GithubContent {
   size: number

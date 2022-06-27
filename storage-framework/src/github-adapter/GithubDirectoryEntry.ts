@@ -1,15 +1,14 @@
-import { Octokit } from '@octokit/core'
-import type { Readable } from '../lib/utilities/stores'
-import { SFError } from '../lib/SFError'
+import type { Octokit } from '@octokit/core'
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry
 } from '../lib/StorageFrameworkEntry'
-import { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
-import { Result, OkOrError } from '../lib/utilities'
+import type { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
+import type { ArrayResponse } from './GithubTypes'
+import { Result, type OkOrError } from '../lib/utilities'
 import { GithubFileEntry } from './GithubFileEntry'
 import { GithubFileSystem } from './GithubFileSystem'
-import type { ArrayResponse, Directory, GithubResponse } from './GithubTypes'
+import { SFError } from '../lib/SFError'
 
 /**
  * Contains all methods for GithubDirectoryEntry
@@ -25,7 +24,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
   public readonly parent: StorageFrameworkDirectoryEntry
   private octokit: Octokit
 
-  constructor(
+  public constructor(
     parent: StorageFrameworkDirectoryEntry,
     fullPath: string,
     name: string,
@@ -45,7 +44,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
    * @returns {StorageFrameworkEntry[]} on success
    * @returns {SFError} on error
    */
-  getChildren(): Result<StorageFrameworkEntry[], SFError> {
+  public getChildren(): Result<StorageFrameworkEntry[], SFError> {
     return new Result(async (resolve, reject) => {
       await this.getGithubDir()
         .then(() => {
@@ -65,7 +64,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
    * @returns {StorageFrameworkFileEntry} on success
    * @returns {SFError} on error
    */
-  createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
+  public createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
     return new Result(async (resolve) => {
       const pathOfDir = this.isRoot ? name : this.fullPath + '/' + name
       await this.createGithubFile(pathOfDir + '/' + name, 'Cg==')
@@ -79,7 +78,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
    * @returns {StorageFrameworkDirectoryEntry} on success
    * @returns {SFError} on error
    */
-  createDirectory(
+  public createDirectory(
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result(async (resolve) => {
@@ -94,8 +93,8 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
    * @returns {StorageFrameworkDirectoryEntry} on success
    * @returns {SFError} on error
    */
-  getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
-    return new Result(() => this.parent)
+  public getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
+    return new Result((resolve) => resolve(this.parent))
   }
 
   /**
@@ -103,14 +102,12 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
    * @param {StorageFrameworkDirectoryEntry} directory
    * @returns {SFError} on error
    */
-  moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
+  public moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.getChildren()
         .then((elements) =>
           elements.map((element) => element.moveTo(directory))
         )
-        // TODO: check all child promises
-        // .then((promises) => Promise.all(promises))
         .then(() => resolve())
         .catch((error) => {
           reject(new SFError('Failed to delete directory', error))
@@ -123,7 +120,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
    * @param {string} name
    * @returns {SFError} on error
    */
-  rename(name: string): OkOrError<SFError> {
+  public rename(name: string): OkOrError<SFError> {
     return new Result(async () => {
       const storageElements = await this.getChildren()
       console.log(storageElements.length)
@@ -155,7 +152,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
    * Removes directory
    * @returns {SFError} on error
    */
-  remove(): OkOrError<SFError> {
+  public remove(): OkOrError<SFError> {
     return new Result(async () => {
       const storageElements = await this.getChildren()
       console.log(storageElements.length)
@@ -167,7 +164,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
   }
 
   private getGithubDir(): Promise<ArrayResponse> {
-    return new Promise((result) => {
+    return new Promise((resolve) => {
       this.octokit
         .request('GET /repos/{owner}/{repo}/contents/{path}', {
           owner: GithubFileSystem.owner,
@@ -177,10 +174,13 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
         .then(({ data }) => {
           console.log('Succesfully read directory from GitHub: ', this.fullPath)
           this.githubEntry = <ArrayResponse>data
-          result(this.githubEntry)
+          resolve(this.githubEntry)
         })
         .catch((error) => {
-          console.log('Failed to read directory from GitHub: ', this.fullPath)
+          console.log(
+            `Failed to read directory ${this.fullPath} from GitHub: `,
+            error
+          )
         })
     })
   }
@@ -190,7 +190,7 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
     contentInBase65: string
   ): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.octokit
+      void this.octokit
         .request('PUT /repos/{owner}/{repo}/contents/{path}', {
           owner: GithubFileSystem.owner,
           repo: GithubFileSystem.repo,
@@ -199,12 +199,16 @@ export class GithubDirectoryEntry implements StorageFrameworkDirectoryEntry {
           content: contentInBase65
         })
         .then((response) => {
-          if (response.status == 201) {
-            console.log('Succesfully created file in GitHub: ', newFileFullPath)
+          if (response.status === 201) {
+            console.log(
+              'Successfully created file in GitHub: ',
+              newFileFullPath
+            )
             resolve()
           } else {
-            console.log('Failed to create file in GitHub: ', newFileFullPath)
-            reject()
+            const errMsg = 'Failed to create file in GitHub: ' + newFileFullPath
+            console.log(errMsg)
+            reject(errMsg)
           }
         })
     })

@@ -1,19 +1,17 @@
-import { SFError } from '../lib/SFError'
 import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry
 } from '../lib/StorageFrameworkEntry'
-import { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
-import { Result } from '../lib/utilities'
+import type { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
 import type { OkOrError } from '../lib/utilities'
+import { SFError } from '../lib/SFError'
+import { Result } from '../lib/utilities'
 import { BrowserFileEntry } from './BrowserFileEntry'
 
 /**
  * Contains all methods for BrowserDirectoryEntry
  */
-export default class BrowserDirectoryEntry
-  implements StorageFrameworkDirectoryEntry
-{
+export class BrowserDirectoryEntry implements StorageFrameworkDirectoryEntry {
   readonly isDirectory: true
   readonly isFile: false
   readonly fullPath: string
@@ -21,7 +19,7 @@ export default class BrowserDirectoryEntry
   private directory: FileSystemDirectoryEntry
   private parent: BrowserDirectoryEntry
 
-  constructor(directory: FileSystemDirectoryEntry) {
+  public constructor(directory: FileSystemDirectoryEntry) {
     this.directory = directory
     this.name = directory.name
     this.fullPath = directory.fullPath
@@ -33,19 +31,26 @@ export default class BrowserDirectoryEntry
   }
 
   /**
-  * Gets directory entry
-  * @returns {FileSystemDirectoryEntry} Returns directory
-  */
-  getDirectoryEntry() {
+   * Return true, if this is a root directory
+   */
+  public get isRoot(): boolean {
+    return this.parent === undefined
+  }
+
+  /**
+   * Gets directory entry
+   * @returns {FileSystemDirectoryEntry} Returns directory
+   */
+  public getDirectoryEntry(): FileSystemDirectoryEntry {
     return this.directory
   }
 
   /**
-  * Gets children of directory entry
-  * @returns {StorageFrameworkEntry[]} on success
-  * @returns {SFError} on error
-  */
-  getChildren(): Result<StorageFrameworkEntry[], SFError> {
+   * Gets children of directory entry
+   * @returns {StorageFrameworkEntry[]} on success
+   * @returns {SFError} on error
+   */
+  public getChildren(): Result<StorageFrameworkEntry[], SFError> {
     return new Result((resolve, reject) => {
       const reader = this.directory.createReader()
       reader.readEntries(
@@ -54,9 +59,9 @@ export default class BrowserDirectoryEntry
             results.map((entry) => {
               if (entry.isDirectory)
                 return new BrowserDirectoryEntry(
-                  <FileSystemDirectoryEntry>entry
+                  entry as FileSystemDirectoryEntry
                 )
-              else return new BrowserFileEntry(<FileSystemFileEntry>entry)
+              else return new BrowserFileEntry(entry as FileSystemFileEntry)
             })
           )
         },
@@ -72,18 +77,18 @@ export default class BrowserDirectoryEntry
   }
 
   /**
-  * Creates file in entry
-  * @param {string} name
-  * @returns {StorageFrameworkFileEntry} on success
-  * @returns {SFError} on error
-  */
-  createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
+   * Creates file in entry
+   * @param {string} name
+   * @returns {StorageFrameworkFileEntry} on success
+   * @returns {SFError} on error
+   */
+  public createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
     return new Result((resolve, reject) => {
       this.directory.getFile(
         name,
         { create: true },
         (file) => {
-          let fileEntry = new BrowserFileEntry(<FileSystemFileEntry>file)
+          const fileEntry = new BrowserFileEntry(file as FileSystemFileEntry)
           resolve(fileEntry)
         },
         (err) =>
@@ -98,12 +103,12 @@ export default class BrowserDirectoryEntry
   }
 
   /**
-  * Creates directory in entry
-  * @param {string} name
-  * @returns {StorageFrameworkDirectoryEntry} on success
-  * @returns {SFError} on error
-  */
-  createDirectory(
+   * Creates directory in entry
+   * @param {string} name
+   * @returns {StorageFrameworkDirectoryEntry} on success
+   * @returns {SFError} on error
+   */
+  public createDirectory(
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
@@ -111,7 +116,9 @@ export default class BrowserDirectoryEntry
         name,
         { create: true },
         (folder) =>
-          resolve(new BrowserDirectoryEntry(<FileSystemDirectoryEntry>folder)),
+          resolve(
+            new BrowserDirectoryEntry(folder as FileSystemDirectoryEntry)
+          ),
         (err) =>
           reject(
             new SFError(
@@ -124,11 +131,11 @@ export default class BrowserDirectoryEntry
   }
 
   /**
-  * Gets parent of directory entry
-  * @returns {StorageFrameworkDirectoryEntry} on success
-  * @returns {SFError} on error
-  */
-  getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
+   * Gets parent of directory entry
+   * @returns {StorageFrameworkDirectoryEntry} on success
+   * @returns {SFError} on error
+   */
+  public getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
       if (this.parent) {
         resolve(this.parent)
@@ -141,17 +148,17 @@ export default class BrowserDirectoryEntry
   }
 
   /**
-  * Moves directory
-  * @param {StorageFrameworkDirectoryEntry} directory
-  * @returns {SFError} on error
-  */
-  moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
+   * Moves directory
+   * @param {StorageFrameworkDirectoryEntry} directory
+   * @returns {SFError} on error
+   */
+  public moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.directory.moveTo(
-        (<BrowserDirectoryEntry>directory).getDirectoryEntry(),
+        (directory as BrowserDirectoryEntry).getDirectoryEntry(),
         this.name,
         () => {
-          this.parent = <BrowserDirectoryEntry>directory
+          this.parent = directory as BrowserDirectoryEntry
           resolve()
         },
         (err) =>
@@ -166,11 +173,11 @@ export default class BrowserDirectoryEntry
   }
 
   /**
-  * Renames directory
-  * @param {string} name
-  * @returns {SFError} on error
-  */
-  rename(name: string): OkOrError<SFError> {
+   * Renames directory
+   * @param {string} name
+   * @returns {SFError} on error
+   */
+  public rename(name: string): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.directory.moveTo(
         this.parent,
@@ -185,10 +192,10 @@ export default class BrowserDirectoryEntry
   }
 
   /**
-  * Removes directory
-  * @returns {SFError} on error
-  */
-  remove(): OkOrError<SFError> {
+   * Removes directory
+   * @returns {SFError} on error
+   */
+  public remove(): OkOrError<SFError> {
     return new Result((resolve, reject) => {
       this.directory.remove(
         () => resolve(),

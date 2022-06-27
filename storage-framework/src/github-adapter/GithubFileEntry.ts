@@ -1,12 +1,11 @@
-import { Octokit } from '@octokit/core'
-import type { Readable } from '../lib/utilities/stores'
+import type { StorageFrameworkDirectoryEntry } from '../lib/StorageFrameworkEntry'
+import type { SingleFile } from './GithubTypes'
+import type { Octokit } from '@octokit/core'
+import type { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
 import { SFError } from '../lib/SFError'
 import { SFFile } from '../lib/SFFile'
-import type { StorageFrameworkDirectoryEntry } from '../lib/StorageFrameworkEntry'
-import { StorageFrameworkFileEntry } from '../lib/StorageFrameworkFileEntry'
-import { Result, OkOrError } from '../lib/utilities'
+import { Result, type OkOrError } from '../lib/utilities'
 import { GithubFileSystem } from './GithubFileSystem'
-import type { ArrayResponse, SingleFile } from './GithubTypes'
 
 import { Mutex } from '../lib/utilities/mutex'
 import { getFileContent } from '../lib/utilities/getFileContent'
@@ -19,13 +18,14 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
   public readonly isFile = true
   public readonly fullPath: string
   public readonly name: string
+  public readonly isReadonly = false
   private parent: StorageFrameworkDirectoryEntry
   private octokit: Octokit
   private githubEntry: SingleFile
 
   private readonly mutex = new Mutex()
 
-  constructor(
+  public constructor(
     parent: StorageFrameworkDirectoryEntry,
     fullPath: string,
     name: string,
@@ -35,8 +35,6 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
     this.fullPath = fullPath
     this.name = name
     this.octokit = octokit
-
-    console.log(this)
   }
 
   /**
@@ -44,7 +42,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
    * @returns {SFFile} on success
    * @returns {SFError} on error
    */
-  read(): Result<SFFile, SFError> {
+  public read(): Result<SFFile, SFError> {
     return new Result(async (result) => {
       await this.getGithubFile(this.fullPath)
       result(
@@ -60,7 +58,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
    * @param {File} file
    * @returns {SFError} on error
    */
-  save(file: File): OkOrError<SFError> {
+  public save(file: File): OkOrError<SFError> {
     console.log(file)
     return new Result(async (resolve, reject) => {
       this.octokit
@@ -89,7 +87,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
    * @returns {StorageFrameworkDirectoryEntry} on success
    * @returns {SFError} on error
    */
-  getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
+  public getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve, reject) => {
       if (this.parent) {
         resolve(this.parent)
@@ -103,7 +101,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
    * Removes file
    * @returns {SFError} on error
    */
-  remove(): OkOrError<SFError> {
+  public remove(): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       await this.mutex.apply(async () => {
         try {
@@ -123,16 +121,15 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
    * @param {StorageFrameworkDirectoryEntry} directory
    * @returns {SFError} on error
    */
-  moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
+  public moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       await this.mutex.apply(async () => {
         try {
           await this.getGithubFile(this.fullPath)
 
-          const fileName = this.fullPath.split('/').pop()
           const newFullPathOfFile = directory.isRoot
-            ? fileName
-            : directory.fullPath + '/' + fileName
+            ? this.name
+            : directory.fullPath + '/' + this.name
           await this.createGithubFile(
             newFullPathOfFile,
             this.githubEntry.content
@@ -153,7 +150,7 @@ export class GithubFileEntry implements StorageFrameworkFileEntry {
    * @param {string} name
    * @returns {SFError} on error
    */
-  rename(name: string): OkOrError<SFError> {
+  public rename(name: string): OkOrError<SFError> {
     return new Result(async (resolve, reject) => {
       await this.mutex.apply(async () => {
         try {

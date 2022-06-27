@@ -5,45 +5,48 @@ import type {
   StorageFrameworkDirectoryEntry,
   StorageFrameworkEntry
 } from '../StorageFrameworkEntry'
-import {
+import type {
   ObservableStorageFrameworkFileEntry,
   StorageFrameworkFileEntry
 } from '../StorageFrameworkFileEntry'
 import { Result, type OkOrError } from '../utilities'
 import { writable, type Readable, type Writable } from '../utilities/stores'
 
+/**
+ * Base abstract decorator
+ */
 abstract class ReactivityDecorator<E extends StorageFrameworkEntry>
   implements StorageFrameworkEntry
 {
-  parent: ReactivityDirDecorator | null
-  wrappedEntry: E
+  protected parent: ReactivityDirDecorator | null
+  protected wrappedEntry: E
 
-  constructor(parent: ReactivityDirDecorator | null, wrappedEntry: E) {
+  public constructor(parent: ReactivityDirDecorator | null, wrappedEntry: E) {
     this.parent = parent
     this.wrappedEntry = wrappedEntry
   }
 
-  get fullPath(): string {
+  public get fullPath(): string {
     return this.wrappedEntry.fullPath
   }
 
-  get name(): string {
+  public get name(): string {
     return this.wrappedEntry.name
   }
 
-  getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
+  public getParent(): Result<StorageFrameworkDirectoryEntry, SFError> {
     return new Result((resolve) => {
       resolve(this.parent)
     })
   }
 
-  rename(name: string): OkOrError<SFError> {
+  public rename(name: string): OkOrError<SFError> {
     return this.wrappedEntry.rename(name).then(() => {
       this.parent.notifyChildListeners()
     })
   }
 
-  moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
+  public moveTo(directory: StorageFrameworkDirectoryEntry): OkOrError<SFError> {
     const dir = directory as ReactivityDirDecorator
     return this.wrappedEntry.moveTo(dir.wrappedEntry).then(() => {
       this.parent.removeChild(this)
@@ -52,7 +55,7 @@ abstract class ReactivityDecorator<E extends StorageFrameworkEntry>
     })
   }
 
-  remove(): OkOrError<SFError> {
+  public remove(): OkOrError<SFError> {
     return this.wrappedEntry.remove().then(() => {
       this.parent.removeChild(this)
     })
@@ -68,9 +71,9 @@ export class ReactivityFileDecorator
   extends ReactivityDecorator<StorageFrameworkFileEntry>
   implements ObservableStorageFrameworkFileEntry
 {
-  data: Writable<SFFile> | null
+  private data: Writable<SFFile> | null
 
-  watchContent(): Result<Readable<SFFile>, SFError> {
+  public watchContent(): Result<Readable<SFFile>, SFError> {
     if (this.data == null) {
       return this.wrappedEntry.read().then((file) => {
         this.data = writable(file)
@@ -86,33 +89,33 @@ export class ReactivityFileDecorator
   // ##################################################
   // # StorageFrameworkFileEntry
 
-  read(): Result<SFFile, SFError> {
+  public read(): Result<SFFile, SFError> {
     return this.watchContent().then((o) => o.get())
   }
 
-  update(file: File): OkOrError<SFError> {
+  public update(file: File): OkOrError<SFError> {
     return this.wrappedEntry.update(file).then(() => {
       void duplicateFile(file).then((duplicate) => this.data.set(duplicate))
     })
   }
 
-  save(file: File): OkOrError<SFError> {
+  public save(file: File): OkOrError<SFError> {
     return this.wrappedEntry.save(file)
   }
 
-  get isReadonly(): false {
+  public get isReadonly(): false {
     return this.wrappedEntry.isReadonly
   }
 
-  get wasModified(): boolean {
+  public get wasModified(): boolean {
     return this.wrappedEntry.wasModified
   }
 
-  get isDirectory(): false {
+  public get isDirectory(): false {
     return false
   }
 
-  get isFile(): true {
+  public get isFile(): true {
     return true
   }
 
@@ -126,7 +129,7 @@ export class ReactivityDirDecorator
 {
   private children: Writable<StorageFrameworkEntry[]> | null = null
 
-  watchChildren(): Result<Readable<StorageFrameworkEntry[]>, SFError> {
+  public watchChildren(): Result<Readable<StorageFrameworkEntry[]>, SFError> {
     if (this.children == null) {
       return this.wrappedEntry.getChildren().then((children) => {
         this.children = writable(children.map(this.decorateEntry))
@@ -143,11 +146,11 @@ export class ReactivityDirDecorator
   // ##################################################
   // # StorageFrameworkDirectoryEntry
 
-  getChildren(): Result<StorageFrameworkEntry[], SFError> {
+  public getChildren(): Result<StorageFrameworkEntry[], SFError> {
     return this.watchChildren().then((observable) => observable.get())
   }
 
-  createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
+  public createFile(name: string): Result<StorageFrameworkFileEntry, SFError> {
     return this.wrappedEntry.createFile(name).then((entry) => {
       this.appendChild(this.decorateEntry(entry))
 
@@ -155,7 +158,7 @@ export class ReactivityDirDecorator
     })
   }
 
-  createDirectory(
+  public createDirectory(
     name: string
   ): Result<StorageFrameworkDirectoryEntry, SFError> {
     return this.wrappedEntry.createDirectory(name).then((entry) => {
@@ -165,22 +168,22 @@ export class ReactivityDirDecorator
     })
   }
 
-  get isRoot(): boolean {
+  public get isRoot(): boolean {
     return this.wrappedEntry.isRoot
   }
 
-  get isDirectory(): true {
+  public get isDirectory(): true {
     return true
   }
 
-  get isFile(): false {
+  public get isFile(): false {
     return false
   }
 
   // ##################################################
   // # ADDITIONAL METHODS
 
-  appendChild(child: ReactivityDecorator<any>): void {
+  public appendChild(child: ReactivityDecorator<any>): void {
     this.children.update((children) => {
       children.push(child)
       child.parent = this
@@ -188,15 +191,17 @@ export class ReactivityDirDecorator
     })
   }
 
-  removeChild(child: StorageFrameworkEntry): void {
+  public removeChild(child: StorageFrameworkEntry): void {
     this.children.update((c) => c.filter((n) => n !== child))
   }
 
-  notifyChildListeners(): void {
+  public notifyChildListeners(): void {
     this.children.update((c) => c)
   }
 
-  decorateEntry(entry: StorageFrameworkEntry): ReactivityDecorator<any> {
+  private decorateEntry(
+    entry: StorageFrameworkEntry
+  ): ReactivityDecorator<any> {
     if (entry.isDirectory)
       return new ReactivityDirDecorator(
         this,

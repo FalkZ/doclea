@@ -49,12 +49,14 @@ if (window.location.hash === '#' + guid) {
  * Contains all methods for GithubFileSystem
  */
 export class GithubFileSystem implements StorageFrameworkProvider {
-  public readonly isSignedIn: boolean
-  private token
-
   public static owner: string
   public static repo: string
-  constructor({
+  public readonly isSignedIn: boolean = false
+  private token: string | null = null
+
+  private octokit: Octokit
+
+  public constructor({
     clientId,
     clientSecret
   }: {
@@ -72,7 +74,7 @@ export class GithubFileSystem implements StorageFrameworkProvider {
   /**
    * Runs authentication process of github
    */
-  authenticate() {
+  public authenticate(): void {
     const params = new URLSearchParams({
       client_id: GithubFileSystem.client_id,
       redirect_uri: `http://127.0.0.1:3000#${guid}`,
@@ -84,17 +86,15 @@ export class GithubFileSystem implements StorageFrameworkProvider {
     console.log('never called')
   }
 
-  octokit: Octokit
-
   /**
    * Opens github entry
    * @param {string} url to github repo
    * @returns {StorageFrameworkEntry} on success
    * @returns {SFError} on error
    */
-  open(githubUrl: string): Result<StorageFrameworkEntry, SFError> {
-    let githubPathFragments = parseUrl(githubUrl).pathFragments
-    let fragmentSize = githubPathFragments.length
+  public open(githubUrl: string): Result<StorageFrameworkEntry, SFError> {
+    const githubPathFragments = parseUrl(githubUrl).pathFragments
+    const fragmentSize = githubPathFragments.length
     GithubFileSystem.repo = githubPathFragments[fragmentSize - 1]
     GithubFileSystem.owner = githubPathFragments[fragmentSize - 2]
 
