@@ -25,7 +25,10 @@
     <Pane>
       <div class="milkdownContainer">
         {#if $selectedFile}
-          <Milkdown selectedFile={$selectedFile} />
+          <Milkdown
+            selectedFile={$selectedFile}
+            on:action={(a) => editingState.onAction(a)}
+          />
         {:else}
           select a file to start editing
         {/if}

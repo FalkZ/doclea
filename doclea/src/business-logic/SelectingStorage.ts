@@ -71,8 +71,9 @@ export class SelectingStorage extends AbstractState<
       return new LocalFileSystem()
     } else if (url.startsWith('https://github.com')) {
       return new GithubFileSystem({
-        clientId: 'b0febf46067600eed6e5',
-        clientSecret: '228480a8a7eae9aed8299126211402f47c488013'
+        clientId: import.meta.env.DEV
+          ? 'b0febf46067600eed6e5'
+          : '7325a99875c7ef5089a3'
       })
     } else {
       return new SolidFileSystem()

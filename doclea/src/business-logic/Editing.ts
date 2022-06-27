@@ -7,7 +7,7 @@ import type {
   StorageFrameworkEntry
 } from 'storage-framework'
 
-import { type Readable, type Writable, writable } from 'svelte/store'
+import { type Readable, type Writable, writable, get } from 'svelte/store'
 import type { AppStateMachine, Controller } from './Controller'
 import { MessageType } from './MessageTypes'
 import { ErrorMessage, AddActionListener } from './decorators'
@@ -114,11 +114,27 @@ export class Editing
    * Closes the editor with a dispatch method
    */
 
-  //@ErrorMessage('Failed to open storage selection')
+  // @ErrorMessage('Failed to open storage selection')
   @AddActionListener(ActionType.OpenStorageSelection)
   public closeEditor(t): void {
-    console.log(this, t, arguments)
     window.location.hash = ''
     this.dispatchEvent(EditorEventType.CloseEditor)
+  }
+
+  @AddActionListener(ActionType.Save)
+  public async saveEntry(): void {
+    try {
+      await get(this.selectedFile).saveContent()
+      this.controller.showMessage({
+        type: MessageType.Info,
+        message: 'Successfully saved file'
+      })
+    } catch (error) {
+      console.error(error)
+      this.controller.showMessage({
+        type: MessageType.Error,
+        message: 'Failed to save file'
+      })
+    }
   }
 }

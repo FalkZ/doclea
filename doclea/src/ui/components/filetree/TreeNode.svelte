@@ -79,7 +79,7 @@
     setTimeout(() => target.focus())
   }
 
-  const { wasModified } = entry
+  // const { wasModified } = entry
 </script>
 
 {#if entry.isFile}
@@ -92,7 +92,7 @@
     }}
   >
     <File />
-    {#if $entryOnRenaming !== entry}
+    {#if true}
       <span>
         {entry.name}
       </span>
@@ -108,9 +108,9 @@
         value={entry.name}
       />
     {/if}
-    {#if $wasModified}
+    <!-- {#if $wasModified}
       <span class="mod">•</span>
-    {/if}
+    {/if} -->
   </div>
 {:else}
   <div

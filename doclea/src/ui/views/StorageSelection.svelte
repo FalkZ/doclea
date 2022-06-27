@@ -23,7 +23,7 @@
 
 <div class="backdrop" />
 <div class="plane">
-  <div class="close"><X /></div>
+  <!-- <div class="close"><X /></div> -->
 
   <h1>{@html svg}oclea</h1>
   <p>select a storage location</p>
@@ -37,28 +37,28 @@
     />
 
     <p>
-      <Button
+      <!-- <Button
         inline={true}
         on:click={() => selectingStorageState.open(value)}
         active={$isOpenButtonActive && isValidSolidUrl}
         ><Hexagon /> Solid</Button
       >
-      or
+      or -->
       <Button
         inline={true}
         on:click={() => selectingStorageState.open(value)}
         active={$isOpenButtonActive && isValidGithubUrl}
         ><BrandGithub /> GitHub</Button
       >
+      or <Button
+        inline={true}
+        on:click={() => selectingStorageState.open()}
+        active={$isOpenButtonActive}><Folder /> open local folder</Button
+      >
     </p>
   </div>
   <hr />
-
-  <Button
-    inline={true}
-    on:click={() => selectingStorageState.open()}
-    active={$isOpenButtonActive}><Folder /> open local folder</Button
-  >
+  BETA
 </div>
 
 <style>

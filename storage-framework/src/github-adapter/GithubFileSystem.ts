@@ -12,8 +12,6 @@ import type { SFProviderAuth } from '../lib/new-interface/SFProvider'
 import { Signal } from './Signal'
 import { GitHubAPI } from './GithubApi'
 
-const guid = 'github-auth-reiupkvhldwe'
-
 const STARTED_GITHUB_AUTH = 'STARTED_GITHUB_AUTH'
 const TOKEN = 'TOKEN'
 
@@ -113,10 +111,16 @@ export class GithubFileSystem implements SFProviderAuth {
       if (hasSearchParam('code')) {
         const code = getAndRemoveSearchParam('code')
 
+        const redirectUri = (
+          window.location.origin +
+          window.location.pathname +
+          window.location.hash
+        ).replace('localhost', '127.0.0.1')
+
         const params = new URLSearchParams({
-          client_id: 'b0febf46067600eed6e5',
+          client_id: this.clientId,
           // client_secret: '228480a8a7eae9aed8299126211402f47c488013',
-          redirect_uri: `http://127.0.0.1:3000`,
+          redirect_uri: redirectUri,
           code: code
         })
 

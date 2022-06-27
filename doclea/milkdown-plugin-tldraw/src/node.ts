@@ -56,6 +56,7 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
             if (!(dom instanceof HTMLElement)) {
               throw new Error()
             }
+
             return {
               value: dom.dataset.url,
               identity: dom.id
@@ -150,6 +151,7 @@ export const tldrawNode = createNode<string, Options>((utils, options) => {
           image.setUrl(src)
 
           rendered.dataset.url = src
+          node.attrs.value = src
 
           innerEditor.closeEditor()
           rendered.classList.remove('ProseMirror-selectednode')

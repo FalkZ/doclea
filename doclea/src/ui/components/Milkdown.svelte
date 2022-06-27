@@ -30,8 +30,12 @@
   import type { StorageFrameworkFileEntry } from 'storage-framework/src/lib/StorageFrameworkEntry'
   import { Slice } from '@milkdown/prose'
   import materialFontUrl from 'material-icons/iconfont/material-icons.css?url'
+  import { ActionType, dispatchAction } from '@src/business-logic/actions'
+  import { createEventDispatcher } from 'svelte'
 
   export let selectedFile: StorageFrameworkFileEntry
+
+  const dispatch = createEventDispatcher()
 
   let output
 
@@ -129,8 +133,9 @@
       .then(() => {
         if (!selectedFile.isReadonly)
           document.querySelector('[title="save"]').onclick = () => {
-            console.log('start saving')
-            selectedFile.saveContent()
+            dispatch('action', {
+              type: ActionType.Save,
+            })
           }
 
         document.querySelector('[title="download"]').onclick = () => {
@@ -145,7 +150,7 @@
   <link href={materialFontUrl} rel="stylesheet" />
 </svelte:head>
 
-<div use:editor />
+<div use:editor on:action />
 
 <style>
   :global(.milkdown-menu) {
